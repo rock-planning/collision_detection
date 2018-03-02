@@ -38,7 +38,7 @@
 #include <fcl/broadphase/broadphase.h>
 */
 
-namespace trajectory_optimization
+namespace collision_detection
 {
 
 #ifdef USE_BOOST_SHARED_PTR
@@ -66,10 +66,12 @@ public:
 
 };
 
-class CollisionDetection: public AbstractCollisionDetection
+class FCLCollisionDetection: public AbstractCollisionDetection
 {
 
 private:
+    void registerCollisionObjectToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, shared_ptr< fcl::CollisionObject<double> > &collision_object );
+  
     typedef std::pair <std::string , shared_ptr<fcl::CollisionObject<double> > > link_name_CollisionObject_entry;
     typedef std::multimap <std::string , shared_ptr<fcl::CollisionObject<double>> > link_names_CollisionObjects;
     MeshLoader mesh_loader;
@@ -77,11 +79,12 @@ private:
     link_names_CollisionObjects link_names_CollisionObjects_Container;
     std::vector<fcl::Contact<double>> self_collision_contacts;
     std::vector<fcl::Contact<double>> collision_contacts_against_external_collision_manager;
+    Eigen::Vector3d scale_mesh_;
 
 public:
 
-    CollisionDetection();
-    ~CollisionDetection();
+    FCLCollisionDetection();
+    ~FCLCollisionDetection();
 
     std::vector<fcl::Contact<double>> &getSelfContacts();
     std::vector<fcl::Contact<double>> &getContactsAgainstExternalCollisionManager();
@@ -92,25 +95,21 @@ public:
     void getCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &collision_manager);
 
 
-    void registerBoxToCollisionObjectManager(const double x, const double y, const double z, std::string link_name ,
-                                             const fcl::Quaterniond collision_object_quaternion_orientation,const fcl::Vector3d collision_object_translation ,const double link_padding );
-
-
-    void registerMeshToCollisionObjectManager(double &scale_for_mesha_files_x, double &scale_for_mesha_files_y ,
-			    double &scale_for_mesha_files_z  , std::string &link_name ,const fcl::Quaterniond &collision_object_quaternion_orientation,
-			    const fcl::Vector3d &collision_object_translation ,std::vector<fcl::Triangle> &triangles, std::vector<fcl::Vector3d> &vertices);
+    void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
+                                             const base::Pose &collision_object_pose, const double &link_padding );
+   
+    void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
+					const base::Pose &collision_object_pose, const double &link_padding);
     
+    void registerMeshToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, 
+					const std::vector<fcl::Triangle> &triangles, const std::vector<fcl::Vector3d> &vertices);
     
-    void registerMeshToCollisionObjectManager(std::string abs_path_to_mesh_file, double scale_for_mesha_files_x, double scale_for_mesha_files_y ,double scale_for_mesha_files_z  , std::string link_name ,const fcl::Quaterniond collision_object_quaternion_orientation,
-                                              const fcl::Vector3d collision_object_translation ,const double link_padding);
+
+    void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
+						  const base::Pose &collision_object_pose ,const double &link_padding );
 
 
-    void registerCylinderToCollisionObjectManager(const double radius, const double length, std::string link_name ,
-                                             const fcl::Quaterniond collision_object_quaternion_orientation,const fcl::Vector3d collision_object_translation ,const double link_padding );
-
-
-    void registerSphereToCollisionObjectManager(const double radius, std::string link_name , const fcl::Quaterniond collision_object_quaternion_orientation
-                                                ,const fcl::Vector3d collision_object_translation ,const double link_padding );
+    void registerSphereToCollisionManager(const double &radius, const std::string &link_name , const base::Pose &collision_object_pose, const double &link_padding );
 
 
 

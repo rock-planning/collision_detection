@@ -1,6 +1,6 @@
 #include <fcl_wrapper/CollisionObjectAssociatedData.hpp>
 
-namespace trajectory_optimization
+namespace collision_detection
 {
 
 CollisionObjectAssociatedData::CollisionObjectAssociatedData()
@@ -13,7 +13,7 @@ std::string& CollisionObjectAssociatedData::getID()
     return this->id;
 }
 
-void CollisionObjectAssociatedData::setID(std::string &id)
+void CollisionObjectAssociatedData::setID(const std::string &id)
 {
     this->id=id;
 }

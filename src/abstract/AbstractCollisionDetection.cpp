@@ -1,6 +1,6 @@
 #include <abstract/AbstractCollisionDetection.hpp>
 
-namespace trajectory_optimization
+namespace collision_detection
 {
 
 AbstractCollisionDetection::AbstractCollisionDetection()

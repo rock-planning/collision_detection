@@ -8,31 +8,31 @@
 #include <fcl_wrapper/FCLCollisionDetection.hpp>
 
 
-/** \file CollisionDetector.hpp
+/** \file CollisionDetection.hpp
 *    \brief Factory class for the AbstractCollisionDetection class.
 */
 
-namespace trajectory_optimization
+namespace collision_detection
 {
 
 /**
  * @class CollisionDetector
  * @brief Provides a factory class for the AbstractCollisionDetection class.
  */
-class CollisionDetector
+class CollisionDetection
 {
 
 public:
     /**
     * @brief  constructor
     */
-    CollisionDetector();
+    CollisionDetection();
     /**
     * @brief  destructor
     */
-    ~CollisionDetector();
+    ~CollisionDetection();
 
-     AbstractCollisionDetection* getCollisionDetector(trajectory_optimization::CollisionLibrary library);
+     AbstractCollisionPtr getCollisionDetector(collision_detection::CollisionLibrary library);
 
 };
 

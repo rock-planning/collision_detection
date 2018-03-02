@@ -62,7 +62,7 @@ add_library(collision_detection SHARED
 target_link_libraries(collision_detection  abstract_collision_detection fcl_wrapper)
 
 
-install(DIRECTORY include/ DESTINATION include/collision_detection)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/collision_detection)
 install(TARGETS collision_detection DESTINATION lib)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig) 
 

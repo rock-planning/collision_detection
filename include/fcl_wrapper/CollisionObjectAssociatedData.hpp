@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-namespace trajectory_optimization
+namespace collision_detection
 {
 
 class CollisionObjectAssociatedData
@@ -14,7 +14,7 @@ private:
 public:
     CollisionObjectAssociatedData();
     std::string& getID();
-    void setID(std::string &id);
+    void setID(const std::string &id);
 
 };
 
@@ -42,7 +42,7 @@ enum primitiveObjectTypes
 struct primitiveObject
 {
     primitiveObject():
-        primitive_type(trajectory_optimization::CYLINDER),
+        primitive_type(collision_detection::CYLINDER),
         radius(0.0), height(0.0),
         dimensions(3,0) {}
 
@@ -56,6 +56,6 @@ struct primitiveObject
     std::vector<double> dimensions;
 };
 
-}// end namespace trajectory_optimization
+}// end namespace collision_detection
 #endif // COLLISIONOBJECTASSOCIATEDDATA_HPP
 

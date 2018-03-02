@@ -15,7 +15,7 @@
 *    \brief Abstract collision detection header.
 */
 
-namespace trajectory_optimization
+namespace collision_detection
 {
 
 enum CollisionLibrary
@@ -45,7 +45,16 @@ public:
     template <class PointT>
     void registerPointCloudToCollisionManager(const pcl::PointCloud<PointT>& pclCloud,  double octree_resolution, std::string link_name , const base::samples::RigidBodyState &collision_object) ;
 
-    virtual void registerMeshToCollisionManager(std::string abs_path_to_mesh_file, Eigen::Vector3d mesh_scale, std::string link_name, const base::samples::RigidBodyState &collision_object, const double link_padding) = 0;
+    virtual void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
+						const base::Pose &collision_object_pose, const double &link_padding) = 0;
+    
+    virtual void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name,
+                                             const base::Pose &collision_object_pose, const double &link_padding ) = 0;
+    
+    virtual void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
+						  const base::Pose &collision_object_pose ,const double &link_padding) = 0;
+
+    virtual void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
     virtual void updateCollisionObjectTransform(std::string link_name, const base::samples::RigidBodyState collision_objec) = 0;
     
@@ -53,7 +62,6 @@ public:
     
     static std::vector<srdf::Model::DisabledCollision> disabled_collisions_;
 
-private:
     void setDisabledCollisionPairs(std::vector<srdf::Model::DisabledCollision> &disabled_collisions);
 
     void addDisabledCollisionPairs(srdf::Model::DisabledCollision &disabled_collision);
@@ -69,6 +77,8 @@ private:
 
     std::string remove_link_;
 };
+
+typedef std::shared_ptr<AbstractCollisionDetection> AbstractCollisionPtr;
 
 };
 

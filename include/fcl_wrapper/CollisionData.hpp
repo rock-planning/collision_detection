@@ -4,7 +4,7 @@
 #include "CollisionObjectAssociatedData.hpp"
 #include <fcl/fcl.h>
 
-namespace trajectory_optimization
+namespace collision_detection
 {
 
 
@@ -26,16 +26,16 @@ struct EnvironmentParameters
 struct ModelObject
 {
     ModelObject():
-        operation(trajectory_optimization::RESET),
-        model_type(trajectory_optimization::UNDEFINED),
+        operation(collision_detection::RESET),
+        model_type(collision_detection::UNDEFINED),
         object_path(""), object_name("") {}
 
     // this variable says whether the model object should be added or removed
-    trajectory_optimization::operation operation;
+    collision_detection::operation operation;
     // model type: primitives or mesh
-    trajectory_optimization::modelTypes model_type;
+    collision_detection::modelTypes model_type;
     // primitive types: box, cylinder, sphere
-    trajectory_optimization::primitiveObject primitive_object;
+    collision_detection::primitiveObject primitive_object;
     // mesh file path
     std::string object_path;
     // object name, please give an object name
@@ -82,5 +82,5 @@ struct DistanceData
     bool done;
 };
 
-}// end namespace trajectory_optimization
+}// end namespace collision_detection
 #endif // COLLISIONDATA_HPP

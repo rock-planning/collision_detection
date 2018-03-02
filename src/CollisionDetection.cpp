@@ -1,18 +1,18 @@
 #include "CollisionDetection.hpp"
 
-namespace trajectory_optimization
+namespace collision_detection
 {
 
-CollisionDetector::CollisionDetector()
+CollisionDetection::CollisionDetection()
 {}
 
-CollisionDetector::~CollisionDetector()
+CollisionDetection::~CollisionDetection()
 {}
 
 
-AbstractCollisionDetection* CollisionDetector::getCollisionDetector(trajectory_optimization::CollisionLibrary library)
+AbstractCollisionPtr CollisionDetection::getCollisionDetector(collision_detection::CollisionLibrary library)
 {
-	AbstractCollisionDetection *collision_detector = NULL;
+	AbstractCollisionPtr collision_detector = NULL;
 
 	switch(library)
 	{

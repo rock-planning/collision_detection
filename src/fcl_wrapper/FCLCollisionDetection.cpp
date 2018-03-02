@@ -2,7 +2,7 @@
 #include <algorithm>
 
 
-namespace trajectory_optimization
+namespace collision_detection
 {
 
 /////////////////////////////////////////////////////out of class variables for defaultCollisionFunction //////////////////////////////////////////////////////////////////
@@ -222,7 +222,7 @@ bool isObjectListedInCollisionObjectAssociatedData(CollisionObjectAssociatedData
 ///////////////////////////////////////////////////////////////End of out of class members and variavbles////////////////////////////////////////////////////////////
 
 ///////////////////////////////////////////////////////////////out of class  function for distance function////////////////////////////////////////////////////////////////////
-bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObject<double>* o2, void* cdata_, fcl::FCL_REAL& dist)
+bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObject<double>* o2, void* cdata_, double& dist)
 {    
 //    #define DEFAULTDISTANCEFUNCTION_LOG
     number_of_time_defaultDistanceFunction_has_been_called++;
@@ -278,12 +278,12 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
 
 ///////////////////////////////////////////////////////////////End of out of class members and variavbles////////////////////////////////////////////////////////////
 
-CollisionDetection::CollisionDetection()
+FCLCollisionDetection::FCLCollisionDetection()
 {
     broad_phase_collision_manager.reset(new fcl::DynamicAABBTreeCollisionManager<double> );
 }
 
-CollisionDetection::~CollisionDetection()
+FCLCollisionDetection::~FCLCollisionDetection()
 {
 
     for(std::size_t i=0;i<vector_of_CollisionObjectAssociatedData_addresses.size();i++)
@@ -294,8 +294,9 @@ CollisionDetection::~CollisionDetection()
     //std::cout<<" link_names_CollisionObjects_Container.size(): "  << link_names_CollisionObjects_Container.size()  <<std::endl;
 }
 
-void CollisionDetection::registerMeshToCollisionObjectManager(std::string abs_path_to_mesh_file, double scale_for_mesha_files_x, double scale_for_mesha_files_y ,double scale_for_mesha_files_z  , std::string link_name ,const fcl::Quaterniond collision_object_quaternion_orientation,
-                                          const fcl::Vector3d collision_object_translation ,const double link_padding)
+
+void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
+					const base::Pose &collision_object_pose, const double &link_padding)
 {
 //        #define registerMeshToCollisionObjectManager_LOG
     #ifdef registerMeshToCollisionObjectManager_LOG
@@ -305,36 +306,15 @@ void CollisionDetection::registerMeshToCollisionObjectManager(std::string abs_pa
     std::vector<fcl::Triangle> triangles;
     std::vector<fcl::Vector3d> vertices;
 
-    scale_for_mesha_files_x=scale_for_mesha_files_x*link_padding;
-    scale_for_mesha_files_y=scale_for_mesha_files_y*link_padding;
-    scale_for_mesha_files_z=scale_for_mesha_files_z*link_padding;
+    scale_mesh_(0) = mesh_scale(0) * link_padding;
+    scale_mesh_(1) = mesh_scale(1) * link_padding;
+    scale_mesh_(2) = mesh_scale(2) * link_padding;
 
-    mesh_loader.extractTrianglesAndVerticesFromMesh(abs_path_to_mesh_file , triangles, vertices , scale_for_mesha_files_x,scale_for_mesha_files_y,scale_for_mesha_files_z);
-    shared_ptr<fcl::BVHModel<fcl::OBBRSS<double> > >  fcl_mesh_ptr(new fcl::BVHModel<fcl::OBBRSS<double>>);
-    fcl_mesh_ptr->beginModel();
-    fcl_mesh_ptr->addSubModel(vertices,triangles);
-    fcl_mesh_ptr->endModel();
-    //fcl::Transform3d mesh_transform3f(collision_object_quaternion_orientation,collision_object_translation);
-
-    //shared_ptr<fcl::CollisionObject<double>>   mesh_collision_object ( new fcl::CollisionObject<double>( fcl_mesh_ptr , mesh_transform3d )  );
-    shared_ptr<fcl::CollisionObject<double>>   mesh_collision_object ( new fcl::CollisionObject<double>( fcl_mesh_ptr )  );
-    mesh_collision_object->setTransform(collision_object_quaternion_orientation, collision_object_translation);
-
-
-
-    CollisionObjectAssociatedData  * collision_object_associated_data(new CollisionObjectAssociatedData);
-    collision_object_associated_data->setID(link_name );
-    mesh_collision_object->setUserData( collision_object_associated_data );
-    vector_of_CollisionObjectAssociatedData_addresses.push_back(collision_object_associated_data);
-    broad_phase_collision_manager->registerObject( mesh_collision_object.get());
-
-
-    link_name_CollisionObject_entry link_name_CollisionObject;
-    link_name_CollisionObject.first=link_name;
-    link_name_CollisionObject.second=mesh_collision_object;
-    link_names_CollisionObjects_Container.insert(link_name_CollisionObject );
-
-
+    mesh_loader.extractTrianglesAndVerticesFromMesh(abs_path_to_mesh_file , triangles, vertices , scale_mesh_(0), scale_mesh_(1), scale_mesh_(2));
+    
+    
+    registerMeshToCollisionManager(link_name, collision_object_pose, triangles, vertices);
+    
 
     return;
 }
@@ -343,16 +323,12 @@ link_name is collision_object_name, in fact we add  number to the end of link na
 wrist_1, wrist_2, wrist_3, wrist_4,....
  
 */
-void CollisionDetection::registerMeshToCollisionObjectManager(double &scale_for_mesha_files_x, double &scale_for_mesha_files_y ,
-			    double &scale_for_mesha_files_z  , std::string &link_name ,const fcl::Quaterniond &collision_object_quaternion_orientation,
-			    const fcl::Vector3d &collision_object_translation ,std::vector<fcl::Triangle> &triangles, std::vector<fcl::Vector3d> &vertices)
+void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, 
+							   const std::vector<fcl::Triangle> &triangles, const std::vector<fcl::Vector3d> &vertices)
 {
 //  #define registerMeshToCollisionObjectManager_LOG
     #ifdef registerMeshToCollisionObjectManager_LOG
     #endif
-
-
-    
 
     
     shared_ptr<fcl::BVHModel<fcl::OBBRSS<double> > >  fcl_mesh_ptr(new fcl::BVHModel<fcl::OBBRSS<double>>);
@@ -361,103 +337,71 @@ void CollisionDetection::registerMeshToCollisionObjectManager(double &scale_for_
     fcl_mesh_ptr->endModel();
     //fcl::Transform3d mesh_transform3f(collision_object_quaternion_orientation,collision_object_translation);
     //shared_ptr<fcl::CollisionObject<double>>   mesh_collision_object ( new fcl::CollisionObject<double>( fcl_mesh_ptr , mesh_transform3f )  );
-    shared_ptr<fcl::CollisionObject<double>>   mesh_collision_object ( new fcl::CollisionObject<double>( fcl_mesh_ptr )  );
-    mesh_collision_object->setTransform(collision_object_quaternion_orientation, collision_object_translation);
-
-
-
-    CollisionObjectAssociatedData  * collision_object_associated_data(new CollisionObjectAssociatedData);
-    collision_object_associated_data->setID(link_name );
-    mesh_collision_object->setUserData( collision_object_associated_data );
-    vector_of_CollisionObjectAssociatedData_addresses.push_back(collision_object_associated_data);
-    broad_phase_collision_manager->registerObject( mesh_collision_object.get());
-
-
-    link_name_CollisionObject_entry link_name_CollisionObject;
-    link_name_CollisionObject.first=link_name;
-    link_name_CollisionObject.second=mesh_collision_object;
-    link_names_CollisionObjects_Container.insert(link_name_CollisionObject );
+    shared_ptr<fcl::CollisionObject<double>> mesh_collision_object_ptr ( new fcl::CollisionObject<double>( fcl_mesh_ptr ) );
+    
+    registerCollisionObjectToCollisionManager(link_name, collision_object_pose, mesh_collision_object_ptr);  
 
     return;
 }
 
-void CollisionDetection::registerBoxToCollisionObjectManager(const double x, const double y, const double z, std::string link_name ,
-                                         const fcl::Quaterniond collision_object_quaternion_orientation,const fcl::Vector3d collision_object_translation ,const double link_padding )
+void FCLCollisionDetection::registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
+							  const base::Pose &collision_object_pose, const double &link_padding )
+    
 {
 
     //std::cout<<"registerBoxToCollisionObjectManager, link_name is: " <<link_name <<std::endl;
-    shared_ptr<fcl::Box<double> > fcl_box_ptr(new fcl::Box<double>(x*link_padding,y*link_padding,z*link_padding));
-    //fcl::Transform3d box_transform3f(collision_object_quaternion_orientation,collision_object_translation);
-    //shared_ptr< fcl::CollisionObject<double>   > box_collision_object_ptr (new fcl::CollisionObject<double>( fcl_box_ptr , box_transform3f  ) ) ;
+    shared_ptr<fcl::Box<double> > fcl_box_ptr(new fcl::Box<double>(box_x*link_padding, box_y*link_padding, box_z*link_padding));
+    
     shared_ptr< fcl::CollisionObject<double>   > box_collision_object_ptr (new fcl::CollisionObject<double>( fcl_box_ptr ) ) ;
-    box_collision_object_ptr->setTransform(collision_object_quaternion_orientation, collision_object_translation);
+    
+    registerCollisionObjectToCollisionManager(link_name, collision_object_pose, box_collision_object_ptr);  
 
-
-    CollisionObjectAssociatedData * collision_object_associated_data(new CollisionObjectAssociatedData) ;
-    collision_object_associated_data->setID(link_name);
-    box_collision_object_ptr->setUserData( collision_object_associated_data );
-    vector_of_CollisionObjectAssociatedData_addresses.push_back(collision_object_associated_data);
-
-    broad_phase_collision_manager->registerObject(box_collision_object_ptr.get());
-    link_name_CollisionObject_entry link_name_CollisionObject;
-    link_name_CollisionObject.first=link_name;
-    link_name_CollisionObject.second=box_collision_object_ptr;
-    link_names_CollisionObjects_Container.insert(link_name_CollisionObject );
 }
-void CollisionDetection::registerCylinderToCollisionObjectManager(const double radius, const double length, std::string link_name ,
-                                         const fcl::Quaterniond collision_object_quaternion_orientation,const fcl::Vector3d collision_object_translation ,const double link_padding )
+void FCLCollisionDetection::registerCylinderToCollisionManager(	const double &radius, const double &length, const std::string &link_name ,
+								const base::Pose &collision_object_pose, const double &link_padding )
 {
     shared_ptr<fcl::Cylinder<double> > fcl_cylinder_ptr(new fcl::Cylinder<double>(radius*link_padding,length*link_padding));
-    //fcl::Transform3d cylinder_transform3f(collision_object_quaternion_orientation,collision_object_translation);
-    //shared_ptr< fcl::CollisionObject<double>   > cylinder_collision_object_ptr (new fcl::CollisionObject<double>( fcl_cylinder_ptr , cylinder_transform3f  ) ) ;
+    
     shared_ptr< fcl::CollisionObject<double>   > cylinder_collision_object_ptr (new fcl::CollisionObject<double>( fcl_cylinder_ptr ) ) ;
-    cylinder_collision_object_ptr->setTransform(collision_object_quaternion_orientation, collision_object_translation);
+    
+    registerCollisionObjectToCollisionManager(link_name, collision_object_pose, cylinder_collision_object_ptr);  
 
-    CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData);
-    collision_object_associated_data->setID(link_name);
-    cylinder_collision_object_ptr->setUserData( collision_object_associated_data );
-    vector_of_CollisionObjectAssociatedData_addresses.push_back(collision_object_associated_data);
-
-
-
-
-    broad_phase_collision_manager->registerObject(cylinder_collision_object_ptr.get());
-    link_name_CollisionObject_entry link_name_CollisionObject;
-    link_name_CollisionObject.first=link_name;
-    link_name_CollisionObject.second=cylinder_collision_object_ptr;
-    link_names_CollisionObjects_Container.insert(link_name_CollisionObject );
 }
-void CollisionDetection::registerSphereToCollisionObjectManager(const double radius, std::string link_name , const fcl::Quaterniond collision_object_quaternion_orientation
-                                            ,const fcl::Vector3d collision_object_translation ,const double link_padding )
+void FCLCollisionDetection::registerSphereToCollisionManager(const double &radius, const std::string &link_name , const base::Pose &collision_object_pose, const double &link_padding )
 {
-    shared_ptr<fcl::Sphere<double> > fcl_sphere_ptr(new fcl::Sphere<double> (radius*link_padding));
-    //fcl::Transform3d sphere_transform3f(collision_object_quaternion_orientation,collision_object_translation);
-    //shared_ptr< fcl::CollisionObject<double>   > sphere_collision_object_ptr (new fcl::CollisionObject<double>( fcl_sphere_ptr , sphere_transform3f  ) ) ;
+    shared_ptr<fcl::Sphere<double> > fcl_sphere_ptr(new fcl::Sphere<double> (radius*link_padding));   
+    
     shared_ptr< fcl::CollisionObject<double>   > sphere_collision_object_ptr (new fcl::CollisionObject<double>( fcl_sphere_ptr  ) ) ;
-    sphere_collision_object_ptr->setTransform(collision_object_quaternion_orientation, collision_object_translation);
+    
+    registerCollisionObjectToCollisionManager(link_name, collision_object_pose, sphere_collision_object_ptr);  
 
+}
+
+void FCLCollisionDetection::registerCollisionObjectToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, shared_ptr< fcl::CollisionObject<double> > &collision_object )
+{
+    collision_object->setTransform(collision_object_pose.orientation, collision_object_pose.position);
+    
     CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
     collision_object_associated_data->setID(link_name);
-    sphere_collision_object_ptr->setUserData( collision_object_associated_data );
+    collision_object->setUserData( collision_object_associated_data );
     vector_of_CollisionObjectAssociatedData_addresses.push_back(collision_object_associated_data);
 
 
-    broad_phase_collision_manager->registerObject(sphere_collision_object_ptr.get());
+    broad_phase_collision_manager->registerObject(collision_object.get());
     link_name_CollisionObject_entry link_name_CollisionObject;
-    link_name_CollisionObject.first=link_name;
-    link_name_CollisionObject.second=sphere_collision_object_ptr;
+    link_name_CollisionObject.first  = link_name;
+    link_name_CollisionObject.second = collision_object;
     link_names_CollisionObjects_Container.insert(link_name_CollisionObject );
 }
-
 /*
-void CollisionDetection::registerOctomapOctree()
+void FCLCollisionDetection::registerOctomapOctree()
 {
     fcl::OcTree* fcl_tree = new fcl::OcTree(shared_ptr<const octomap::OcTree>(generateOcTree()));
     fcl::CollisionObject<double> tree_obj((shared_ptr<fcl::CollisionGeometry>(fcl_tree)));
 
 }
 
-void CollisionDetection::registerFclOctree()
+void FCLCollisionDetection::registerFclOctree()
 {
     fcl::OcTree* fcl_tree = new fcl::OcTree(shared_ptr<const octomap::OcTree>(generateOcTree()));
     fcl::CollisionObject<double> tree_obj((shared_ptr<fcl::CollisionGeometry>(fcl_tree)));
@@ -465,20 +409,20 @@ void CollisionDetection::registerFclOctree()
 }
 
 
-void CollisionDetection::registerOctamapPointCloud(octomap::point3d origin,octomap::Pointcloud cloud)
+void FCLCollisionDetection::registerOctamapPointCloud(octomap::point3d origin,octomap::Pointcloud cloud)
 {
 
 }
 
 template <class PointT>
-void CollisionDetection::registerPCLPointCloud(const pcl::PointCloud<PointT>& pclCloud, Pointcloud& octomap::octomapCloud)
+void FCLCollisionDetection::registerPCLPointCloud(const pcl::PointCloud<PointT>& pclCloud, Pointcloud& octomap::octomapCloud)
 {
 
 }
 */
 
 
-void CollisionDetection::removeSelfCollisionObject(const std::string &collision_object_name)
+void FCLCollisionDetection::removeSelfCollisionObject(const std::string &collision_object_name)
 {
     //find the collision object -
     link_names_CollisionObjects::iterator it=link_names_CollisionObjects_Container.find(collision_object_name+"_0");
@@ -490,7 +434,7 @@ void CollisionDetection::removeSelfCollisionObject(const std::string &collision_
     removeObject4mCollisionContainer(collision_object_name);
 }
 
-void CollisionDetection::removeWorldCollisionObject(const std::string &collision_object_name)
+void FCLCollisionDetection::removeWorldCollisionObject(const std::string &collision_object_name)
 {
     //find the collision object -
     link_names_CollisionObjects::iterator it = link_names_CollisionObjects_Container.find(collision_object_name);
@@ -508,7 +452,7 @@ void CollisionDetection::removeWorldCollisionObject(const std::string &collision
     removeObject4mCollisionContainer(collision_object_name);
 }
 
-void CollisionDetection::removeObject4mCollisionContainer(const std::string &collision_object_name)
+void FCLCollisionDetection::removeObject4mCollisionContainer(const std::string &collision_object_name)
 {
     remove_collision_object_4m_collisionManager = collision_object_name;
 
@@ -522,7 +466,7 @@ void CollisionDetection::removeObject4mCollisionContainer(const std::string &col
 }
 
 
-void CollisionDetection::updateCollisionObjectTransform(std::string link_name ,const fcl::Quaterniond collision_object_quaternion_orientation,const fcl::Vector3d collision_object_translation)
+void FCLCollisionDetection::updateCollisionObjectTransform(std::string link_name ,const fcl::Quaterniond collision_object_quaternion_orientation,const fcl::Vector3d collision_object_translation)
 {
     link_names_CollisionObjects::iterator it=link_names_CollisionObjects_Container.find(link_name);
     //fcl::Transform3d new_transform3f(collision_object_quaternion_orientation,collision_object_translation);
@@ -532,13 +476,13 @@ void CollisionDetection::updateCollisionObjectTransform(std::string link_name ,c
     broad_phase_collision_manager->update(it->second.get());
 }
 
-bool CollisionDetection::IsStateIsValid(int num_max_contacts)
+bool FCLCollisionDetection::IsStateIsValid(int num_max_contacts)
 {
 
 //#define StateIsInCollision_LOG
 
     #ifdef StateIsInCollision_LOG
-    std::cout<<"--------------- CollisionDetection: StateIsInCollision ----------"<<std::endl;
+    std::cout<<"--------------- FCLCollisionDetection: StateIsInCollision ----------"<<std::endl;
     #endif
     CollisionData collision_data;
 
@@ -569,7 +513,7 @@ bool CollisionDetection::IsStateIsValid(int num_max_contacts)
 //        std::cout<<self_collision_contacts.at(i).o1->aabb_center.data[2]   <<std::endl;
 
     }
-    std::cout<<"--------  End of IsStateIsValid in CollisionDetection -------"<<std::endl;
+    std::cout<<"--------  End of IsStateIsValid in FCLCollisionDetection -------"<<std::endl;
     #endif
 
     if (number_of_collision_between_links==0)
@@ -583,12 +527,12 @@ bool CollisionDetection::IsStateIsValid(int num_max_contacts)
 
 }
 
-bool CollisionDetection::checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts)
+bool FCLCollisionDetection::checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts)
 {
 //    #define CHECKCOLLISIONAGAINSTEXTERNALCOLLISIONMANAGER_LOG
 
     #ifdef CHECKCOLLISIONAGAINSTEXTERNALCOLLISIONMANAGER_LOG
-         std::cout<<"------------------ CollisionDetection: CHECKCOLLISIONAGAINSTEXTERNALCOLLISION ------------- "<<std::endl;
+         std::cout<<"------------------ FCLCollisionDetection: CHECKCOLLISIONAGAINSTEXTERNALCOLLISION ------------- "<<std::endl;
     #endif
     CollisionData collision_data;
     collision_data.request.num_max_contacts=num_max_contacts;
@@ -633,7 +577,7 @@ bool CollisionDetection::checkCollisionAgainstExternalCollisionManager(shared_pt
 }
 
 /**/
-bool CollisionDetection::DistanceOfClosestObstacleToRobot(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager,DistanceData &distance_data)
+bool FCLCollisionDetection::DistanceOfClosestObstacleToRobot(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager,DistanceData &distance_data)
 {
     this->broad_phase_collision_manager->distance( external_broad_phase_collision_manager.get(), &distance_data, defaultDistanceFunction);
     if(distance_data.result.min_distance==0)
@@ -646,58 +590,58 @@ bool CollisionDetection::DistanceOfClosestObstacleToRobot(shared_ptr<fcl::BroadP
     }
 }
 
-void CollisionDetection::getCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &collision_manager)
+void FCLCollisionDetection::getCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &collision_manager)
 {
     collision_manager=this->broad_phase_collision_manager;
 }
 
 
-shared_ptr<fcl::BroadPhaseCollisionManager<double>> & CollisionDetection::getCollisionManager()
+shared_ptr<fcl::BroadPhaseCollisionManager<double>> & FCLCollisionDetection::getCollisionManager()
 {
     return this->broad_phase_collision_manager;
 }
 
 
-int CollisionDetection::numberOfObjectsInCollisionManger()
+int FCLCollisionDetection::numberOfObjectsInCollisionManger()
 {
     std::vector<fcl::CollisionObject<double>*> objs;
     broad_phase_collision_manager->getObjects(objs);
     return objs.size();
 }
 
-std::vector <fcl::CollisionObject<double>*> CollisionDetection::getObjectIncollisionAgainstExternalCollisionManager()
+std::vector <fcl::CollisionObject<double>*> FCLCollisionDetection::getObjectIncollisionAgainstExternalCollisionManager()
 {
     return list_of_collision_objects;
 }
 
-std::vector<fcl::Contact<double>> &CollisionDetection::getContactsAgainstExternalCollisionManager()
+std::vector<fcl::Contact<double>> &FCLCollisionDetection::getContactsAgainstExternalCollisionManager()
 {
     return this->collision_contacts_against_external_collision_manager;
 }
 
-std::vector<fcl::Contact<double>> &CollisionDetection::getSelfContacts()
+std::vector<fcl::Contact<double>> &FCLCollisionDetection::getSelfContacts()
 {
     return this->self_collision_contacts;
 }
 
-std::vector < std::pair<fcl::CollisionObject<double>*,fcl::CollisionObject<double>* > > &CollisionDetection::getSelfCollisionObject()
+std::vector < std::pair<fcl::CollisionObject<double>*,fcl::CollisionObject<double>* > > &FCLCollisionDetection::getSelfCollisionObject()
 {
     return list_of_self_collision_objects;
 }
 
-void CollisionDetection::computeSelfDistanceInfo()
+void FCLCollisionDetection::computeSelfDistanceInfo()
 {
     DistanceData distance_data;
     list_of_self_distance_information.clear();
     this->broad_phase_collision_manager->distance(&distance_data, defaultDistanceFunction);
 }
 
-std::vector< DistanceInformation> &CollisionDetection::getSelfDistanceInfo()
+std::vector< DistanceInformation> &FCLCollisionDetection::getSelfDistanceInfo()
 {
     return list_of_self_distance_information;
 }
 
-void CollisionDetection::printCollisionObject()
+void FCLCollisionDetection::printCollisionObject()
 {
     std::cout<<"The collision object containter contains "<<link_names_CollisionObjects_Container.size()<<" objects with the following names "<<std::endl;
 
@@ -709,11 +653,11 @@ void CollisionDetection::printCollisionObject()
     std::cout<<"---- End of print collision object funtion ------ "<<std::endl;
 }
 
-std::vector< std::pair<std::string, std::string> > CollisionDetection::getCollisionObjectNames()
+std::vector< std::pair<std::string, std::string> > FCLCollisionDetection::getCollisionObjectNames()
 {
    return collision_object_names;
 }
 
-}// end namespace trajectory_optimization
+}// end namespace collision_detection
 
 

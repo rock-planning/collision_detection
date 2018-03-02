@@ -1,12 +1,12 @@
 #include <abstract/MeshLoader.hpp>
-using namespace trajectory_optimization;
+using namespace collision_detection;
 
 MeshLoader::MeshLoader()
 {
 }
 
 
-void MeshLoader::extractTrianglesAndVerticesFromMesh(std::string &abs_path_to_mesh_file, std::vector<fcl::Triangle> &triangles, std::vector<fcl::Vector3d>& vertices, double scale_for_mesha_files_x=1.00, double scale_for_mesha_files_y=1.00, double scale_for_mesha_files_z=1.00 )
+void MeshLoader::extractTrianglesAndVerticesFromMesh(const std::string &abs_path_to_mesh_file, std::vector<fcl::Triangle> &triangles, std::vector<fcl::Vector3d>& vertices, double scale_for_mesha_files_x=1.00, double scale_for_mesha_files_y=1.00, double scale_for_mesha_files_z=1.00 )
 {
 //    #define PRINT_LOG_ASSIMP
     Assimp::Importer assimp_importer;
