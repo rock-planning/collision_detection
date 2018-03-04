@@ -17,7 +17,9 @@ AbstractCollisionPtr CollisionDetection::getCollisionDetector(collision_detectio
 	switch(library)
 	{
 		case FCL:
-		{}
+		{
+		  collision_detector = std::shared_ptr< FCLCollisionDetection>();
+		}
 		default:
 		{
 			std::cout<<"No collision library selected"<<std::endl;

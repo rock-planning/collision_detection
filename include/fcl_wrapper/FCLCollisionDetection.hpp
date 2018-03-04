@@ -57,14 +57,7 @@ namespace collision_detection
 #endif
 
 
-class DistanceInformation
-{
-public:
-    std::string object1;
-    std::string object2;
-    double distance;
 
-};
 
 class FCLCollisionDetection: public AbstractCollisionDetection
 {
@@ -84,7 +77,7 @@ private:
 public:
 
     FCLCollisionDetection();
-    ~FCLCollisionDetection();
+    virtual ~FCLCollisionDetection();
 
     std::vector<fcl::Contact<double>> &getSelfContacts();
     std::vector<fcl::Contact<double>> &getContactsAgainstExternalCollisionManager();

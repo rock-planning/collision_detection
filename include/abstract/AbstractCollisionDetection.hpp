@@ -23,6 +23,13 @@ enum CollisionLibrary
     FCL
 };
 
+struct DistanceInformation
+{
+    std::string object1;
+    std::string object2;
+    double distance;
+};
+
 /**
  * @class AbstractCollisionDetection
  * @brief Provides an abstract interface for collision detection.
@@ -58,6 +65,8 @@ public:
 
     virtual void updateCollisionObjectTransform(std::string link_name, const base::samples::RigidBodyState collision_objec) = 0;
     
+    virtual void printCollisionObject() = 0;
+    
     static bool linksToBeChecked( std::string first_link_name, std::string second_object_name );
     
     static std::vector<srdf::Model::DisabledCollision> disabled_collisions_;
@@ -69,6 +78,9 @@ public:
     void removeDisabledCollisionLink(const std::string &link);
     
     bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
+    
+   
+    virtual void printWorldCollisionObject() = 0;
     
 
     
