@@ -466,12 +466,12 @@ void FCLCollisionDetection::removeObject4mCollisionContainer(const std::string &
 }
 
 
-void FCLCollisionDetection::updateCollisionObjectTransform(std::string link_name ,const fcl::Quaterniond collision_object_quaternion_orientation,const fcl::Vector3d collision_object_translation)
+void FCLCollisionDetection::updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose)
 {
     link_names_CollisionObjects::iterator it=link_names_CollisionObjects_Container.find(link_name);
     //fcl::Transform3d new_transform3f(collision_object_quaternion_orientation,collision_object_translation);
     //it->second->setTransform(new_transform3f);
-    it->second->setTransform(collision_object_quaternion_orientation, collision_object_translation);
+    it->second->setTransform(collision_object_pose.orientation, collision_object_pose.position);
     it->second->computeAABB();
     broad_phase_collision_manager->update(it->second.get());
 }

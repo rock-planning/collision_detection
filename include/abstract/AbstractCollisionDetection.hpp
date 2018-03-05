@@ -63,7 +63,13 @@ public:
 
     virtual void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
-    virtual void updateCollisionObjectTransform(std::string link_name, const base::samples::RigidBodyState collision_objec) = 0;
+    virtual void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose) = 0;
+    
+    virtual void removeSelfCollisionObject(const std::string &collision_object_name) = 0;
+    
+    virtual void removeWorldCollisionObject(const std::string &collision_object_name) = 0;
+    
+    virtual int numberOfObjectsInCollisionManger() = 0;
     
     virtual void printCollisionObject() = 0;
     

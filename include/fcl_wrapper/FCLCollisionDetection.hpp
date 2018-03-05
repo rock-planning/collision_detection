@@ -190,9 +190,8 @@ public:
         link_names_CollisionObjects_Container.insert(link_name_CollisionObject );
 
     }
-
-
-    void updateCollisionObjectTransform(std::string link_name ,const fcl::Quaterniond collision_object_quaternion_orientation,const fcl::Vector3d collision_object_translation);
+    
+    void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
 
     bool IsStateIsValid(int num_max_contacts=1);
 
