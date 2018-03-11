@@ -30,6 +30,10 @@ struct DistanceInformation
     double distance;
 };
 
+class AbstractCollisionDetection;
+
+typedef std::shared_ptr<AbstractCollisionDetection> AbstractCollisionPtr;
+
 /**
  * @class AbstractCollisionDetection
  * @brief Provides an abstract interface for collision detection.
@@ -71,6 +75,12 @@ public:
     
     virtual int numberOfObjectsInCollisionManger() = 0;
     
+    virtual bool checkSelfCollision(int num_max_contacts=1) = 0;
+
+    virtual bool checkWorldCollision(int num_max_contacts=1) = 0;    
+   
+    virtual void assignWorldDetector(AbstractCollisionPtr collision_detector) = 0;
+    
     virtual void printCollisionObject() = 0;
     
     static bool linksToBeChecked( std::string first_link_name, std::string second_object_name );
@@ -85,6 +95,7 @@ public:
     
     bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
     
+    
    
     virtual void printWorldCollisionObject() = 0;
     
@@ -96,7 +107,7 @@ public:
     std::string remove_link_;
 };
 
-typedef std::shared_ptr<AbstractCollisionDetection> AbstractCollisionPtr;
+
 
 };
 

@@ -476,7 +476,7 @@ void FCLCollisionDetection::updateCollisionObjectTransform(std::string link_name
     broad_phase_collision_manager->update(it->second.get());
 }
 
-bool FCLCollisionDetection::IsStateIsValid(int num_max_contacts)
+bool FCLCollisionDetection::checkSelfCollision(int num_max_contacts)
 {
 
 //#define StateIsInCollision_LOG
@@ -525,6 +525,12 @@ bool FCLCollisionDetection::IsStateIsValid(int num_max_contacts)
         return false;
     }
 
+}
+
+
+bool FCLCollisionDetection::checkWorldCollision(int num_max_contacts)
+{
+    checkCollisionAgainstExternalCollisionManager(   static_cast<FCLCollisionDetection*>(world_collision_detector_)->getCollisionManager());
 }
 
 bool FCLCollisionDetection::checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts)

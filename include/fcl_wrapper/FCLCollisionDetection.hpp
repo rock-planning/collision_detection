@@ -58,7 +58,6 @@ namespace collision_detection
 
 
 
-
 class FCLCollisionDetection: public AbstractCollisionDetection
 {
 
@@ -73,6 +72,8 @@ private:
     std::vector<fcl::Contact<double>> self_collision_contacts;
     std::vector<fcl::Contact<double>> collision_contacts_against_external_collision_manager;
     Eigen::Vector3d scale_mesh_;
+    
+    AbstractCollisionPtr world_collision_detector_;
 
 public:
 
@@ -193,9 +194,13 @@ public:
     
     void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
 
-    bool IsStateIsValid(int num_max_contacts=1);
+    bool checkSelfCollision(int num_max_contacts=1);
 
+    bool checkWorldCollision(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
+    
+    bool checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
 
+    inline void assignWorldDetector(AbstractCollisionPtr collision_detector){world_collision_detector_ = collision_detector;}
 
     void removeSelfCollisionObject(const std::string &collision_object_name);
     
@@ -203,7 +208,7 @@ public:
     
     void removeObject4mCollisionContainer(const std::string &collision_object_name);
 
-    bool checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
+
 
     shared_ptr<fcl::BroadPhaseCollisionManager<double>>  &getCollisionManager();
 
