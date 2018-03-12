@@ -527,10 +527,25 @@ bool FCLCollisionDetection::checkSelfCollision(int num_max_contacts)
 
 }
 
-
+// We are going to downcast the abstract collision object
+bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_detector)
+{
+  
+  world_collision_detector_.reset();
+  try
+  {
+    world_collision_detector_ = dynamic_pointer_cast<FCLCollisionDetection>(collision_detector);
+  }
+  catch(std::bad_cast &e)
+  {
+    LOG_ERROR("[FCLCollisionDetection]: Bad dynamic cast, cannot cast AbstractCollisionPtr to FCLCollisionDetection. The error:%s", e.what()); 
+  }
+      
+}
 bool FCLCollisionDetection::checkWorldCollision(int num_max_contacts)
 {
-    checkCollisionAgainstExternalCollisionManager(   static_cast<FCLCollisionDetection*>(world_collision_detector_)->getCollisionManager());
+  
+    checkCollisionAgainstExternalCollisionManager(   world_collision_detector_->getCollisionManager());
 }
 
 bool FCLCollisionDetection::checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts)

@@ -56,6 +56,7 @@ namespace collision_detection
     using function1 = ::std::function<T(U)>;
 #endif
 
+class FCLCollisionDetection;
 
 
 class FCLCollisionDetection: public AbstractCollisionDetection
@@ -73,7 +74,7 @@ private:
     std::vector<fcl::Contact<double>> collision_contacts_against_external_collision_manager;
     Eigen::Vector3d scale_mesh_;
     
-    AbstractCollisionPtr world_collision_detector_;
+    std::shared_ptr<FCLCollisionDetection> world_collision_detector_;
 
 public:
 
@@ -196,11 +197,11 @@ public:
 
     bool checkSelfCollision(int num_max_contacts=1);
 
-    bool checkWorldCollision(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
+    bool checkWorldCollision(int num_max_contacts=1);
     
     bool checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
 
-    inline void assignWorldDetector(AbstractCollisionPtr collision_detector){world_collision_detector_ = collision_detector;}
+    bool assignWorldDetector(AbstractCollisionPtr collision_detector);
 
     void removeSelfCollisionObject(const std::string &collision_object_name);
     

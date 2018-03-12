@@ -9,6 +9,7 @@
 #include <octomap/octomap.h>
 
  #include <boost/bind.hpp>
+ #include <base-logging/Logging.hpp>
 
 
 /** \file AbstractCollisionDetection.hpp
@@ -79,7 +80,7 @@ public:
 
     virtual bool checkWorldCollision(int num_max_contacts=1) = 0;    
    
-    virtual void assignWorldDetector(AbstractCollisionPtr collision_detector) = 0;
+    virtual bool assignWorldDetector(AbstractCollisionPtr collision_detector) = 0;
     
     virtual void printCollisionObject() = 0;
     
