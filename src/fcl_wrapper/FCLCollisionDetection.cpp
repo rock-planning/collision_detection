@@ -1,4 +1,4 @@
-#include <fcl_wrapper/FCLCollisionDetection.hpp>
+#include <collision_detection/fcl_wrapper/FCLCollisionDetection.hpp>
 #include <algorithm>
 
 
@@ -40,7 +40,6 @@ std::vector< DistanceInformation> list_of_self_distance_information;
 
 
 std::string remove_collision_object_4m_collisionManager;
-
 
 
 bool defaultCollisionFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObject<double>* o2, void* cdata_)
@@ -134,7 +133,6 @@ bool defaultCollisionFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
 
 
 }
-
 
 bool defaultCollisionFunctionCheckingAgainstexternalCollisionManager(fcl::CollisionObject<double>* o1, fcl::CollisionObject<double>* o2, void* cdata_)
 {

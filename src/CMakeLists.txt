@@ -1,7 +1,7 @@
 project(collision_detection)
 
 
-CONFIGURE_FILE("${PROJECT_NAME}.pc.in" "${PROJECT_NAME}.pc" @ONLY)
+
 
 if(POLICY CMP0015)
   cmake_policy(SET CMP0015 NEW)
@@ -22,8 +22,9 @@ message(STATUS "ASSIMP VERSION ${ASSIMP_LIBRARY_DIRS}")
 set(COLLISION_DETECTION_INCLUDES ${CMAKE_SOURCE_DIR}/include ${EIGEN3_INCLUDE_DIR} ${kdl_parser_INCLUDE_DIRS}  
 				 ${PCL_INCLUDE_DIRS} ${ASSIMP_VERSION}
 	      )
+      
 
-	      
+
 include_directories(${COLLISION_DETECTION_INCLUDES})
 link_directories(${ASSIMP_LIBRARY_DIRS})
 
@@ -61,6 +62,9 @@ add_library(collision_detection SHARED
 )
 target_link_libraries(collision_detection  abstract_collision_detection fcl_wrapper)
 
+#set(PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} pcl_common-1.7")
+set(PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS};${PCL_INCLUDE_DIRS}")
+CONFIGURE_FILE("${PROJECT_NAME}.pc.in" "${PROJECT_NAME}.pc" @ONLY)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/collision_detection)
 install(TARGETS collision_detection DESTINATION lib)

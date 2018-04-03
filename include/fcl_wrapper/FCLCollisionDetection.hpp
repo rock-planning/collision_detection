@@ -2,8 +2,8 @@
 #define COLLISIONDETECTION_HPP
 
 
-#include <abstract/AbstractCollisionDetection.hpp>
-#include <abstract/MeshLoader.hpp>
+#include <collision_detection/abstract/AbstractCollisionDetection.hpp>
+#include <collision_detection/abstract/MeshLoader.hpp>
 
 #include "CollisionObjectAssociatedData.hpp"
 #include "CollisionData.hpp"
@@ -91,7 +91,7 @@ public:
 
 
     void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
-                                             const base::Pose &collision_object_pose, const double &link_padding );
+                                             const base::Pose &collision_object_pose, const double &link_padding = 1.0 );
    
     void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
 					const base::Pose &collision_object_pose, const double &link_padding);

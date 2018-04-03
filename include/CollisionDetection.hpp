@@ -3,9 +3,9 @@
 
 #include <vector>
 #include <string>
-#include <abstract/AbstractCollisionDetection.hpp>
+#include <collision_detection/abstract/AbstractCollisionDetection.hpp>
 
-#include <fcl_wrapper/FCLCollisionDetection.hpp>
+#include <collision_detection/fcl_wrapper/FCLCollisionDetection.hpp>
 
 
 /** \file CollisionDetection.hpp
