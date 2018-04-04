@@ -1,4 +1,4 @@
-#include <collision_detection/fcl_wrapper/CollisionObjectAssociatedData.hpp>
+#include "fcl_wrapper/CollisionObjectAssociatedData.hpp"
 
 namespace collision_detection
 {

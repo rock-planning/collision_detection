@@ -2,8 +2,8 @@
 #define COLLISIONDETECTION_HPP
 
 
-#include <collision_detection/abstract/AbstractCollisionDetection.hpp>
-#include <collision_detection/abstract/MeshLoader.hpp>
+#include "abstract/AbstractCollisionDetection.hpp"
+#include "abstract/MeshLoader.hpp"
 
 #include "CollisionObjectAssociatedData.hpp"
 #include "CollisionData.hpp"

@@ -3,9 +3,10 @@
 
 #include <vector>
 #include <string>
-#include <collision_detection/abstract/AbstractCollisionDetection.hpp>
+#include "abstract/AbstractCollisionDetection.hpp"
+#include "abstract/MeshLoader.hpp"
 
-#include <collision_detection/fcl_wrapper/FCLCollisionDetection.hpp>
+#include "fcl_wrapper/FCLCollisionDetection.hpp"
 
 
 /** \file CollisionDetection.hpp

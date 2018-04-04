@@ -1,12 +1,12 @@
 prefix=@CMAKE_INSTALL_PREFIX@
 exec_prefix=@CMAKE_INSTALL_PREFIX@
 libdir=${prefix}/lib
-includedir=${prefix}/include/
+includedir=${prefix}/include/collision_detection
 
 Name: @TARGET_NAME@
 Description: @PROJECT_DESCRIPTION@
 Version: @PROJECT_VERSION@
-Requires: @PKGCONFIG_REQUIRES@
+Requires: @DEPS_PKGCONFIG@
 Libs: -L${libdir} -l@TARGET_NAME@ @PKGCONFIG_LIBS@
 Cflags: -I${includedir}@PKGCONFIG_CFLAGS@
 
