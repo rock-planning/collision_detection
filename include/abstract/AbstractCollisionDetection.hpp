@@ -84,6 +84,8 @@ public:
     
     virtual void printCollisionObject() = 0;
     
+    virtual void printWorldCollisionObject() = 0;
+    
     static bool linksToBeChecked( std::string first_link_name, std::string second_object_name );
     
     static std::vector<srdf::Model::DisabledCollision> disabled_collisions_;
@@ -95,21 +97,12 @@ public:
     void removeDisabledCollisionLink(const std::string &link);
     
     bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
-    
-    
-   
-    virtual void printWorldCollisionObject() = 0;
-    
-
-    
-
-    
-
+       
     std::string remove_link_;
 };
 
-
-
+std::vector<srdf::Model::DisabledCollision> AbstractCollisionDetection::disabled_collisions_;
+    
 };
 
 #endif

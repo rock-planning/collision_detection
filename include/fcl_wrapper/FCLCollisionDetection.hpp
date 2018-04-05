@@ -3,7 +3,6 @@
 
 
 #include "abstract/AbstractCollisionDetection.hpp"
-#include "abstract/MeshLoader.hpp"
 
 #include "CollisionObjectAssociatedData.hpp"
 #include "CollisionData.hpp"
@@ -26,17 +25,10 @@
 #endif
 
 #include <fcl/fcl.h>
-/*
-#include <fcl/collision.h>
-#include <fcl/BVH/BVH_model.h>
-#include <fcl/BV/BV.h>
-#include <fcl/shape/geometric_shapes.h>
-#include <fcl/broadphase/broadphase.h>
-#include <fcl/shape/geometric_shape_to_BVH_model.h>
-#include <fcl/distance.h>
-#include <fcl/octree.h>
-#include <fcl/broadphase/broadphase.h>
-*/
+
+#include <assimp/assimp.hpp>
+#include <assimp/aiScene.h>
+#include <assimp/aiPostProcess.h>
 
 namespace collision_detection
 {
@@ -67,7 +59,6 @@ private:
   
     typedef std::pair <std::string , shared_ptr<fcl::CollisionObject<double> > > link_name_CollisionObject_entry;
     typedef std::multimap <std::string , shared_ptr<fcl::CollisionObject<double>> > link_names_CollisionObjects;
-    MeshLoader mesh_loader;
     std::vector<  CollisionObjectAssociatedData *>  vector_of_CollisionObjectAssociatedData_addresses;
     link_names_CollisionObjects link_names_CollisionObjects_Container;
     std::vector<fcl::Contact<double>> self_collision_contacts;
@@ -89,7 +80,9 @@ public:
 
     void getCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &collision_manager);
 
-
+    void extractTrianglesAndVerticesFromMesh(const std::string &abs_path_to_mesh_file, std::vector<fcl::Triangle> &triangles, std::vector<fcl::Vector3d>& vertices, 
+					 double scale_for_mesha_files_x, double scale_for_mesha_files_y, double scale_for_mesha_files_z );
+    
     void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
                                              const base::Pose &collision_object_pose, const double &link_padding = 1.0 );
    

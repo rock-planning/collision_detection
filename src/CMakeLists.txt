@@ -11,6 +11,8 @@ INCLUDE(FindPkgConfig)
 find_package(Eigen3 REQUIRED)
 #find_package(orocos_kdl REQUIRED)
 pkg_check_modules(kdl_parser REQUIRED kdl_parser)
+pkg_check_modules(SRDF REQUIRED srdfdom)
+
 find_package(PCL 1.7 REQUIRED COMPONENTS core features filters io segmentation surface)
 message(STATUS "PCL VERSION ${PCL_VERSION}")
 
@@ -18,11 +20,9 @@ pkg_check_modules(ASSIMP REQUIRED assimp)
 message(STATUS "ASSIMP VERSION ${ASSIMP_LIBRARY_DIRS}")
 
 set(COLLISION_DETECTION_INCLUDES ${CMAKE_SOURCE_DIR}/include ${EIGEN3_INCLUDE_DIR} ${kdl_parser_INCLUDE_DIRS}  
-				 ${PCL_INCLUDE_DIRS} ${ASSIMP_VERSION}
+				 ${PCL_INCLUDE_DIRS} ${ASSIMP_VERSION} ${SRDF_INCLUDE_DIRS}
 	      )
       
-
-
 include_directories(${COLLISION_DETECTION_INCLUDES})
 link_directories(${ASSIMP_LIBRARY_DIRS})
 
@@ -30,7 +30,7 @@ add_library(abstract_collision_detection SHARED
             ${CMAKE_CURRENT_LIST_DIR}/abstract/AbstractCollisionDetection.cpp
             ${CMAKE_CURRENT_LIST_DIR}/abstract/MeshLoader.cpp
 )
-target_link_libraries(abstract_collision_detection  ${PCL_LIBRARIES} ${ASSIMP_LIBRARIES})
+target_link_libraries(abstract_collision_detection  ${PCL_LIBRARIES} ${ASSIMP_LIBRARIES} ${SRDF_LIBRARIES})
 
 
 # FCL Wrapper
