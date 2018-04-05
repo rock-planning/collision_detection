@@ -28,6 +28,6 @@ AbstractCollisionPtr CollisionDetection::getCollisionDetector(collision_detectio
 	}
 	return collision_detector;
 }
-
+   
 
 }
