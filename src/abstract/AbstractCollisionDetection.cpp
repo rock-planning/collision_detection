@@ -3,8 +3,12 @@
 namespace collision_detection
 {
 
+std::vector<srdf::Model::DisabledCollision> AbstractCollisionDetection::disabled_collisions_;
+
 AbstractCollisionDetection::AbstractCollisionDetection()
-{}
+{
+
+}
 
 AbstractCollisionDetection::~AbstractCollisionDetection()
 {}

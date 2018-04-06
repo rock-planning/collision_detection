@@ -100,8 +100,6 @@ public:
        
     std::string remove_link_;
 };
-
-std::vector<srdf::Model::DisabledCollision> AbstractCollisionDetection::disabled_collisions_;
     
 };
 

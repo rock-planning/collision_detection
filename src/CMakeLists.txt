@@ -63,7 +63,7 @@ target_link_libraries(collision_detection  abstract_collision_detection fcl_wrap
 #set(PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} pcl_common-1.7")
 set(TARGET_NAME ${PROJECT_NAME})
 #set(PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS};${COLLISION_DETECTION_INCLUDES}")
-set(PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS};${PCL_INCLUDE_DIRS}")
+set(PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS} -I${PCL_INCLUDE_DIRS}")
 CONFIGURE_FILE("${PROJECT_NAME}.pc.in" "${PROJECT_NAME}.pc" @ONLY)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/collision_detection)
