@@ -21,7 +21,7 @@ namespace collision_detection
 
 enum CollisionLibrary
 {
-    FCL
+    FCL 
 };
 
 struct DistanceInformation
@@ -52,7 +52,7 @@ public:
     */
     virtual ~AbstractCollisionDetection();
 
-    virtual void registerOctreeToCollisionManager ( octomap::OcTree octomap_octree, std::string link_name , const base::samples::RigidBodyState &collision_object) = 0;
+ //   virtual void registerOctreeToCollisionManager ( octomap::OcTree octomap_octree, std::string link_name , const base::samples::RigidBodyState &collision_object) = 0;
     
     template <class PointT>
     void registerPointCloudToCollisionManager(const pcl::PointCloud<PointT>& pclCloud,  double octree_resolution, std::string link_name , const base::samples::RigidBodyState &collision_object) ;
@@ -84,9 +84,27 @@ public:
     
     virtual void printCollisionObject() = 0;
     
-    virtual void printWorldCollisionObject() = 0;
+ //   virtual void printWorldCollisionObject() = 0;
     
-    static bool linksToBeChecked( std::string first_link_name, std::string second_object_name );
+    //static bool linksToBeChecked( std::string first_link_name, std::string second_object_name );
+    
+    static bool linksToBeChecked( std::string first_link_name, std::string second_object_name )
+    {
+	if(first_link_name == second_object_name  )
+	{
+	    return false;
+	}
+
+	for(std::size_t i = 0; i < AbstractCollisionDetection::disabled_collisions_.size(); i++ )
+	{
+	    if( (first_link_name    == AbstractCollisionDetection::disabled_collisions_.at(i).link1_ &&  second_object_name  == AbstractCollisionDetection::disabled_collisions_.at(i).link2_) || 
+		(second_object_name == AbstractCollisionDetection::disabled_collisions_.at(i).link1_ &&  first_link_name     == AbstractCollisionDetection::disabled_collisions_.at(i).link2_)  )
+	    {
+		return false;
+	    }
+	}
+	return true;
+    }
     
     static std::vector<srdf::Model::DisabledCollision> disabled_collisions_;
 
@@ -100,6 +118,7 @@ public:
        
     std::string remove_link_;
 };
+
     
 };
 

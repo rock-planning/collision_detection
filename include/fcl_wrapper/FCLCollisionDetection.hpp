@@ -87,17 +87,17 @@ public:
                                              const base::Pose &collision_object_pose, const double &link_padding = 1.0 );
    
     void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
-					const base::Pose &collision_object_pose, const double &link_padding);
+					const base::Pose &collision_object_pose, const double &link_padding = 1.0);
     
     void registerMeshToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, 
 					const std::vector<fcl::Triangle> &triangles, const std::vector<fcl::Vector3d> &vertices);
     
 
     void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
-						  const base::Pose &collision_object_pose ,const double &link_padding );
+						  const base::Pose &collision_object_pose ,const double &link_padding = 1.0);
 
 
-    void registerSphereToCollisionManager(const double &radius, const std::string &link_name , const base::Pose &collision_object_pose, const double &link_padding );
+    void registerSphereToCollisionManager(const double &radius, const std::string &link_name , const base::Pose &collision_object_pose, const double &link_padding = 1.0);
 
 
 
@@ -191,7 +191,7 @@ public:
     bool checkSelfCollision(int num_max_contacts=1);
 
     bool checkWorldCollision(int num_max_contacts=1);
-    
+        
     bool checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
 
     bool assignWorldDetector(AbstractCollisionPtr collision_detector);

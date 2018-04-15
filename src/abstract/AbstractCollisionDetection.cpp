@@ -37,23 +37,7 @@ bool AbstractCollisionDetection::isLinkListed(srdf::Model::DisabledCollision con
     return ((remove_link.link1_ == remove_link_) || (remove_link.link2_ == remove_link_) );
 }
 
-static bool linksToBeChecked( std::string first_link_name, std::string second_object_name )
-{
-    if(first_link_name == second_object_name  )
-    {
-        return false;
-    }
 
-    for(std::size_t i = 0; i < AbstractCollisionDetection::disabled_collisions_.size(); i++ )
-    {
-        if( (first_link_name    == AbstractCollisionDetection::disabled_collisions_.at(i).link1_ &&  second_object_name  == AbstractCollisionDetection::disabled_collisions_.at(i).link2_) || 
-            (second_object_name == AbstractCollisionDetection::disabled_collisions_.at(i).link1_ &&  first_link_name     == AbstractCollisionDetection::disabled_collisions_.at(i).link2_)  )
-        {
-            return false;
-        }
-    }
-    return true;
-}
 
 
 

@@ -242,7 +242,7 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
     second_object_name=second_object_name.substr(0,second_object_name.find_last_of("_"));
 
 
-//    std::cout<<"checking distance between  "<<fist_object_name<<" and " <<second_object_name<<std::endl;
+    std::cout<<"checking distance between  "<<fist_object_name<<" and " <<second_object_name<<std::endl;
 
     if(AbstractCollisionDetection::linksToBeChecked(fist_object_name, second_object_name ))
     {
@@ -279,6 +279,7 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
 FCLCollisionDetection::FCLCollisionDetection()
 {
     broad_phase_collision_manager.reset(new fcl::DynamicAABBTreeCollisionManager<double> );
+
 }
 
 FCLCollisionDetection::~FCLCollisionDetection()
@@ -354,7 +355,8 @@ void FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
 void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
 					const base::Pose &collision_object_pose, const double &link_padding)
 {
-//        #define registerMeshToCollisionObjectManager_LOG
+   
+//    #define registerMeshToCollisionObjectManager_LOG
     #ifdef registerMeshToCollisionObjectManager_LOG
          std::cout<<"abs_path_to_mesh_file:" <<abs_path_to_mesh_file <<std::endl;
     #endif
@@ -382,11 +384,10 @@ wrist_1, wrist_2, wrist_3, wrist_4,....
 void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, 
 							   const std::vector<fcl::Triangle> &triangles, const std::vector<fcl::Vector3d> &vertices)
 {
-//  #define registerMeshToCollisionObjectManager_LOG
+    #define registerMeshToCollisionObjectManager_LOG
     #ifdef registerMeshToCollisionObjectManager_LOG
     #endif
 
-    
     shared_ptr<fcl::BVHModel<fcl::OBBRSS<double> > >  fcl_mesh_ptr(new fcl::BVHModel<fcl::OBBRSS<double>>);
     fcl_mesh_ptr->beginModel();
     fcl_mesh_ptr->addSubModel(vertices,triangles);
@@ -394,7 +395,7 @@ void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &li
     //fcl::Transform3d mesh_transform3f(collision_object_quaternion_orientation,collision_object_translation);
     //shared_ptr<fcl::CollisionObject<double>>   mesh_collision_object ( new fcl::CollisionObject<double>( fcl_mesh_ptr , mesh_transform3f )  );
     shared_ptr<fcl::CollisionObject<double>> mesh_collision_object_ptr ( new fcl::CollisionObject<double>( fcl_mesh_ptr ) );
-    
+
     registerCollisionObjectToCollisionManager(link_name, collision_object_pose, mesh_collision_object_ptr);  
 
     return;
@@ -442,8 +443,8 @@ void FCLCollisionDetection::registerCollisionObjectToCollisionManager(const std:
     collision_object->setUserData( collision_object_associated_data );
     vector_of_CollisionObjectAssociatedData_addresses.push_back(collision_object_associated_data);
 
-
     broad_phase_collision_manager->registerObject(collision_object.get());
+
     link_name_CollisionObject_entry link_name_CollisionObject;
     link_name_CollisionObject.first  = link_name;
     link_name_CollisionObject.second = collision_object;
@@ -554,6 +555,7 @@ bool FCLCollisionDetection::checkSelfCollision(int num_max_contacts)
     number_of_collision_between_links=0;
     list_of_self_collision_objects.clear();
     collision_object_names.clear();
+    std::cout<<"Self Collison size = "<<broad_phase_collision_manager->size()<<std::endl;
     broad_phase_collision_manager->collide(&collision_data, defaultCollisionFunction);
     std::vector<fcl::Contact<double>> self_collision_contacts;
     collision_data.result.getContacts(self_collision_contacts);
@@ -586,8 +588,9 @@ bool FCLCollisionDetection::checkSelfCollision(int num_max_contacts)
 // We are going to downcast the abstract collision object
 bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_detector)
 {
-  
-  world_collision_detector_.reset();
+
+    world_collision_detector_.reset(new FCLCollisionDetection());
+
   try
   {
     world_collision_detector_ = dynamic_pointer_cast<FCLCollisionDetection>(collision_detector);
@@ -598,10 +601,11 @@ bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_d
   }
       
 }
-bool FCLCollisionDetection::checkWorldCollision(int num_max_contacts)
+
+bool FCLCollisionDetection::checkWorldCollision( int num_max_contacts)
 {
   
-    checkCollisionAgainstExternalCollisionManager(   world_collision_detector_->getCollisionManager());
+    checkCollisionAgainstExternalCollisionManager(   world_collision_detector_->getCollisionManager(), num_max_contacts);
 }
 
 bool FCLCollisionDetection::checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts)

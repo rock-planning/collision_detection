@@ -67,8 +67,9 @@ set(PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS} -I${PCL_INCLUDE_DIRS}")
 CONFIGURE_FILE("${PROJECT_NAME}.pc.in" "${PROJECT_NAME}.pc" @ONLY)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/collision_detection)
-install(TARGETS collision_detection DESTINATION lib)
 install(TARGETS abstract_collision_detection DESTINATION lib)
+install(TARGETS fcl_wrapper DESTINATION lib)
+install(TARGETS collision_detection DESTINATION lib)
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig) 
 
 
