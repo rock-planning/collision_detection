@@ -591,14 +591,14 @@ bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_d
 
     world_collision_detector_.reset(new FCLCollisionDetection());
 
-  try
+/*  try
   {
     world_collision_detector_ = dynamic_pointer_cast<FCLCollisionDetection>(collision_detector);
   }
   catch(std::bad_cast &e)
   {
     LOG_ERROR("[FCLCollisionDetection]: Bad dynamic cast, cannot cast AbstractCollisionPtr to FCLCollisionDetection. The error:%s", e.what());
-  }
+  }*/
       
 }
 
