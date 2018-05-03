@@ -555,7 +555,7 @@ bool FCLCollisionDetection::checkSelfCollision(int num_max_contacts)
     number_of_collision_between_links=0;
     list_of_self_collision_objects.clear();
     collision_object_names.clear();
-    std::cout<<"Self Collison size = "<<broad_phase_collision_manager->size()<<std::endl;
+    //std::cout<<"Self Collison size = "<<broad_phase_collision_manager->size()<<std::endl;
     broad_phase_collision_manager->collide(&collision_data, defaultCollisionFunction);
     std::vector<fcl::Contact<double>> self_collision_contacts;
     collision_data.result.getContacts(self_collision_contacts);

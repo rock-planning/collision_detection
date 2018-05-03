@@ -84,6 +84,8 @@ public:
     
     virtual void printCollisionObject() = 0;
     
+    virtual std::vector< std::pair<std::string, std::string> > getCollisionObjectNames()=0;
+    
  //   virtual void printWorldCollisionObject() = 0;
     
     //static bool linksToBeChecked( std::string first_link_name, std::string second_object_name );
