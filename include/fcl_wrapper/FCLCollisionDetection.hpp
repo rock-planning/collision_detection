@@ -48,6 +48,9 @@ namespace collision_detection
     using function1 = ::std::function<T(U)>;
 #endif
 
+typedef std::pair <std::string , shared_ptr<fcl::CollisionObject<double> > > collision_objects_pair;
+typedef std::multimap <std::string , shared_ptr<fcl::CollisionObject<double>> > collision_objects_maps;
+
 class FCLCollisionDetection;
 
 
@@ -57,24 +60,23 @@ class FCLCollisionDetection: public AbstractCollisionDetection
 private:
     void registerCollisionObjectToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, shared_ptr< fcl::CollisionObject<double> > &collision_object );
   
-    typedef std::pair <std::string , shared_ptr<fcl::CollisionObject<double> > > link_name_CollisionObject_entry;
-    typedef std::multimap <std::string , shared_ptr<fcl::CollisionObject<double>> > link_names_CollisionObjects;
-    std::vector<  CollisionObjectAssociatedData *>  vector_of_CollisionObjectAssociatedData_addresses;
-    link_names_CollisionObjects link_names_CollisionObjects_Container;
-    std::vector<fcl::Contact<double>> self_collision_contacts;
-    std::vector<fcl::Contact<double>> collision_contacts_against_external_collision_manager;
-    Eigen::Vector3d scale_mesh_;
-    
+
+    std::vector<  CollisionObjectAssociatedData *>  collision_data_;
+    collision_objects_maps collision_objects_container_;
+    std::vector<fcl::Contact<double>> self_collision_contacts_;
+    std::vector<fcl::Contact<double>> environment_collision_contacts_;
+    Eigen::Vector3d scale_mesh_;    
     std::shared_ptr<FCLCollisionDetection> world_collision_detector_;
 
 public:
 
     FCLCollisionDetection();
+    
     virtual ~FCLCollisionDetection();
 
     std::vector<fcl::Contact<double>> &getSelfContacts();
+    
     std::vector<fcl::Contact<double>> &getContactsAgainstExternalCollisionManager();
-
 
     int numberOfObjectsInCollisionManger();
 
@@ -99,9 +101,6 @@ public:
 
     void registerSphereToCollisionManager(const double &radius, const std::string &link_name , const base::Pose &collision_object_pose, const double &link_padding = 1.0);
 
-
-
-
     template <class PointT>
     void registerPCLPointCloudToCollisionObjectManager(const pcl::PointCloud<PointT>& pclCloud,  double octree_resolution, std::string link_name , const fcl::Quaterniond collision_object_quaternion_orientation ,const fcl::Vector3d collision_object_translation )
     {
@@ -114,75 +113,41 @@ public:
         octomap_Octree_ptr->insertPointCloud(octomapCloud, origin);
 
     //2)    register octomap tree to fcl
-
-
-
-        //    fcl::OcTree* fcl_tree = new fcl::OcTree(shared_ptr<const octomap::OcTree>(generateOcTree()));
-        //    fcl::CollisionObject tree_obj((shared_ptr<fcl::CollisionGeometry>(fcl_tree)));
-
         shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap_Octree_ptr) ) ;
 
-        //fcl::Transform3d fcl_tree_transform3d(collision_object_quaternion_orientation,collision_object_translation);
-        //shared_ptr< fcl::CollisionObject<double>   > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, fcl_tree_transform3f) ) ;
         shared_ptr< fcl::CollisionObject<double>   > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr) ) ;
 
-
         CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
         collision_object_associated_data->setID(link_name);
         fcl_tree_collision_object_ptr->setUserData( collision_object_associated_data );
-        vector_of_CollisionObjectAssociatedData_addresses.push_back(collision_object_associated_data);
+        collision_data_.push_back(collision_object_associated_data);
 
         broad_phase_collision_manager->registerObject(fcl_tree_collision_object_ptr.get());
 
-        link_name_CollisionObject_entry link_name_CollisionObject;
+        collision_objects_pair link_name_CollisionObject;
         link_name_CollisionObject.first=link_name;
         link_name_CollisionObject.second=fcl_tree_collision_object_ptr;
-        link_names_CollisionObjects_Container.insert(link_name_CollisionObject );
-
+        collision_objects_container_.insert(link_name_CollisionObject );
     }
 
-
-
-
-    void registerOctomapOctreeToCollisionObjectManager(  octomap::OcTree octomap_octree, std::string link_name , const fcl::Quaterniond collision_object_quaternion_orientation ,const fcl::Vector3d collision_object_translation )
+    void registerOctomapOctreeToCollisionObjectManager(  octomap::OcTree octomap_octree, std::string link_name , 
+							 const fcl::Quaterniond collision_object_quaternion_orientation ,
+							 const fcl::Vector3d collision_object_translation )
     {
-    //1)    conver pcl::pointcloud to octomap tree
-
-
-//        shared_ptr<octomap::OcTree > octomap_Octree_ptr(new octomap::OcTree(octree_resolution) );
-
-
-    //2)    register octomap tree to fcl
-
-
-
-        //    fcl::OcTree* fcl_tree = new fcl::OcTree(shared_ptr<const octomap::OcTree>(generateOcTree()));
-        //    fcl::CollisionObject tree_obj((shared_ptr<fcl::CollisionGeometry>(fcl_tree)));
-
-
-
-        shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>( shared_ptr<const octomap::OcTree>(&octomap_octree )  ) ) ;
-        //fcl::Transform3f fcl_tree_transform3f(collision_object_quaternion_orientation,collision_object_translation);
-        //shared_ptr< fcl::CollisionObject<double>   > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( shared_ptr<fcl::CollisionGeometry<double>>(fcl_OcTree_ptr), fcl_tree_transform3f) ) ;
+        shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>( shared_ptr<const octomap::OcTree>(&octomap_octree )  ) ) ;       
         shared_ptr< fcl::CollisionObject<double>   > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( shared_ptr<fcl::CollisionGeometry<double>>(fcl_OcTree_ptr)) ) ;
-
-
-
-//        fcl::Transform3f fcl_tree_transform3f(collision_object_quaternion_orientation,collision_object_translation);
-//        shared_ptr< fcl::CollisionObject   > fcl_tree_collision_object_ptr (new fcl::CollisionObject( fcl_OcTree_ptr, fcl_tree_transform3f) ) ;
-
 
         CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
         collision_object_associated_data->setID(link_name);
         fcl_tree_collision_object_ptr->setUserData( collision_object_associated_data );
-        vector_of_CollisionObjectAssociatedData_addresses.push_back(collision_object_associated_data);
+        collision_data_.push_back(collision_object_associated_data);
 
         broad_phase_collision_manager->registerObject(fcl_tree_collision_object_ptr.get());
 
-        link_name_CollisionObject_entry link_name_CollisionObject;
+        collision_objects_pair link_name_CollisionObject;
         link_name_CollisionObject.first=link_name;
         link_name_CollisionObject.second=fcl_tree_collision_object_ptr;
-        link_names_CollisionObjects_Container.insert(link_name_CollisionObject );
+        collision_objects_container_.insert(link_name_CollisionObject );
 
     }
     
@@ -192,7 +157,7 @@ public:
 
     bool checkWorldCollision(int num_max_contacts=1);
         
-    bool checkCollisionAgainstExternalCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
+    bool checkEnvironmentCollision(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
 
     bool assignWorldDetector(AbstractCollisionPtr collision_detector);
 
@@ -202,12 +167,9 @@ public:
     
     void removeObject4mCollisionContainer(const std::string &collision_object_name);
 
-
-
     shared_ptr<fcl::BroadPhaseCollisionManager<double>>  &getCollisionManager();
 
     shared_ptr<fcl::BroadPhaseCollisionManager<double>> broad_phase_collision_manager;
-
 
     /**
      * @brief Conversion from a PCL pointcloud to octomap::Pointcloud, used internally in OctoMap
@@ -229,10 +191,10 @@ public:
       }
     }
 
+    bool distanceOfClosestObstacleToRobot(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager,
+					  DistanceData &distance_data);
 
-    bool DistanceOfClosestObstacleToRobot(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager,DistanceData &distance_data);
-
-    std::vector <fcl::CollisionObject<double>*> getObjectIncollisionAgainstExternalCollisionManager();
+    std::vector <fcl::CollisionObject<double>*> getEnvironmentCollisionObject();
 
     std::vector < std::pair<fcl::CollisionObject<double>*,fcl::CollisionObject<double>* > > &getSelfCollisionObject();
 
@@ -242,7 +204,7 @@ public:
 
     void computeSelfDistanceInfo();
 
-    void printCollisionObject();
+    void printCollisionObject();       
 
 };
 }// end namespace trajectory_optimization
