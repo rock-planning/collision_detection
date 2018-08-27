@@ -260,6 +260,67 @@ void FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
 //    delete scene;
 }
 
+void FCLCollisionDetection::registerOctomapOctreeToCollisionObjectManager(  octomap::OcTree octomap_octree, std::string link_name , 
+							const fcl::Quaterniond collision_object_quaternion_orientation ,
+							const fcl::Vector3d collision_object_translation )
+{
+    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>( shared_ptr<const octomap::OcTree>(&octomap_octree )  ) ) ;       
+    shared_ptr< fcl::CollisionObject<double>   > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( shared_ptr<fcl::CollisionGeometry<double>>(fcl_OcTree_ptr)) ) ;
+
+    CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
+    collision_object_associated_data->setID(link_name);
+    fcl_tree_collision_object_ptr->setUserData( collision_object_associated_data );
+    collision_data_.push_back(collision_object_associated_data);
+
+    broad_phase_collision_manager->registerObject(fcl_tree_collision_object_ptr.get());
+
+    collision_objects_pair link_name_CollisionObject;
+    link_name_CollisionObject.first=link_name;
+    link_name_CollisionObject.second=fcl_tree_collision_object_ptr;
+    collision_objects_container_.insert(link_name_CollisionObject );
+
+}
+
+void FCLCollisionDetection::pointcloudPCLToOctomap(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, octomap::Pointcloud& octomapCloud)
+{
+      octomapCloud.reserve(pclCloud->points.size());
+
+      typename   pcl::PointCloud<pcl::PointXYZ>::const_iterator it;
+      for (it = pclCloud->begin(); it != pclCloud->end(); ++it)
+      {
+        // Check if the point is invalid
+        if (!std::isnan (it->x) && !std::isnan (it->y) && !std::isnan (it->z))
+          octomapCloud.push_back(it->x, it->y, it->z);
+      }
+    }
+
+void FCLCollisionDetection::registerPointCloudToCollisionManager( const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, 
+								  double octree_resolution, std::string link_name)
+{
+    //1) conver pcl::pointcloud to octomap tree
+    octomap::Pointcloud octomapCloud;
+    pointcloudPCLToOctomap( pclCloud, octomapCloud);
+    octomap::point3d origin (sensor_origin.x(), sensor_origin.y(), sensor_origin.z());
+    shared_ptr<octomap::OcTree > octomap_Octree_ptr(new octomap::OcTree(octree_resolution) );
+    octomap_Octree_ptr->insertPointCloud(octomapCloud, origin);
+
+    //2) register octomap tree to fcl
+    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap_Octree_ptr) );
+    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr) ) ;
+
+    CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
+    collision_object_associated_data->setID(link_name);
+    fcl_tree_collision_object_ptr->setUserData( collision_object_associated_data );
+    collision_data_.push_back(collision_object_associated_data);
+
+    broad_phase_collision_manager->registerObject(fcl_tree_collision_object_ptr.get());
+
+    collision_objects_pair link_name_CollisionObject;
+    link_name_CollisionObject.first=link_name;
+    link_name_CollisionObject.second=fcl_tree_collision_object_ptr;
+    collision_objects_container_.insert(link_name_CollisionObject );
+}
+
 void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, 
 							   const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding)
 {
@@ -503,7 +564,7 @@ bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_d
 
 bool FCLCollisionDetection::checkWorldCollision( int num_max_contacts)
 {  
-    checkEnvironmentCollision(   world_collision_detector_->getCollisionManager(), num_max_contacts);
+    return checkEnvironmentCollision( world_collision_detector_->getCollisionManager(), num_max_contacts);
 }
 
 bool FCLCollisionDetection::checkEnvironmentCollision(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts)

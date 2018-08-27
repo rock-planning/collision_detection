@@ -15,13 +15,6 @@ struct CollisionInformation
 };
 
 
-struct EnvironmentParameters
-{
-    std::string input_frame_name;
-    double octree_resolution;
-    std::string collision_object_name;
-
-};
 
 struct ModelObject
 {

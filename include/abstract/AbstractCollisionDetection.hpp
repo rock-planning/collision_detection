@@ -6,6 +6,7 @@
 #include <base/samples/RigidBodyState.hpp>
 #include <srdfdom/model.h>
 #include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
 #include <octomap/octomap.h>
 
  #include <boost/bind.hpp>
@@ -51,11 +52,12 @@ public:
     * @brief  destructor
     */
     virtual ~AbstractCollisionDetection();
-
- //   virtual void registerOctreeToCollisionManager ( octomap::OcTree octomap_octree, std::string link_name , const base::samples::RigidBodyState &collision_object) = 0;
-    
-    template <class PointT>
-    void registerPointCloudToCollisionManager(const pcl::PointCloud<PointT>& pclCloud,  double octree_resolution, std::string link_name , const base::samples::RigidBodyState &collision_object) ;
+     
+    //template <class PointT>
+    //virtual void registerPointCloudToCollisionManager(const pcl::PointCloud<PointT>& pclCloud,  double octree_resolution, std::string link_name , const base::Position &sensor_origin) ;    
+    //virtual void registerOctreeToCollisionManager ( octomap::OcTree octomap_octree, std::string link_name , const base::samples::RigidBodyState &collision_object) = 0;   
+    virtual void registerPointCloudToCollisionManager(	const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, 
+							double octree_resolution, std::string link_name) = 0;
 
     virtual void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
 						const base::Pose &collision_object_pose, const double &link_padding) = 0;
