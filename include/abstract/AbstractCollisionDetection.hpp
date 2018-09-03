@@ -36,7 +36,7 @@ struct DistanceInformation
 
 struct ContactInformation{
 
-    ContactInformation();
+    ContactInformation(){}
     double penetration_depth;
     Eigen::Vector3d contact_position;
     Eigen::Vector3d contact_normal;
