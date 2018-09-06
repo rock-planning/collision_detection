@@ -62,20 +62,23 @@ private:
 
     std::vector<  CollisionObjectAssociatedData *>  collision_data_;
     collision_objects_maps collision_objects_container_;
-    std::vector<fcl::Contact<double>> self_collision_contacts_;
-    std::vector<fcl::Contact<double>> environment_collision_contacts_;
+    std::vector<ContactInformation> self_collision_contacts_;
+    std::vector<ContactInformation> environment_collision_contacts_;
     Eigen::Vector3d scale_mesh_;    
     std::shared_ptr<FCLCollisionDetection> world_collision_detector_;
+
+    std::vector<DistanceInformation> self_collision_distance;
+    std::vector<DistanceInformation> obstacle_collision_distance;
+
+    void fclContactToContactInfo(std::vector<fcl::Contact<double> > collision_contacts, std::vector<ContactInformation> &contacts);
+
+    DistanceData getDistanceData(double distance_tolerance, bool is_signed_dist_needed);
 
 public:
 
     FCLCollisionDetection();
     
     virtual ~FCLCollisionDetection();
-
-    std::vector<fcl::Contact<double>> &getSelfContacts();
-    
-    std::vector<fcl::Contact<double>> &getContactsAgainstExternalCollisionManager();
 
     int numberOfObjectsInCollisionManger();
 
@@ -145,13 +148,23 @@ public:
 
     std::vector < std::pair<fcl::CollisionObject<double>*,fcl::CollisionObject<double>* > > &getSelfCollisionObject();
 
-    std::vector< DistanceInformation> &getSelfDistanceInfo();    
-
     std::vector< std::pair<std::string, std::string> > getCollisionObjectNames();
 
     void computeSelfDistanceInfo();
 
     void printCollisionObject();       
+
+    std::vector<ContactInformation> &getSelfContacts();
+
+      std::vector<ContactInformation> &getEnvironmentalContacts();
+
+      std::vector< DistanceInformation> &getSelfDistanceInfo();
+
+      void computeSelfDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false);
+
+      void computeClosestObstacleToRobotDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false);
+
+      std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo();
 
 };
 }// end namespace trajectory_optimization

@@ -27,9 +27,22 @@ enum CollisionLibrary
 
 struct DistanceInformation
 {
+    DistanceInformation(){nearest_points.resize(2);}
     std::string object1;
     std::string object2;
     double distance;
+    std::vector< Eigen::Vector3d > nearest_points;
+};
+
+struct ContactInformation{
+
+    ContactInformation(){}
+    double penetration_depth;
+    Eigen::Vector3d contact_position;
+    Eigen::Vector3d contact_normal;
+    std::string object1;
+    std::string object2;
+
 };
 
 class AbstractCollisionDetection;
@@ -119,6 +132,19 @@ public:
     void removeDisabledCollisionLink(const std::string &link);
     
     bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
+
+    virtual void computeSelfDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false) = 0;
+
+    virtual void computeClosestObstacleToRobotDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false) = 0;
+
+    virtual std::vector< DistanceInformation> &getSelfDistanceInfo() = 0;
+
+    virtual std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo() = 0;
+
+    virtual std::vector<ContactInformation> &getSelfContacts() = 0;
+
+    virtual std::vector<ContactInformation> &getEnvironmentalContacts() = 0;
+
        
     std::string remove_link_;
 };
