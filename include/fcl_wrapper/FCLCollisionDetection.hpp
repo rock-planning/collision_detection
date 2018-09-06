@@ -70,7 +70,7 @@ private:
     std::vector<DistanceInformation> self_collision_distance;
     std::vector<DistanceInformation> obstacle_collision_distance;
 
-    void fclContactToContactInfo(std::vector<fcl::Contact<double> > collision_contacts, std::vector<ContactInformation> &contacts);
+    void fclContactToContactInfo(const std::vector<fcl::Contact<double> > &collision_contacts, std::vector<ContactInformation> &contacts);
 
     DistanceData getDistanceData(double distance_tolerance, bool is_signed_dist_needed);
 
@@ -101,15 +101,15 @@ public:
     
 
     void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
-						  const base::Pose &collision_object_pose ,const double &link_padding = 1.0);
+						  const base::Pose &collision_object_pose, const double &link_padding = 1.0);
 
 
-    void registerSphereToCollisionManager(const double &radius, const std::string &link_name , const base::Pose &collision_object_pose, const double &link_padding = 1.0);
+    void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding = 1.0);
 
 
 
-    void registerOctomapOctreeToCollisionObjectManager(  octomap::OcTree octomap_octree, std::string link_name , 
-							 const fcl::Quaterniond collision_object_quaternion_orientation ,
+    void registerOctomapOctreeToCollisionObjectManager(  const octomap::OcTree &octomap_octree, std::string link_name, 
+							 const fcl::Quaterniond collision_object_quaternion_orientation,
 							 const fcl::Vector3d collision_object_translation );    
     
     void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
@@ -118,7 +118,7 @@ public:
 
     bool checkWorldCollision(int num_max_contacts=1);
         
-    bool checkEnvironmentCollision(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
+    bool checkEnvironmentCollision(const shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
 
     bool assignWorldDetector(AbstractCollisionPtr collision_detector);
 
@@ -141,8 +141,8 @@ public:
     
     void pointcloudPCLToOctomap(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, octomap::Pointcloud& octomapCloud);    
 
-    bool distanceOfClosestObstacleToRobot(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager,
-					  DistanceData &distance_data);
+    bool distanceOfClosestObstacleToRobot( shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager,
+					   DistanceData &distance_data);
 
     std::vector <fcl::CollisionObject<double>*> getEnvironmentCollisionObject();
 
@@ -156,15 +156,15 @@ public:
 
     std::vector<ContactInformation> &getSelfContacts();
 
-      std::vector<ContactInformation> &getEnvironmentalContacts();
+    std::vector<ContactInformation> &getEnvironmentalContacts();
 
-      std::vector< DistanceInformation> &getSelfDistanceInfo();
+    std::vector< DistanceInformation> &getSelfDistanceInfo();
 
-      void computeSelfDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false);
+    void computeSelfDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false);
 
-      void computeClosestObstacleToRobotDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false);
+    void computeClosestObstacleToRobotDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false);
 
-      std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo();
+    std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo();
 
 };
 }// end namespace trajectory_optimization

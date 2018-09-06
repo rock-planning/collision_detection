@@ -225,26 +225,24 @@ FCLCollisionDetection::~FCLCollisionDetection()
         delete collision_data_.at(i);        
 }
 
-void FCLCollisionDetection::fclContactToContactInfo(std::vector<fcl::Contact<double>> collision_contacts, std::vector<ContactInformation> &contacts)
+void FCLCollisionDetection::fclContactToContactInfo(const std::vector<fcl::Contact<double>> &collision_contacts, std::vector<ContactInformation> &contacts)
 {
     contacts.resize(collision_contacts.size());
-    for(size_t i = 0; i<collision_contacts.size(); i++){
-        fcl::Contact<double> &cont = collision_contacts.at(i);
-        CollisionObjectAssociatedData * o1_collision_object_associated_data, * o2_collision_object_associated_data;
-        o1_collision_object_associated_data=static_cast<CollisionObjectAssociatedData*>(cont.o1->getUserData());
-        o2_collision_object_associated_data=static_cast<CollisionObjectAssociatedData*>(cont.o2->getUserData());
+    
+    for(size_t i = 0; i<collision_contacts.size(); i++)
+    {
+	fcl::Contact<double> cont = collision_contacts.at(i);
+	CollisionObjectAssociatedData * o1_collision_object_associated_data, * o2_collision_object_associated_data;
+	o1_collision_object_associated_data=static_cast<CollisionObjectAssociatedData*>(cont.o1->getUserData());
+	o2_collision_object_associated_data=static_cast<CollisionObjectAssociatedData*>(cont.o2->getUserData());
 
-        std::string o1_name= o1_collision_object_associated_data->getID();
-        std::string o2_name=  o2_collision_object_associated_data->getID();
-
-        ContactInformation contact_info;
-        contact_info.penetration_depth = cont.penetration_depth;
-        contact_info.contact_position = cont.pos;
-        contact_info.contact_normal = cont.normal;
-       contact_info.object1 = o1_name;
-       contact_info.object2 = o2_name;
-        contacts.at(i) = contact_info;
-
+	ContactInformation contact_info;
+	contact_info.penetration_depth = cont.penetration_depth;
+	contact_info.contact_position = cont.pos;
+	contact_info.contact_normal = cont.normal;
+	contact_info.object1 = o1_collision_object_associated_data->getID();
+	contact_info.object2 = o2_collision_object_associated_data->getID();
+	contacts.at(i) = contact_info;
     }
 }
 
@@ -288,7 +286,7 @@ void FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
 //    delete scene;
 }
 
-void FCLCollisionDetection::registerOctomapOctreeToCollisionObjectManager(  octomap::OcTree octomap_octree, std::string link_name , 
+void FCLCollisionDetection::registerOctomapOctreeToCollisionObjectManager(const  octomap::OcTree &octomap_octree, std::string link_name , 
 							const fcl::Quaterniond collision_object_quaternion_orientation ,
 							const fcl::Vector3d collision_object_translation )
 {
@@ -606,7 +604,7 @@ bool FCLCollisionDetection::checkWorldCollision( int num_max_contacts)
     return checkEnvironmentCollision( world_collision_detector_->getCollisionManager(), num_max_contacts);
 }
 
-bool FCLCollisionDetection::checkEnvironmentCollision(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts)
+bool FCLCollisionDetection::checkEnvironmentCollision(const shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts)
 {
 
     CollisionData collision_data;
