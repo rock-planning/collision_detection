@@ -53,12 +53,11 @@ typedef std::multimap <std::string , shared_ptr<fcl::CollisionObject<double>> > 
 
 class FCLCollisionDetection;
 
-
 class FCLCollisionDetection: public AbstractCollisionDetection
 {
 
 private:
-    void registerCollisionObjectToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, shared_ptr< fcl::CollisionObject<double> > &collision_object );
+    void registerCollisionObjectToCollisionManager(const std::string &link_name, shared_ptr< fcl::CollisionObject<double> > &collision_object );
   
 
     std::vector<  CollisionObjectAssociatedData *>  collision_data_;

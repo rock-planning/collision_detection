@@ -355,9 +355,11 @@ void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &li
     fcl_mesh_ptr->endModel();
     //fcl::Transform3d mesh_transform3f(collision_object_quaternion_orientation,collision_object_translation);
     //shared_ptr<fcl::CollisionObject<double>>   mesh_collision_object ( new fcl::CollisionObject<double>( fcl_mesh_ptr , mesh_transform3f )  );
-    shared_ptr<fcl::CollisionObject<double>> mesh_collision_object_ptr ( new fcl::CollisionObject<double>( fcl_mesh_ptr ) );
+    shared_ptr<fcl::CollisionObject<double>> mesh_collision_object_ptr ( new fcl::CollisionObject<double>( fcl_mesh_ptr, 
+													   collision_object_pose.orientation.toRotationMatrix(), 
+													   collision_object_pose.position ) );
 
-    registerCollisionObjectToCollisionManager(link_name, collision_object_pose, mesh_collision_object_ptr);  
+    registerCollisionObjectToCollisionManager(link_name, mesh_collision_object_ptr);  
 
     return;
 }
@@ -370,9 +372,11 @@ void FCLCollisionDetection::registerBoxToCollisionManager(const double &box_x, c
     //std::cout<<"registerBoxToCollisionObjectManager, link_name is: " <<link_name <<std::endl;
     shared_ptr<fcl::Box<double> > fcl_box_ptr(new fcl::Box<double>(box_x*link_padding, box_y*link_padding, box_z*link_padding));
     
-    shared_ptr< fcl::CollisionObject<double>   > box_collision_object_ptr (new fcl::CollisionObject<double>( fcl_box_ptr ) ) ;
+    shared_ptr< fcl::CollisionObject<double>   > box_collision_object_ptr (new fcl::CollisionObject<double>( fcl_box_ptr, 
+													     collision_object_pose.orientation.toRotationMatrix(), 
+													     collision_object_pose.position ) ) ;
     
-    registerCollisionObjectToCollisionManager(link_name, collision_object_pose, box_collision_object_ptr);  
+    registerCollisionObjectToCollisionManager(link_name, box_collision_object_ptr);  
 
 }
 void FCLCollisionDetection::registerCylinderToCollisionManager(	const double &radius, const double &length, const std::string &link_name ,
@@ -380,24 +384,27 @@ void FCLCollisionDetection::registerCylinderToCollisionManager(	const double &ra
 {
     shared_ptr<fcl::Cylinder<double> > fcl_cylinder_ptr(new fcl::Cylinder<double>(radius*link_padding,length*link_padding));
     
-    shared_ptr< fcl::CollisionObject<double>   > cylinder_collision_object_ptr (new fcl::CollisionObject<double>( fcl_cylinder_ptr ) ) ;
+    shared_ptr< fcl::CollisionObject<double>   > cylinder_collision_object_ptr (new fcl::CollisionObject<double>( fcl_cylinder_ptr, 
+														  collision_object_pose.orientation.toRotationMatrix(), 
+														  collision_object_pose.position ) ) ;
     
-    registerCollisionObjectToCollisionManager(link_name, collision_object_pose, cylinder_collision_object_ptr);  
+    registerCollisionObjectToCollisionManager(link_name, cylinder_collision_object_ptr);  
 
 }
 void FCLCollisionDetection::registerSphereToCollisionManager(const double &radius, const std::string &link_name , const base::Pose &collision_object_pose, const double &link_padding )
 {
     shared_ptr<fcl::Sphere<double> > fcl_sphere_ptr(new fcl::Sphere<double> (radius*link_padding));   
     
-    shared_ptr< fcl::CollisionObject<double>   > sphere_collision_object_ptr (new fcl::CollisionObject<double>( fcl_sphere_ptr  ) ) ;
+    shared_ptr< fcl::CollisionObject<double>   > sphere_collision_object_ptr (new fcl::CollisionObject<double>( fcl_sphere_ptr, 
+														collision_object_pose.orientation.toRotationMatrix(), 
+														collision_object_pose.position  ) ) ;
     
-    registerCollisionObjectToCollisionManager(link_name, collision_object_pose, sphere_collision_object_ptr);  
+    registerCollisionObjectToCollisionManager(link_name, sphere_collision_object_ptr);  
 
 }
 
-void FCLCollisionDetection::registerCollisionObjectToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, shared_ptr< fcl::CollisionObject<double> > &collision_object )
-{
-    collision_object->setTransform(collision_object_pose.orientation, collision_object_pose.position);
+void FCLCollisionDetection::registerCollisionObjectToCollisionManager(const std::string &link_name, shared_ptr< fcl::CollisionObject<double> > &collision_object )
+{    
     
     CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
     collision_object_associated_data->setID(link_name);
