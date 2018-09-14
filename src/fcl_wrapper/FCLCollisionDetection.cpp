@@ -285,28 +285,6 @@ void FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
     }
 //    delete scene;
 }
-
-void FCLCollisionDetection::registerOctomapOctreeToCollisionObjectManager(const  octomap::OcTree &octomap_octree, std::string link_name , 
-							const fcl::Quaterniond collision_object_quaternion_orientation ,
-							const fcl::Vector3d collision_object_translation )
-{
-    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>( shared_ptr<const octomap::OcTree>(&octomap_octree )  ) ) ;       
-    shared_ptr< fcl::CollisionObject<double>   > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( shared_ptr<fcl::CollisionGeometry<double>>(fcl_OcTree_ptr)) ) ;
-
-    CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
-    collision_object_associated_data->setID(link_name);
-    fcl_tree_collision_object_ptr->setUserData( collision_object_associated_data );
-    collision_data_.push_back(collision_object_associated_data);
-
-    broad_phase_collision_manager->registerObject(fcl_tree_collision_object_ptr.get());
-
-    collision_objects_pair link_name_CollisionObject;
-    link_name_CollisionObject.first=link_name;
-    link_name_CollisionObject.second=fcl_tree_collision_object_ptr;
-    collision_objects_container_.insert(link_name_CollisionObject );
-
-}
-
 void FCLCollisionDetection::pointcloudPCLToOctomap(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, octomap::Pointcloud& octomapCloud)
 {
       octomapCloud.reserve(pclCloud->points.size());
@@ -318,33 +296,46 @@ void FCLCollisionDetection::pointcloudPCLToOctomap(const pcl::PointCloud<pcl::Po
         if (!std::isnan (it->x) && !std::isnan (it->y) && !std::isnan (it->z))
           octomapCloud.push_back(it->x, it->y, it->z);
       }
-    }
+}
 
-void FCLCollisionDetection::registerPointCloudToCollisionManager( const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, 
+void FCLCollisionDetection::updateEnvironment(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
+					      const std::string &env_object_name)
+{
+    
+    collision_objects_maps::iterator it=collision_objects_container_.find(env_object_name);    
+    
+    if (it == collision_objects_container_.end())
+    {
+	LOG_WARN_S<<"[FCLCollisionDetection]: Trying to update environment object name "<<env_object_name.c_str()
+	<<". This object name is not available in collision_objects_container_";	   
+        
+        return;
+    }   
+    
+    octomap::Pointcloud octomapCloud;
+    pointcloudPCLToOctomap( pclCloud, octomapCloud);       
+    
+    octomap_ptr_->insertPointCloud(octomapCloud, octomap::point3d(sensor_origin.x(), sensor_origin.y(), sensor_origin.z()));    
+    
+    broad_phase_collision_manager->update(it->second.get());
+}
+
+void FCLCollisionDetection::registerPointCloudToCollisionManager( const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
+								  const base::Pose &collision_object_pose,
 								  double octree_resolution, std::string link_name)
 {
     //1) conver pcl::pointcloud to octomap tree
     octomap::Pointcloud octomapCloud;
-    pointcloudPCLToOctomap( pclCloud, octomapCloud);
-    octomap::point3d origin (sensor_origin.x(), sensor_origin.y(), sensor_origin.z());
-    shared_ptr<octomap::OcTree > octomap_Octree_ptr(new octomap::OcTree(octree_resolution) );
-    octomap_Octree_ptr->insertPointCloud(octomapCloud, origin);
+    pointcloudPCLToOctomap( pclCloud, octomapCloud);    
+    octomap_ptr_.reset(new octomap::OcTree(octree_resolution) );
+    octomap_ptr_->insertPointCloud(octomapCloud, octomap::point3d(sensor_origin.x(), sensor_origin.y(), sensor_origin.z()));
 
     //2) register octomap tree to fcl
-    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap_Octree_ptr) );
-    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr) ) ;
-
-    CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
-    collision_object_associated_data->setID(link_name);
-    fcl_tree_collision_object_ptr->setUserData( collision_object_associated_data );
-    collision_data_.push_back(collision_object_associated_data);
-
-    broad_phase_collision_manager->registerObject(fcl_tree_collision_object_ptr.get());
-
-    collision_objects_pair link_name_CollisionObject;
-    link_name_CollisionObject.first=link_name;
-    link_name_CollisionObject.second=fcl_tree_collision_object_ptr;
-    collision_objects_container_.insert(link_name_CollisionObject );
+    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap_ptr_) );
+    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
+														collision_object_pose.orientation.toRotationMatrix(),
+														collision_object_pose.position ) ) ;														
+    registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr); 
 }
 
 void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, 
@@ -385,8 +376,8 @@ void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &li
 													   collision_object_pose.orientation.toRotationMatrix(), 
 													   collision_object_pose.position ) );
 
-    registerCollisionObjectToCollisionManager(link_name, mesh_collision_object_ptr);  
-
+    registerCollisionObjectToCollisionManager(link_name, mesh_collision_object_ptr); 
+     
     return;
 }
 
@@ -477,6 +468,13 @@ void FCLCollisionDetection::removeSelfCollisionObject(const std::string &collisi
 {
     //find the collision object -
     collision_objects_maps::iterator it=collision_objects_container_.find(collision_object_name+"_0");
+    
+    if(it == collision_objects_container_.end())
+    {
+	LOG_WARN_S<<"[FCLCollisionDetection]: Trying to remove object name "<<(collision_object_name+"_0").c_str()
+	<<". This object name is not available in collision_objects_container_";	
+        return;	
+    }
 
     //unregister the collision object from collision manager.
     broad_phase_collision_manager->unregisterObject(it->second.get());
@@ -492,7 +490,9 @@ void FCLCollisionDetection::removeWorldCollisionObject(const std::string &collis
 
     if (it == collision_objects_container_.end())
     {
-        std::cout<<"There is no object with a name "<<collision_object_name<<" in the world. No object is deleted"<<std::endl;
+	LOG_WARN_S<<"[FCLCollisionDetection]: Trying to remove object name "<<collision_object_name.c_str()
+	<<" from the world. This object name is not available in collision_objects_container_";	   
+        
         return;
     }
  
@@ -519,9 +519,16 @@ void FCLCollisionDetection::removeObject4mCollisionContainer(const std::string &
 
 void FCLCollisionDetection::updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose)
 {
-    collision_objects_maps::iterator it=collision_objects_container_.find(link_name);
-    //fcl::Transform3d new_transform3f(collision_object_quaternion_orientation,collision_object_translation);
-    //it->second->setTransform(new_transform3f);
+    collision_objects_maps::iterator it=collision_objects_container_.find(link_name);    
+    
+    if (it == collision_objects_container_.end())
+    {
+	LOG_WARN_S<<"[FCLCollisionDetection]: Trying to update collision object name "<<link_name
+	<<". This object name is not available in collision_objects_container_";	   
+        
+        return;
+    }
+
     it->second->setTransform(collision_object_pose.orientation, collision_object_pose.position);
     it->second->computeAABB();
     broad_phase_collision_manager->update(it->second.get());

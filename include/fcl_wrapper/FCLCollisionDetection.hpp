@@ -69,6 +69,8 @@ private:
 
     std::vector<DistanceInformation> self_collision_distance;
     std::vector<DistanceInformation> obstacle_collision_distance;
+    
+    shared_ptr<octomap::OcTree > octomap_ptr_;
 
     void fclContactToContactInfo(const std::vector<fcl::Contact<double> > &collision_contacts, std::vector<ContactInformation> &contacts);
 
@@ -87,8 +89,8 @@ public:
     void extractTrianglesAndVerticesFromMesh(const std::string &abs_path_to_mesh_file, std::vector<fcl::Triangle> &triangles, std::vector<fcl::Vector3d>& vertices, 
 					 double scale_for_mesha_files_x, double scale_for_mesha_files_y, double scale_for_mesha_files_z );
     
-    void registerPointCloudToCollisionManager(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, 
-					      double octree_resolution, std::string link_name);
+    void registerPointCloudToCollisionManager( const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
+					       const base::Pose &collision_object_pose,double octree_resolution, std::string link_name);    
     
     void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
                                              const base::Pose &collision_object_pose, const double &link_padding = 1.0 );
@@ -97,22 +99,16 @@ public:
 					const base::Pose &collision_object_pose, const double &link_padding = 1.0);
     
     void registerMeshToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, 
-					const std::vector<fcl::Triangle> &triangles, const std::vector<fcl::Vector3d> &vertices);
-    
+					const std::vector<fcl::Triangle> &triangles, const std::vector<fcl::Vector3d> &vertices);   
 
     void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
 						  const base::Pose &collision_object_pose, const double &link_padding = 1.0);
 
-
-    void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding = 1.0);
-
-
-
-    void registerOctomapOctreeToCollisionObjectManager(  const octomap::OcTree &octomap_octree, std::string link_name, 
-							 const fcl::Quaterniond collision_object_quaternion_orientation,
-							 const fcl::Vector3d collision_object_translation );    
+    void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding = 1.0); 
     
     void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
+    
+    void updateEnvironment(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, const std::string &env_object_name);
 
     bool checkSelfCollision(int num_max_contacts=1);
 
