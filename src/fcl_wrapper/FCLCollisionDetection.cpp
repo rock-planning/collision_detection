@@ -294,27 +294,6 @@ void FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
 //    delete scene;
 }
 
-void FCLCollisionDetection::registerOctomapOctreeToCollisionObjectManager(const  octomap::OcTree &octomap_octree, std::string link_name , 
-							const fcl::Quaterniond collision_object_quaternion_orientation ,
-							const fcl::Vector3d collision_object_translation )
-{
-    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>( shared_ptr<const octomap::OcTree>(&octomap_octree )  ) ) ;       
-    shared_ptr< fcl::CollisionObject<double>   > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( shared_ptr<fcl::CollisionGeometry<double>>(fcl_OcTree_ptr)) ) ;
-
-    CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
-    collision_object_associated_data->setID(link_name);
-    fcl_tree_collision_object_ptr->setUserData( collision_object_associated_data );
-    collision_data_.push_back(collision_object_associated_data);
-
-    broad_phase_collision_manager->registerObject(fcl_tree_collision_object_ptr.get());
-
-    collision_objects_pair link_name_CollisionObject;
-    link_name_CollisionObject.first=link_name;
-    link_name_CollisionObject.second=fcl_tree_collision_object_ptr;
-    collision_objects_container_.insert(link_name_CollisionObject );
-
-}
-
 void FCLCollisionDetection::pointcloudPCLToOctomap(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, octomap::Pointcloud& octomapCloud)
 {
       octomapCloud.reserve(pclCloud->points.size());
