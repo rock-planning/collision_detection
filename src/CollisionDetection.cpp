@@ -20,7 +20,7 @@ AbstractCollisionPtr CollisionDetection::getCollisionDetector(collision_detectio
 	
 	    case collision_detection::FCL:
 	    {
-		collision_detector = std::shared_ptr< FCLCollisionDetection>(new FCLCollisionDetection());
+		collision_detector = std::make_shared<FCLCollisionDetection>();
 		break;
 	    }
 	    default:
