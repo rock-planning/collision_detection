@@ -240,16 +240,13 @@ void FCLCollisionDetection::fclContactToContactInfo(const std::vector<fcl::Conta
     for(size_t i = 0; i<collision_contacts.size(); i++)
     {
 	fcl::Contact<double> cont = collision_contacts.at(i);
-	CollisionObjectAssociatedData * o1_collision_object_associated_data, * o2_collision_object_associated_data;
-	o1_collision_object_associated_data=static_cast<CollisionObjectAssociatedData*>(cont.o1->getUserData());
-	o2_collision_object_associated_data=static_cast<CollisionObjectAssociatedData*>(cont.o2->getUserData());
 
 	ContactInformation contact_info;
 	contact_info.penetration_depth = cont.penetration_depth;
 	contact_info.contact_position = cont.pos;
 	contact_info.contact_normal = cont.normal;
-	contact_info.object1 = o1_collision_object_associated_data->getID();
-	contact_info.object2 = o2_collision_object_associated_data->getID();
+	contact_info.object1 = collision_object_names.at(i).first;
+	contact_info.object2 = collision_object_names.at(i).second;
 	contacts.at(i) = contact_info;
     }
 }
@@ -564,12 +561,11 @@ bool FCLCollisionDetection::checkSelfCollision(int num_max_contacts)
  
     broad_phase_collision_manager->collide(&collision_data, defaultCollisionFunction);
     
-    std::vector<fcl::Contact<double>> collision_contacts;
-
-    collision_data.result.getContacts(collision_contacts);
+    //CAUTION! Currently getting the contact information works only for "num_max_contacts = 1"    
     
+    std::vector<fcl::Contact<double>> collision_contacts;
+    collision_data.result.getContacts(collision_contacts);    
     fclContactToContactInfo(collision_contacts, self_collision_contacts_);
-
     
     LOG_DEBUG_S<<"[checkSelfCollision]: Self collision contacts size = "<<self_collision_contacts_.size();
 
@@ -619,8 +615,7 @@ bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_d
 }
 
 bool FCLCollisionDetection::checkWorldCollision( int num_max_contacts)
-{  
-    std::cout<<"External size = "<<world_collision_detector_->numberOfObjectsInCollisionManger()<<std::endl;
+{      
     return checkEnvironmentCollision( world_collision_detector_->getCollisionManager(), num_max_contacts);
 }
 
@@ -633,6 +628,10 @@ bool FCLCollisionDetection::checkEnvironmentCollision(const shared_ptr<fcl::Broa
     {
         collision_data.request.enable_contact=true;
     }
+    else
+    {
+        collision_data.request.enable_contact=false;
+    }
 
     number_of_externalcollision=0;
     list_of_collision_objects.clear();
@@ -640,12 +639,11 @@ bool FCLCollisionDetection::checkEnvironmentCollision(const shared_ptr<fcl::Broa
     collision_object_names.clear();
     this->broad_phase_collision_manager->collide( external_broad_phase_collision_manager.get() ,&collision_data, defaultExternalCollisionFunction);
 
+    //CAUTION! Currently getting the contact information works only for "num_max_contacts = 1"
+    
     std::vector<fcl::Contact<double>> collision_contacts;
-
     collision_data.result.getContacts(collision_contacts);
-
     fclContactToContactInfo(collision_contacts, environment_collision_contacts_);
-
 
     LOG_DEBUG_S<<"[checkEnvironmentCollision]: Environment collision size = "<<environment_collision_contacts_.size(); 
     
