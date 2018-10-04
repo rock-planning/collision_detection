@@ -341,8 +341,7 @@ void FCLCollisionDetection::registerPointCloudToCollisionManager( const pcl::Poi
     shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
 														collision_object_pose.orientation.toRotationMatrix(),
 														collision_object_pose.position ) ) ;														
-    registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr); 
-    std::cout<<"POINTTTTTTTTTTTTTTTTTTTTTTTT = "<<collision_objects_container_.size()<<std::endl;
+    registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr);     
 }
 
 void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, 
@@ -693,16 +692,6 @@ int FCLCollisionDetection::numberOfObjectsInCollisionManger()
 {
     std::vector<fcl::CollisionObject<double>*> objs;
     broad_phase_collision_manager->getObjects(objs);
-
-
-    /*fcl::CollisionObject<double> *o1 = objs[0];
-    CollisionObjectAssociatedData * o1_collision_object_associated_data;
-    o1_collision_object_associated_data=static_cast<CollisionObjectAssociatedData*>(o1->getUserData());
-
-    std::string first_object_name= o1_collision_object_associated_data->getID();
-    std::cout<<"EXTER NAME = "<<first_object_name.c_str()<<std::endl;*/
-
-
     return objs.size();
 }
 
