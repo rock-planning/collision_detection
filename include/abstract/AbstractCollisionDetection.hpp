@@ -32,6 +32,9 @@ struct DistanceInformation
     std::string object2;
     double distance;
     std::vector< Eigen::Vector3d > nearest_points;
+    Eigen::Vector3d contact_normal;
+    double min_distance;
+    Eigen::Vector3d unit_normal;
 };
 
 struct ContactInformation{
