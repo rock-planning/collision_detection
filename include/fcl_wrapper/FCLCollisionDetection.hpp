@@ -75,7 +75,7 @@ private:
 
     void fclContactToContactInfo(const std::vector<fcl::Contact<double> > &collision_contacts, std::vector<ContactInformation> &contacts);
 
-    DistanceData getDistanceData(double distance_tolerance, bool is_signed_dist_needed);
+    DistanceData getDistanceData();
 
 public:
 
@@ -147,8 +147,6 @@ public:
 
     std::vector< std::pair<std::string, std::string> > getCollisionObjectNames();
 
-    void computeSelfDistanceInfo();
-
     void printCollisionObject();       
 
     std::vector<ContactInformation> &getSelfContacts();
@@ -157,9 +155,9 @@ public:
 
     std::vector< DistanceInformation> &getSelfDistanceInfo();
 
-    void computeSelfDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false);
+    void computeSelfDistanceInfo();
 
-    void computeClosestObstacleToRobotDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false);
+    void computeClosestObstacleToRobotDistanceInfo();
 
     std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo();
 

@@ -5,29 +5,6 @@
 namespace collision_detection
 {
 
-std::ostream& operator<<(std::ostream& os, const collision_detection::DistanceInformation& dist) {
-
-    os<<"**********DistanceInformation*************** \n"
-    << "object 1: " << dist.object1 << " \nobject2:  " << dist.object2 << " \ndist: " << dist.distance<< "\n"
-    << "point on O1: \n" << dist.nearest_points.at(0) << " \npoint on O2: \n" << dist.nearest_points.at(1) << "\n"
-    << "normal: \n" << dist.contact_normal << " \nmin dist: \n" << dist.min_distance << "\nunit normal \n" << dist.unit_normal<< "\n"
-    <<"---------------------------------------- \n";
-    return os;
-}
-
-
-std::ostream& operator<<(std::ostream& os, const collision_detection::ContactInformation& cont) {
-
-    os<<"**********ContactInformation*************** \n"
-    << "object 1: " << cont.object1 << " \nobject2:  " << cont.object2  << " \npenetration_depth: " << cont.penetration_depth << "\n"
-    << "point on O1: \n" << cont.contact_position<< " \nnormal: \n" << cont.contact_normal<< "\n"
-    << " \nunit normal: \n" << (cont.contact_normal /  cont.contact_normal.norm())<< "\n"
-
-    <<"---------------------------------------- \n";
-
-    return os;
-}
-
 ////////////////////// Out of class variables and functions for collision //////////////////////////////////////
 
 /*number_of_collision_between_links counts number of collision that cause problem and cant't be ignored.
@@ -217,78 +194,19 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
 
     if(AbstractCollisionDetection::linksToBeChecked(first_object_name, second_object_name ))
     {
-         LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: inside if linksToBeChecked ****************\n";
-        LOG_DEBUG_S	<<"first_object_name, second_object_name: ****************" << first_object_name << ", "<< second_object_name<<"\n";
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 1 ****************\n";
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: before fcl::distance ****************\n";
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: result ****************\n";
-
-        LOG_DEBUG_S<< "1: " << request.abs_err << "\n";
-        LOG_DEBUG_S<< "2: " <<request.distance_tolerance << "\n";
-        LOG_DEBUG_S<< "3: " << request.enable_nearest_points << "\n";
-        LOG_DEBUG_S<< "4: " << request.gjk_solver_type  << "\n";
-        LOG_DEBUG_S<< "5: " <<  request.rel_err << "\n";
 
         fcl::distance(o1, o2, request, result);
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: after fcl::distance ****************\n";
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 2 ****************\n";
-
         dist = result.min_distance;
 
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 3 ****************\n";
-
-
         DistanceInformation distance_information;
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 4 ****************\n";
-
         distance_information.object1=first_object_name;
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 5 ****************\n";
-
         distance_information.object2=second_object_name;
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 6 ****************\n";
-
-        distance_information.distance=result.min_distance;
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction:1 ****************\n";
-
+        distance_information.min_distance=result.min_distance;
         distance_information.nearest_points.at(0) = result.nearest_points[0];
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 8 ****************\n";
-
         distance_information.nearest_points.at(1) = result.nearest_points[1];
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 9 ****************\n";
-
-
         distance_information.contact_normal =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
-
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 10 ****************\n";
-
-//        distance_information.contact_normal.x() =  (distance_information.nearest_points.at(0).x() - distance_information.nearest_points.at(1).x());
-//        distance_information.contact_normal.y() =  (distance_information.nearest_points.at(0).y() - distance_information.nearest_points.at(1).y());
-//        distance_information.contact_normal.z() =  (distance_information.nearest_points.at(0).z() - distance_information.nearest_points.at(1).z());
-
-//            distance_information.contact_normal =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
-
-        distance_information.unit_normal =  distance_information.contact_normal / distance_information.contact_normal.norm();
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 11 ****************\n";
-
-
-        LOG_DEBUG_S	<<"CollisionDection defaultDistanceFunction: Distance Info"  << distance_information << "\n";
-
-
+        distance_information.contact_normal =  distance_information.contact_normal / distance_information.contact_normal.norm();
         list_of_distance_information.push_back(distance_information);
-
-        LOG_DEBUG_S<<"CollisionDection defaultDistanceFunction: 12 ****************\n";
-
 
         if(dist > 0)
         {
@@ -630,15 +548,17 @@ bool FCLCollisionDetection::checkSelfCollision(int num_max_contacts)
     CollisionData collision_data;
 
     collision_data.request.num_max_contacts= num_max_contacts;
-    if(num_max_contacts>1)
-    {
-        collision_data.request.enable_contact=true;
-    }
-    else
-    {
-        collision_data.request.enable_contact=true;
+    collision_data.request.enable_contact=true;
 
-    }
+//    if(num_max_contacts>1)
+//    {
+//        collision_data.request.enable_contact=true;
+//    }
+//    else
+//    {
+//        collision_data.request.enable_contact=false;
+
+//    }
     number_of_selfcollision=0;
     list_of_self_collision_objects.clear();
     collision_object_names.clear();
@@ -709,14 +629,16 @@ bool FCLCollisionDetection::checkEnvironmentCollision(const shared_ptr<fcl::Broa
 
     CollisionData collision_data;
     collision_data.request.num_max_contacts=num_max_contacts;
-    if(num_max_contacts>1)
-    {
-        collision_data.request.enable_contact=true;
-    }
-    else
-    {
-        collision_data.request.enable_contact=false;
-    }
+    collision_data.request.enable_contact=true;
+
+//    if(num_max_contacts>1)
+//    {
+//        collision_data.request.enable_contact=true;
+//    }
+//    else
+//    {
+//        collision_data.request.enable_contact=false;
+//    }
 
     number_of_externalcollision=0;
     list_of_collision_objects.clear();
@@ -801,29 +723,18 @@ std::vector < std::pair<fcl::CollisionObject<double>*,fcl::CollisionObject<doubl
     return list_of_self_collision_objects;
 }
 
-DistanceData FCLCollisionDetection::getDistanceData(double distance_tolerance, bool is_signed_dist_needed){
+DistanceData FCLCollisionDetection::getDistanceData(){
     DistanceData distance_data;
     distance_data.request.enable_nearest_points = true;
     distance_data.request.enable_signed_distance = true;
-
-    if (is_signed_dist_needed)
-        distance_data.request.enable_signed_distance = true;
-    if (distance_tolerance > 0.0)
-        distance_data.request.distance_tolerance = distance_tolerance;
-
     return distance_data;
 }
 
-void FCLCollisionDetection::computeSelfDistanceInfo(double distance_tolerance/*=0.0*/, bool is_signed_dist_needed/*=0*/)
+void FCLCollisionDetection::computeSelfDistanceInfo()
 {
-    DistanceData distance_data = getDistanceData(distance_tolerance, is_signed_dist_needed);
+    DistanceData distance_data = getDistanceData();
     list_of_distance_information.clear();
-    std::cout << "CollisionDection computeSelfDistanceInfo: before getDistanceData ****************\n";
-
     this->broad_phase_collision_manager->distance(&distance_data, defaultDistanceFunction);
-
-    std::cout << "CollisionDection computeSelfDistanceInfo: after distance ****************\n";
-
 }
 
 std::vector< DistanceInformation> &FCLCollisionDetection::getSelfDistanceInfo()
@@ -831,9 +742,9 @@ std::vector< DistanceInformation> &FCLCollisionDetection::getSelfDistanceInfo()
     return list_of_distance_information;
 }
 
-void FCLCollisionDetection::computeClosestObstacleToRobotDistanceInfo(double distance_tolerance/*=0.0*/, bool is_signed_dist_needed/*=0*/)
+void FCLCollisionDetection::computeClosestObstacleToRobotDistanceInfo()
 {
-    DistanceData distance_data = getDistanceData(distance_tolerance, is_signed_dist_needed);
+    DistanceData distance_data = getDistanceData();
     list_of_distance_information.clear();
     this->distanceOfClosestObstacleToRobot(world_collision_detector_->getCollisionManager(), distance_data);
 }

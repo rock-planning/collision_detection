@@ -30,11 +30,9 @@ struct DistanceInformation
     DistanceInformation(){nearest_points.resize(2);}
     std::string object1;
     std::string object2;
-    double distance;
+    double min_distance;
     std::vector< Eigen::Vector3d > nearest_points;
     Eigen::Vector3d contact_normal;
-    double min_distance;
-    Eigen::Vector3d unit_normal;
 };
 
 struct ContactInformation{
@@ -140,9 +138,9 @@ public:
     
     bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
 
-    virtual void computeSelfDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false) = 0;
+    virtual void computeSelfDistanceInfo() = 0;
 
-    virtual void computeClosestObstacleToRobotDistanceInfo(double distance_tolerance=0.0, bool is_signed_dist_needed=false) = 0;
+    virtual void computeClosestObstacleToRobotDistanceInfo() = 0;
 
     virtual std::vector< DistanceInformation> &getSelfDistanceInfo() = 0;
 
