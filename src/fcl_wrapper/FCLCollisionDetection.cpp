@@ -205,6 +205,11 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
         distance_information.nearest_points.at(0) = result.nearest_points[0];
         distance_information.nearest_points.at(1) = result.nearest_points[1];
         distance_information.contact_normal =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
+
+        // preventing divide by zeoo
+        if(distance_information.contact_normal.x() == 0 && distance_information.contact_normal.y() == 0 && distance_information.contact_normal.z()  == 0)
+            distance_information.contact_normal +=  Eigen::Vector3d(1e-4, 1e-4, 1e-4);
+
         distance_information.contact_normal =  distance_information.contact_normal / distance_information.contact_normal.norm();
         list_of_distance_information.push_back(distance_information);
 
