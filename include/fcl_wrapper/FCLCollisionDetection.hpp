@@ -62,8 +62,8 @@ private:
 
     std::vector<  CollisionObjectAssociatedData *>  collision_data_;
     collision_objects_maps collision_objects_container_;
-    std::vector<ContactInformation> self_collision_contacts_;
-    std::vector<ContactInformation> environment_collision_contacts_;
+    std::vector<DistanceInformation> self_collision_contacts_;
+    std::vector<DistanceInformation> environment_collision_contacts_;
     Eigen::Vector3d scale_mesh_;    
     std::shared_ptr<FCLCollisionDetection> world_collision_detector_;
     //collision_detection::AbstractCollisionPtr world_collision_detector_;
@@ -73,7 +73,7 @@ private:
     
     shared_ptr<octomap::OcTree > octomap_ptr_;
 
-    void fclContactToContactInfo(const std::vector<fcl::Contact<double> > &collision_contacts, std::vector<ContactInformation> &contacts);
+    void fclContactToDistanceInfo(const std::vector<fcl::Contact<double> > &collision_contacts, std::vector<DistanceInformation> &contacts);
 
     DistanceData getDistanceData();
 
@@ -149,9 +149,9 @@ public:
 
     void printCollisionObject();       
 
-    std::vector<ContactInformation> &getSelfContacts();
+    std::vector<DistanceInformation> &getSelfContacts();
 
-    std::vector<ContactInformation> &getEnvironmentalContacts();
+    std::vector<DistanceInformation> &getEnvironmentalContacts();
 
     std::vector< DistanceInformation> &getSelfDistanceInfo();
 

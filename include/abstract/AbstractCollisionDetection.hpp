@@ -35,17 +35,6 @@ struct DistanceInformation
     Eigen::Vector3d contact_normal;
 };
 
-struct ContactInformation{
-
-    ContactInformation(){}
-    double penetration_depth;
-    Eigen::Vector3d contact_position;
-    Eigen::Vector3d contact_normal;
-    std::string object1;
-    std::string object2;
-
-};
-
 class AbstractCollisionDetection;
 
 typedef std::shared_ptr<AbstractCollisionDetection> AbstractCollisionPtr;
@@ -146,9 +135,9 @@ public:
 
     virtual std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo() = 0;
 
-    virtual std::vector<ContactInformation> &getSelfContacts() = 0;
+    virtual std::vector<DistanceInformation> &getSelfContacts() = 0;
 
-    virtual std::vector<ContactInformation> &getEnvironmentalContacts() = 0;
+    virtual std::vector<DistanceInformation> &getEnvironmentalContacts() = 0;
 
        
     std::string remove_link_;
