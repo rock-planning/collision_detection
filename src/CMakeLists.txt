@@ -13,7 +13,7 @@ find_package(Eigen3 REQUIRED)
 pkg_check_modules(kdl_parser REQUIRED kdl_parser)
 pkg_check_modules(SRDF REQUIRED srdfdom)
 
-find_package(PCL 1.7 REQUIRED COMPONENTS core features filters io segmentation surface)
+find_package(PCL 1.8 REQUIRED COMPONENTS core features filters io segmentation surface)
 message(STATUS "PCL VERSION ${PCL_VERSION}")
 
 pkg_check_modules(ASSIMP REQUIRED assimp)
