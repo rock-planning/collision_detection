@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include <assimp/assimp.hpp>
-#include <assimp/aiScene.h>
-#include <assimp/aiPostProcess.h>
+#include <assimp/scene.h>
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
 
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>

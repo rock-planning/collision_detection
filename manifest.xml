@@ -10,10 +10,8 @@
   <depend package="base/types" />
   <depend package="external/fcl" />
   <depend package="control/kdl_parser" />
-  <depend package="tools/assimp" />
   <depend package="control/srdfdom" />
   <depend package="control/urdfdom" />
   <depend package="control/urdfdom_headers" />
-  <depend package="tools/assimp" />
   <depend package="external/octomap" />
 </package>
