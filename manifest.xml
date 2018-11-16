@@ -13,5 +13,7 @@
   <depend package="control/srdfdom" />
   <depend package="control/urdfdom" />
   <depend package="control/urdfdom_headers" />
-  <depend package="external/octomap" />
+  <depend package="slam/octomap" />
+  <!-- OS dependency -->
+  <depend package="assimp" />
 </package>
