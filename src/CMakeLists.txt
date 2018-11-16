@@ -17,14 +17,14 @@ find_package(PCL 1.8 REQUIRED COMPONENTS core features filters io segmentation s
 message(STATUS "PCL VERSION ${PCL_VERSION}")
 
 pkg_check_modules(ASSIMP REQUIRED assimp)
-message(STATUS "ASSIMP VERSION ${ASSIMP_LIBRARY_DIRS}")
+message(STATUS "ASSIMP VERSION ${ASSIMP_VERSION}")
 
 set(COLLISION_DETECTION_INCLUDES ${CMAKE_SOURCE_DIR}/include ${EIGEN3_INCLUDE_DIR} ${kdl_parser_INCLUDE_DIRS}  
-				 ${PCL_INCLUDE_DIRS} ${ASSIMP_INCLUDE_DIRS} ${SRDF_INCLUDE_DIRS}
-	      )
-      
+				 ${PCL_INCLUDE_DIRS} ${ASSIMP_INCLUDE_DIRS} ${SRDF_INCLUDE_DIRS} )
+
+set(COLLISION_DETECTION_LINK_DIRS ${ASSIMP_LIBRARY_DIRS} ${SRDF_LIBRARY_DIRS}) 
 include_directories(${COLLISION_DETECTION_INCLUDES})
-link_directories(${ASSIMP_LIBRARY_DIRS})
+link_directories(${COLLISION_DETECTION_LINK_DIRS})
 
 add_library(abstract_collision_detection SHARED
             ${CMAKE_CURRENT_LIST_DIR}/abstract/AbstractCollisionDetection.cpp
