@@ -12,6 +12,8 @@
 #include <pcl/point_cloud.h>
 #include <pcl/common/transforms.h>
 
+#include <base-logging/Logging.hpp>
+
 namespace collision_detection
 {
 
@@ -23,7 +25,7 @@ public:
     
     void createPointCloudFromMesh(  std::string &abs_path_to_mesh_file, pcl::PointCloud<pcl::PointXYZ> &point_cloud,
                                     double scale_for_mesha_files_x, double scale_for_mesha_files_y, double scale_for_mesha_files_z,
-                                    Eigen::Affine3f target_frame);
+                                    Eigen::Isometry3f target_frame);
     void createPointCloudFromMesh(  std::string &abs_path_to_mesh_file, pcl::PointCloud<pcl::PointXYZ> &point_cloud, 
 				    double scale_for_mesha_files_x=1.00, double scale_for_mesha_files_y=1.00, 
 				    double scale_for_mesha_files_z=1.00 );
