@@ -1,19 +1,30 @@
 <package>
-  <description brief="">
-  
-  </description>
-  <author>Sankaranarayanan Natarajan/sankar.natarajan@dfki.de</author>
-  <license></license>
-  <url>http://</url>
-  <logo>http://</logo>
-  <depend package="base/cmake" />
-  <depend package="base/types" />
-  <depend package="external/fcl" />
-  <depend package="control/kdl_parser" />
-  <depend package="control/srdfdom" />
-  <depend package="control/urdfdom" />
-  <depend package="control/urdfdom_headers" />
-  <depend package="slam/octomap" />
-  <!-- OS dependency -->
-  <depend package="assimp" />
+    <description brief=""></description>
+    <author>Sankaranarayanan Natarajan/sankar.natarajan@dfki.de</author>
+    <!-- Use the short version name from:https://spdx.org/licenses/ -->
+    <license></license>
+    <url>https://git.hb.dfki.de/dfki-planning/collision_detection.git</url>
+    <logo>http://</logo>
+    <depend package="base/cmake" />
+    <depend package="base/types" />
+    <depend package="external/fcl" />
+    <depend package="control/kdl_parser" />
+    <depend package="control/srdfdom" />
+    <depend package="control/urdfdom" />
+    <depend package="control/urdfdom_headers" />
+    <depend package="slam/octomap" />
+    <depend package="assimp" />
+    <name>collision_detection</name>
+    <maintainer>Sankar/sankar.natarajan@dfki.de</maintainer>
+    <maintainer>Mahesh Kumar Karikalan/mahesh.karikalan@dfki.de</maintainer>
+    <!-- One of: -1, 0, 1, 2 -->
+    <stage>-1</stage>
+    <!-- First keyword one of: communication, configuration, control, drivers, interaction, learning, localization, mapping, mechanics, middleware, perception, planning, reasoning, representation, simulation, utilities-->
+    <keywords>
+        <keyword>ADD THE MAIN CATEGORY HERE</keyword>
+    </keywords>
+    <!-- One of: active, pending, discontinued -->
+    <activity>active</activity>
+    <!-- One of: single project, multi project, external-->
+    <use>single project</use>
 </package>
