@@ -9,8 +9,8 @@
 #include <pcl/point_types.h>
 #include <octomap/octomap.h>
 
- #include <boost/bind.hpp>
- #include <base-logging/Logging.hpp>
+#include <boost/bind.hpp>
+#include <base-logging/Logging.hpp>
 
 
 /** \file AbstractCollisionDetection.hpp
@@ -104,24 +104,23 @@ public:
     
     //static bool linksToBeChecked( std::string first_link_name, std::string second_object_name );
     
-    static bool linksToBeChecked( std::string first_link_name, std::string second_object_name )
+    static bool linksToBeChecked( const std::string &first_link_name, const std::string &second_link_name )
     {
-	if(first_link_name == second_object_name  )
-	{
-	    return false;
-	}
+        if(first_link_name == second_link_name  )
+        {
+            return false;
+        }
 
-	for(std::size_t i = 0; i < AbstractCollisionDetection::disabled_collisions_.size(); i++ )
-	{
-	    if( (first_link_name    == AbstractCollisionDetection::disabled_collisions_.at(i).link1_ &&  second_object_name  == AbstractCollisionDetection::disabled_collisions_.at(i).link2_) || 
-		(second_object_name == AbstractCollisionDetection::disabled_collisions_.at(i).link1_ &&  first_link_name     == AbstractCollisionDetection::disabled_collisions_.at(i).link2_)  )
-	    {
-		return false;
-	    }
-	}
-	return true;
+        //for(std::size_t i = 0; i < AbstractCollisionDetection::disabled_collisions_.size(); i++ )
+        for(auto &dc: AbstractCollisionDetection::disabled_collisions_)            
+        {
+            if( (first_link_name    == dc.link1_ &&  second_link_name  == dc.link2_) || 
+            (second_link_name == dc.link1_ &&  first_link_name     == dc.link2_)  )            
+                return false;
+        }
+        return true;
     }
-    
+
     static std::vector<srdf::Model::DisabledCollision> disabled_collisions_;
 
     void setDisabledCollisionPairs(std::vector<srdf::Model::DisabledCollision> &disabled_collisions);
