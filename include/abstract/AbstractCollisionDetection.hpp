@@ -60,6 +60,9 @@ public:
     //virtual void registerPointCloudToCollisionManager(const pcl::PointCloud<PointT>& pclCloud,  double octree_resolution, std::string link_name , const base::Position &sensor_origin) ;    
     //virtual void registerOctreeToCollisionManager ( octomap::OcTree octomap_octree, std::string link_name , const base::samples::RigidBodyState &collision_object) = 0;   
     
+    virtual void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin,
+                                        const base::Pose &collision_object_pose, std::string link_name) = 0;
+    
     virtual void registerPointCloudToCollisionManager(  const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
 							const base::Pose &collision_object_pose, double octree_resolution, std::string link_name) = 0;
     
@@ -78,6 +81,8 @@ public:
     virtual void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose) = 0;
     
     virtual void updateEnvironment(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, const std::string &env_object_name) = 0;
+    
+    virtual void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin, const std::string &env_object_name) = 0;
     
     virtual void removeSelfCollisionObject(const std::string &collision_object_name) = 0;
     

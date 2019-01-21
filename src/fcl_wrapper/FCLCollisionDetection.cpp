@@ -334,6 +334,37 @@ void FCLCollisionDetection::updateEnvironment(const pcl::PointCloud<pcl::PointXY
     broad_phase_collision_manager->update(it->second.get());
 }
 
+void FCLCollisionDetection::updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin, const std::string &env_object_name)
+{
+    collision_objects_maps::iterator it=collision_objects_container_.find(env_object_name);    
+    
+    if (it == collision_objects_container_.end())
+    {
+        LOG_WARN_S<<"[FCLCollisionDetection]: Trying to update environment object name "<<env_object_name.c_str()
+        <<". This object name is not available in collision_objects_container_";           
+        
+        return;
+    }   
+
+    octomap_ptr_ = std::move(octomap);
+    
+    broad_phase_collision_manager->update(it->second.get());
+}
+   
+    
+void FCLCollisionDetection::registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin,
+                                                              const base::Pose &collision_object_pose, std::string link_name)
+{
+    octomap_ptr_ = std::move(octomap);
+    //1) register octomap tree to fcl
+    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap_ptr_) );
+    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
+                                                                                                                collision_object_pose.orientation.toRotationMatrix(),
+                                                                                                                collision_object_pose.position ) ) ;                                                                                                            
+    registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr);
+}
+
+
 void FCLCollisionDetection::registerPointCloudToCollisionManager( const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
 								  const base::Pose &collision_object_pose,
 								  double octree_resolution, std::string link_name)
@@ -602,14 +633,14 @@ bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_d
 
     try
     {
-	    world_collision_detector_.reset(new FCLCollisionDetection());
+        world_collision_detector_.reset(new FCLCollisionDetection());
         world_collision_detector_ = dynamic_pointer_cast<FCLCollisionDetection>(collision_detector);
         //world_collision_detector_ = collision_detector;
     }
     catch (std::exception &e)
     {
-	    LOG_ERROR("[FCLCollisionDetection]: Cannot assign AbstractCollisionPtr to FCLCollisionDetection. The error:%s", e.what());
-	    return false;
+        LOG_ERROR("[FCLCollisionDetection]: Cannot assign AbstractCollisionPtr to FCLCollisionDetection. The error:%s", e.what());
+        return false;
     }
     
     return true;
