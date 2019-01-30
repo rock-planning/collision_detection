@@ -1,5 +1,5 @@
 <package>
-    <description brief="Collection of collision detection libraries"></description>
+    <description>"Collection of collision detection libraries"</description>
     <author>Sankaranarayanan Natarajan/sankar.natarajan@dfki.de</author>
     <!-- Use the short version name from:https://spdx.org/licenses/ -->
     <license></license>
