@@ -18,6 +18,7 @@ enum ModelTypes
 {
     PRIMITIVES,
     MESH,
+    OCTREE,
     UNDEFINED
 };
 
@@ -42,7 +43,7 @@ struct PrimitiveObject
     double height;
 
     // box
-    std::vector<double> dimensions;
+    base::Vector3d dimensions;
 };
 
 } // end namespace 

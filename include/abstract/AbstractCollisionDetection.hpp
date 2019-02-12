@@ -14,7 +14,7 @@
 
 
 /** \file AbstractCollisionDetection.hpp
-*    \brief Abstract collision detection header.
+*   \brief Abstract collision detection header.
 */
 
 namespace collision_detection
@@ -46,108 +46,107 @@ typedef std::shared_ptr<AbstractCollisionDetection> AbstractCollisionPtr;
 class AbstractCollisionDetection
 {
 
-public:
-    /**
-    * @brief  constructor
-    */
-    AbstractCollisionDetection();
-    /**
-    * @brief  destructor
-    */
-    virtual ~AbstractCollisionDetection();
-     
-    //template <class PointT>
-    //virtual void registerPointCloudToCollisionManager(const pcl::PointCloud<PointT>& pclCloud,  double octree_resolution, std::string link_name , const base::Position &sensor_origin) ;    
-    //virtual void registerOctreeToCollisionManager ( octomap::OcTree octomap_octree, std::string link_name , const base::samples::RigidBodyState &collision_object) = 0;   
-    
-    virtual void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin,
-                                        const base::Pose &collision_object_pose, std::string link_name) = 0;
-    
-    virtual void registerPointCloudToCollisionManager(  const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
-							const base::Pose &collision_object_pose, double octree_resolution, std::string link_name) = 0;
-    
+    public:
+        /**
+        * @brief  constructor
+        */
+        AbstractCollisionDetection();
+        /**
+        * @brief  destructor
+        */
+        virtual ~AbstractCollisionDetection();
+         
+        //template <class PointT>
+        //virtual void registerPointCloudToCollisionManager(const pcl::PointCloud<PointT>& pclCloud,  double octree_resolution, std::string link_name , const base::Position &sensor_origin) ;
+        //virtual void registerOctreeToCollisionManager ( octomap::OcTree octomap_octree, std::string link_name , const base::samples::RigidBodyState &collision_object) = 0;   
 
-    virtual void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
-						const base::Pose &collision_object_pose, const double &link_padding) = 0;
-    
-    virtual void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name,
-                                             const base::Pose &collision_object_pose, const double &link_padding ) = 0;
-    
-    virtual void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
-						  const base::Pose &collision_object_pose ,const double &link_padding) = 0;
+        virtual void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin,
+        const base::Pose &collision_object_pose, std::string link_name) = 0;
 
-    virtual void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding) = 0;
+        virtual void registerPointCloudToCollisionManager(  const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
+                                                                const base::Pose &collision_object_pose, double octree_resolution, std::string link_name) = 0;
 
-    virtual void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose) = 0;
-    
-    virtual void updateEnvironment(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, const std::string &env_object_name) = 0;
-    
-    virtual void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin, const std::string &env_object_name) = 0;
-    
-    virtual void removeSelfCollisionObject(const std::string &collision_object_name) = 0;
-    
-    virtual void removeWorldCollisionObject(const std::string &collision_object_name) = 0;
-    
-    virtual int numberOfObjectsInCollisionManger() = 0;
-    
-    virtual bool checkSelfCollision(int num_max_contacts=1) = 0;
 
-    virtual bool checkWorldCollision(int num_max_contacts=1) = 0;    
-   
-    virtual bool assignWorldDetector(AbstractCollisionPtr collision_detector) = 0;
-    
-    virtual void printCollisionObject() = 0;
-    
-    virtual std::vector< std::pair<std::string, std::string> > getCollisionObjectNames()=0;
-    
- //   virtual void printWorldCollisionObject() = 0;
-    
-    //static bool linksToBeChecked( std::string first_link_name, std::string second_object_name );
-    
-    static bool linksToBeChecked( const std::string &first_link_name, const std::string &second_link_name )
-    {
-        if(first_link_name == second_link_name  )
+        virtual void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
+                                                        const base::Pose &collision_object_pose, const double &link_padding) = 0;
+
+        virtual void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name,
+         const base::Pose &collision_object_pose, const double &link_padding ) = 0;
+
+        virtual void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
+                                                          const base::Pose &collision_object_pose ,const double &link_padding) = 0;
+
+        virtual void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding) = 0;
+
+        virtual void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose) = 0;
+
+        virtual void updateEnvironment(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, const std::string &env_object_name) = 0;
+
+        virtual void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin, const std::string &env_object_name) = 0;
+
+        virtual bool removeSelfCollisionObject(const std::string &collision_object_name) = 0;
+
+        virtual bool removeWorldCollisionObject(const std::string &collision_object_name) = 0;
+
+        virtual bool removeObjectFromOctree(Eigen::Vector3d object_pose, Eigen::Vector3d object_size) = 0;
+
+        virtual int numberOfObjectsInCollisionManger() = 0;
+
+        virtual bool checkSelfCollision(int num_max_contacts=1) = 0;
+
+        virtual bool checkWorldCollision(int num_max_contacts=1) = 0;
+
+        virtual bool assignWorldDetector(AbstractCollisionPtr collision_detector) = 0;
+
+        virtual void printCollisionObject() = 0;
+        
+        virtual void saveOctree(std::string path, std::string filename) = 0;
+
+        virtual std::vector< std::pair<std::string, std::string> > getCollisionObjectNames()=0;
+
+         //   virtual void printWorldCollisionObject() = 0;        
+
+        static bool linksToBeChecked( const std::string &first_link_name, const std::string &second_link_name )
         {
-            return false;
+            if(first_link_name == second_link_name  )            
+                return false;            
+
+            //for(std::size_t i = 0; i < AbstractCollisionDetection::disabled_collisions_.size(); i++ )
+            for(auto &dc: AbstractCollisionDetection::disabled_collisions_)
+            {
+                if( (first_link_name== dc.link1_ &&  second_link_name  == dc.link2_) || 
+                    (second_link_name == dc.link1_ &&  first_link_name == dc.link2_)  )
+                    return false;
+            }
+            return true;
         }
 
-        //for(std::size_t i = 0; i < AbstractCollisionDetection::disabled_collisions_.size(); i++ )
-        for(auto &dc: AbstractCollisionDetection::disabled_collisions_)            
-        {
-            if( (first_link_name    == dc.link1_ &&  second_link_name  == dc.link2_) || 
-            (second_link_name == dc.link1_ &&  first_link_name     == dc.link2_)  )            
-                return false;
-        }
-        return true;
-    }
+        static std::vector<srdf::Model::DisabledCollision> disabled_collisions_;
 
-    static std::vector<srdf::Model::DisabledCollision> disabled_collisions_;
+        void setDisabledCollisionPairs(std::vector<srdf::Model::DisabledCollision> &disabled_collisions);
 
-    void setDisabledCollisionPairs(std::vector<srdf::Model::DisabledCollision> &disabled_collisions);
+        void addDisabledCollisionPairs(srdf::Model::DisabledCollision &disabled_collision);
 
-    void addDisabledCollisionPairs(srdf::Model::DisabledCollision &disabled_collision);
+        void removeDisabledCollisionLink(const std::string &link);
 
-    void removeDisabledCollisionLink(const std::string &link);
-    
-    bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
+        bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
 
-    virtual void computeSelfDistanceInfo() = 0;
+        virtual void computeSelfDistanceInfo() = 0;
 
-    virtual void computeClosestObstacleToRobotDistanceInfo() = 0;
+        virtual void computeClosestObstacleToRobotDistanceInfo() = 0;
 
-    virtual std::vector< DistanceInformation> &getSelfDistanceInfo() = 0;
+        virtual std::vector< DistanceInformation> &getSelfDistanceInfo() = 0;
 
-    virtual std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo() = 0;
+        virtual std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo() = 0;
 
-    virtual std::vector<DistanceInformation> &getSelfContacts() = 0;
+        virtual std::vector<DistanceInformation> &getSelfContacts() = 0;
 
-    virtual std::vector<DistanceInformation> &getEnvironmentalContacts() = 0;
+        virtual std::vector<DistanceInformation> &getEnvironmentalContacts() = 0;
 
-       
-    std::string remove_link_;
+        std::string remove_link_;
 };
 
-    
+
 };
 
 #endif

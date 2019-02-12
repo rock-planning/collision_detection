@@ -157,7 +157,7 @@ bool defaultExternalCollisionFunction(fcl::CollisionObject<double>* o1, fcl::Col
     }
     else
     {
-        LOG_DEBUG_S <<"[defaultCollisionFunction]: The collision between " <<first_object_name.c_str() <<" and " 
+        LOG_DEBUG_S <<"[defaultExternalCollisionFunction]: The collision between " <<first_object_name.c_str() <<" and " 
         <<second_object_name.c_str()<<"  ignored";        
     }
     return cdata->done;
@@ -336,21 +336,45 @@ void FCLCollisionDetection::updateEnvironment(const pcl::PointCloud<pcl::PointXY
 void FCLCollisionDetection::updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin, const std::string &env_object_name)
 {
     collision_objects_maps::iterator it=collision_objects_container_.find(env_object_name);    
-    
+
     if (it == collision_objects_container_.end())
     {
         LOG_WARN_S<<"[FCLCollisionDetection]: Trying to update environment object name "<<env_object_name.c_str()
-        <<". This object name is not available in collision_objects_container_";           
-        
+        <<". This object name is not available in collision_objects_container_";
         return;
-    }   
-
+    }
     octomap_ptr_ = std::move(octomap);
-    
     broad_phase_collision_manager->update(it->second.get());
 }
-   
-    
+
+bool FCLCollisionDetection::removeObjectFromOctree(Eigen::Vector3d object_pose, Eigen::Vector3d object_size)
+{
+    if(octomap_ptr_)
+    {
+        double map_resoultion = octomap_ptr_->getResolution();
+        double length = object_pose.x() + (object_size.x()/2.0);
+        double width  = object_pose.y() + (object_size.y()/2.0);
+        double height = object_pose.z() + (object_size.z()/2.0);
+
+        for (double ix = (object_pose.x()-(object_size.x()/2.0)) ; ix <= length; ix += map_resoultion)
+        {
+            for (double iy = (object_pose.y()-(object_size.y()/2.0)); iy <= width; iy += map_resoultion)
+            {
+                for (double iz = (object_pose.z()-(object_size.z()/2.0)); iz <= height; iz += map_resoultion)
+                {
+                    // known cell
+                    if (octomap_ptr_->search(ix,iy,iz))
+                        octomap_ptr_->setNodeValue(ix,iy,iz, -1.0, false);
+                }
+            }
+        }
+        octomap_ptr_->updateInnerOccupancy();
+
+        return true;
+    }
+    return false;
+}
+
 void FCLCollisionDetection::registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin,
                                                               const base::Pose &collision_object_pose, std::string link_name)
 {
@@ -507,16 +531,16 @@ void FCLCollisionDetection::registerPCLPointCloud(const pcl::PointCloud<PointT>&
 */
 
 
-void FCLCollisionDetection::removeSelfCollisionObject(const std::string &collision_object_name)
+bool FCLCollisionDetection::removeSelfCollisionObject(const std::string &collision_object_name)
 {
     //find the collision object -
     collision_objects_maps::iterator it=collision_objects_container_.find(collision_object_name+"_0");
-    
+
     if(it == collision_objects_container_.end())
     {
         LOG_WARN_S<<"[FCLCollisionDetection]: Trying to remove object name "<<(collision_object_name+"_0").c_str()
         <<". This object name is not available in collision_objects_container_";	
-        return;
+        return false;
     }
 
     //unregister the collision object from collision manager.
@@ -524,9 +548,11 @@ void FCLCollisionDetection::removeSelfCollisionObject(const std::string &collisi
 
     //remove collision object from collision containter
     removeObject4mCollisionContainer(collision_object_name);
+
+    return true;
 }
 
-void FCLCollisionDetection::removeWorldCollisionObject(const std::string &collision_object_name)
+bool FCLCollisionDetection::removeWorldCollisionObject(const std::string &collision_object_name)
 {
     //find the collision object -
     collision_objects_maps::iterator it = collision_objects_container_.find(collision_object_name);
@@ -534,9 +560,8 @@ void FCLCollisionDetection::removeWorldCollisionObject(const std::string &collis
     if (it == collision_objects_container_.end())
     {
         LOG_WARN_S<<"[FCLCollisionDetection]: Trying to remove object name "<<collision_object_name.c_str()
-        <<" from the world. This object name is not available in collision_objects_container_";	   
-
-        return;
+        <<" from the world. This object name is not available in collision_objects_container_";
+        return false;
     }
  
     //unregister the collision object from collision manager.
@@ -544,6 +569,8 @@ void FCLCollisionDetection::removeWorldCollisionObject(const std::string &collis
 
     //remove collision object from collision containter
     removeObject4mCollisionContainer(collision_object_name);
+
+    return true;
 }
 
 void FCLCollisionDetection::removeObject4mCollisionContainer(const std::string &collision_object_name)
@@ -802,6 +829,13 @@ void FCLCollisionDetection::printCollisionObject()
 std::vector< std::pair<std::string, std::string> > FCLCollisionDetection::getCollisionObjectNames()
 {
    return collision_object_names;
+}
+
+void FCLCollisionDetection::saveOctree(std::string path, std::string filename)
+{
+    mkdir(path.c_str(), 0755);
+    
+    octomap_ptr_->writeBinary(path + "/"+filename+".bt");
 }
 
 }// end namespace collision_detection

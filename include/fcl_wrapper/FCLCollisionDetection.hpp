@@ -10,6 +10,7 @@
 
 #include <string>
 #include <vector>
+#include <sys/stat.h> //needed to create director (mkdir function)
 
 #include <fcl/config.h>
 #if (FCL_MAJOR_VERSION > 0 || (FCL_MAJOR_VERSION >= 0 && \
@@ -125,11 +126,13 @@ public:
 
     bool assignWorldDetector(AbstractCollisionPtr collision_detector);
 
-    void removeSelfCollisionObject(const std::string &collision_object_name);
+    bool removeSelfCollisionObject(const std::string &collision_object_name);
     
-    void removeWorldCollisionObject(const std::string &collision_object_name);
+    bool removeWorldCollisionObject(const std::string &collision_object_name);
     
     void removeObject4mCollisionContainer(const std::string &collision_object_name);
+    
+    bool removeObjectFromOctree(Eigen::Vector3d object_pose, Eigen::Vector3d object_size);
 
     shared_ptr<fcl::BroadPhaseCollisionManager<double>>  &getCollisionManager();
 
@@ -166,6 +169,8 @@ public:
     void computeClosestObstacleToRobotDistanceInfo();
 
     std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo();
+    
+    void saveOctree(std::string path, std::string filename);
 
 };
 }// end namespace trajectory_optimization
