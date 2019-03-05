@@ -3,6 +3,7 @@
 
 
 #include "abstract/AbstractCollisionDetection.hpp"
+#include "CollisionConfig.hpp"
 
 #include "CollisionObjectAssociatedData.hpp"
 #include "CollisionData.hpp"
@@ -73,6 +74,8 @@ private:
     std::vector<DistanceInformation> obstacle_collision_distance;
     
     shared_ptr<octomap::OcTree > octomap_ptr_;
+    
+    OctreeDebugConfig octree_debug_config_;
 
     void fclContactToDistanceInfo(const std::vector<fcl::Contact<double> > &collision_contacts, std::vector<DistanceInformation> &contacts);
 
@@ -80,7 +83,7 @@ private:
 
 public:
 
-    FCLCollisionDetection();
+    FCLCollisionDetection(OctreeDebugConfig octree_debug_config_);
     
     virtual ~FCLCollisionDetection();
 
@@ -90,19 +93,15 @@ public:
 
     void extractTrianglesAndVerticesFromMesh(const std::string &abs_path_to_mesh_file, std::vector<fcl::Triangle> &triangles, std::vector<fcl::Vector3d>& vertices, 
 					 double scale_for_mesha_files_x, double scale_for_mesha_files_y, double scale_for_mesha_files_z );
-    
-    void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin,
-                                            const base::Pose &collision_object_pose, std::string link_name);
-    
-    void registerPointCloudToCollisionManager( const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
-					       const base::Pose &collision_object_pose,double octree_resolution, std::string link_name);    
-    
+
+    void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, std::string link_name);
+
     void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
                                              const base::Pose &collision_object_pose, const double &link_padding = 1.0 );
-   
+
     void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
 					const base::Pose &collision_object_pose, const double &link_padding = 1.0);
-    
+
     void registerMeshToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, 
 					const std::vector<fcl::Triangle> &triangles, const std::vector<fcl::Vector3d> &vertices);   
 
@@ -110,13 +109,10 @@ public:
 						  const base::Pose &collision_object_pose, const double &link_padding = 1.0);
 
     void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding = 1.0); 
-    
-    void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
-    
-    void updateEnvironment(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, const std::string &env_object_name);
-           
-    void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin, const std::string &env_object_name);
 
+    void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
+
+    void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name);
 
     bool checkSelfCollision(int num_max_contacts=1);
 
@@ -138,14 +134,6 @@ public:
 
     shared_ptr<fcl::BroadPhaseCollisionManager<double>> broad_phase_collision_manager;
 
-    /**
-     * @brief Conversion from a PCL pointcloud to octomap::Pointcloud, used internally in OctoMap
-     *
-     * @param pclCloud
-     * @param octomapCloud
-     */
-    
-    void pointcloudPCLToOctomap(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, octomap::Pointcloud& octomapCloud);    
 
     bool distanceOfClosestObstacleToRobot( shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager,
 					   DistanceData &distance_data);
@@ -156,7 +144,7 @@ public:
 
     std::vector< std::pair<std::string, std::string> > getCollisionObjectNames();
 
-    void printCollisionObject();       
+    void printCollisionObject();
 
     std::vector<DistanceInformation> &getSelfContacts();
 
@@ -170,7 +158,7 @@ public:
 
     std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo();
     
-    void saveOctree(std::string path, std::string filename);
+    void saveOctree();
 
 };
 }// end namespace trajectory_optimization

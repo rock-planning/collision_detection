@@ -10,7 +10,7 @@ CollisionDetection::~CollisionDetection()
 {}
 
 
-AbstractCollisionPtr CollisionDetection::getCollisionDetector(collision_detection::CollisionLibrary library)
+AbstractCollisionPtr CollisionDetection::getCollisionDetector(collision_detection::CollisionLibrary library, OctreeDebugConfig octree_debug_config)
 {
 	AbstractCollisionPtr collision_detector = NULL;
 	
@@ -20,7 +20,7 @@ AbstractCollisionPtr CollisionDetection::getCollisionDetector(collision_detectio
 	
 	    case collision_detection::FCL:
 	    {
-		collision_detector = std::make_shared<FCLCollisionDetection>();
+		collision_detector = std::make_shared<FCLCollisionDetection>(octree_debug_config);
 		break;
 	    }
 	    default:

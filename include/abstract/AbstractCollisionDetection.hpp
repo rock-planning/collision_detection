@@ -5,8 +5,6 @@
 #include <string>
 #include <base/samples/RigidBodyState.hpp>
 #include <srdfdom/model.h>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
 #include <octomap/octomap.h>
 
 #include <boost/bind.hpp>
@@ -55,34 +53,24 @@ class AbstractCollisionDetection
         * @brief  destructor
         */
         virtual ~AbstractCollisionDetection();
-         
-        //template <class PointT>
-        //virtual void registerPointCloudToCollisionManager(const pcl::PointCloud<PointT>& pclCloud,  double octree_resolution, std::string link_name , const base::Position &sensor_origin) ;
-        //virtual void registerOctreeToCollisionManager ( octomap::OcTree octomap_octree, std::string link_name , const base::samples::RigidBodyState &collision_object) = 0;   
 
-        virtual void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin,
-        const base::Pose &collision_object_pose, std::string link_name) = 0;
-
-        virtual void registerPointCloudToCollisionManager(  const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
-                                                                const base::Pose &collision_object_pose, double octree_resolution, std::string link_name) = 0;
-
+        virtual void registerOctreeToCollisionManager(  const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
+                                                        std::string link_name) = 0;
 
         virtual void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
-                                                        const base::Pose &collision_object_pose, const double &link_padding) = 0;
+                                                    const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
-        virtual void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name,
-         const base::Pose &collision_object_pose, const double &link_padding ) = 0;
+        virtual void registerBoxToCollisionManager( const double &box_x, const double &box_y, const double &box_z, const std::string &link_name,
+                                                    const base::Pose &collision_object_pose, const double &link_padding ) = 0;
 
         virtual void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
-                                                          const base::Pose &collision_object_pose ,const double &link_padding) = 0;
+                                                        const base::Pose &collision_object_pose ,const double &link_padding) = 0;
 
         virtual void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
         virtual void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose) = 0;
 
-        virtual void updateEnvironment(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, const std::string &env_object_name) = 0;
-
-        virtual void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin, const std::string &env_object_name) = 0;
+        virtual void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name) = 0;
 
         virtual bool removeSelfCollisionObject(const std::string &collision_object_name) = 0;
 
@@ -100,7 +88,7 @@ class AbstractCollisionDetection
 
         virtual void printCollisionObject() = 0;
         
-        virtual void saveOctree(std::string path, std::string filename) = 0;
+        virtual void saveOctree() = 0;
 
         virtual std::vector< std::pair<std::string, std::string> > getCollisionObjectNames()=0;
 

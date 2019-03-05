@@ -4,7 +4,7 @@
 #include <vector>
 #include <string>
 #include "abstract/AbstractCollisionDetection.hpp"
-#include "abstract/MeshLoader.hpp"
+#include "CollisionConfig.hpp"
 
 #include "fcl_wrapper/FCLCollisionDetection.hpp"
 
@@ -33,7 +33,7 @@ public:
     */
     ~CollisionDetection();
 
-     AbstractCollisionPtr getCollisionDetector(collision_detection::CollisionLibrary library);
+     AbstractCollisionPtr getCollisionDetector(collision_detection::CollisionLibrary library, OctreeDebugConfig octree_debug_config);
 
 };
 

@@ -13,14 +13,12 @@ find_package(Eigen3 REQUIRED)
 pkg_check_modules(kdl_parser REQUIRED kdl_parser)
 pkg_check_modules(SRDF REQUIRED srdfdom)
 
-find_package(PCL 1.8 REQUIRED COMPONENTS core features filters io segmentation surface)
-message(STATUS "PCL VERSION ${PCL_VERSION}")
 
 pkg_check_modules(ASSIMP REQUIRED assimp)
 message(STATUS "ASSIMP VERSION ${ASSIMP_VERSION}")
 
 set(COLLISION_DETECTION_INCLUDES ${CMAKE_SOURCE_DIR}/include ${EIGEN3_INCLUDE_DIR} ${kdl_parser_INCLUDE_DIRS}  
-				 ${PCL_INCLUDE_DIRS} ${ASSIMP_INCLUDE_DIRS} ${SRDF_INCLUDE_DIRS} )
+				 ${ASSIMP_INCLUDE_DIRS} ${SRDF_INCLUDE_DIRS} )
 
 set(COLLISION_DETECTION_LINK_DIRS ${ASSIMP_LIBRARY_DIRS} ${SRDF_LIBRARY_DIRS}) 
 include_directories(${COLLISION_DETECTION_INCLUDES})
@@ -28,9 +26,8 @@ link_directories(${COLLISION_DETECTION_LINK_DIRS})
 
 add_library(abstract_collision_detection SHARED
             ${CMAKE_CURRENT_LIST_DIR}/abstract/AbstractCollisionDetection.cpp
-            ${CMAKE_CURRENT_LIST_DIR}/abstract/MeshLoader.cpp
 )
-target_link_libraries(abstract_collision_detection  ${PCL_LIBRARIES} ${ASSIMP_LIBRARIES} ${SRDF_LIBRARIES})
+target_link_libraries(abstract_collision_detection  ${ASSIMP_LIBRARIES} ${SRDF_LIBRARIES})
 
 
 # FCL Wrapper
@@ -53,17 +50,13 @@ else()
 
 endif()
 
-
-
 add_library(collision_detection SHARED
             ${CMAKE_CURRENT_LIST_DIR}/CollisionDetection.cpp
 )
 target_link_libraries(collision_detection  abstract_collision_detection fcl_wrapper)
 
-#set(PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES} pcl_common-1.7")
 set(TARGET_NAME ${PROJECT_NAME})
 #set(PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS};${COLLISION_DETECTION_INCLUDES}")
-set(PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS} -I${PCL_INCLUDE_DIRS}")
 CONFIGURE_FILE("${PROJECT_NAME}.pc.in" "${PROJECT_NAME}.pc" @ONLY)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include/collision_detection)

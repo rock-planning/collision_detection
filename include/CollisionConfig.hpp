@@ -46,6 +46,17 @@ struct PrimitiveObject
     base::Vector3d dimensions;
 };
 
+struct OctreeDebugConfig
+{
+    OctreeDebugConfig():
+    save_octree(false), save_octree_path("./"),
+    save_octree_filename("octree.bt") {}
+
+    bool save_octree;
+    std::string save_octree_path;
+    std::string save_octree_filename;
+};
+
 } // end namespace 
 
 #endif

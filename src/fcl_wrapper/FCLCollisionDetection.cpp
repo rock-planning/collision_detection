@@ -228,7 +228,7 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
 ////////////////////// End of out of class variables and functions /////////////////////////////////////////////
 
 
-FCLCollisionDetection::FCLCollisionDetection()
+FCLCollisionDetection::FCLCollisionDetection(OctreeDebugConfig octree_debug_config): octree_debug_config_(octree_debug_config)
 {
     broad_phase_collision_manager.reset(new fcl::DynamicAABBTreeCollisionManager<double> );
 }
@@ -298,44 +298,9 @@ void FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
 //    delete scene;
 }
 
-void FCLCollisionDetection::pointcloudPCLToOctomap(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, octomap::Pointcloud& octomapCloud)
+void FCLCollisionDetection::updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name)
 {
-      octomapCloud.reserve(pclCloud->points.size());
-
-      typename   pcl::PointCloud<pcl::PointXYZ>::const_iterator it;
-      for (it = pclCloud->begin(); it != pclCloud->end(); ++it)
-      {
-        // Check if the point is invalid
-        if (!std::isnan (it->x) && !std::isnan (it->y) && !std::isnan (it->z))
-          octomapCloud.push_back(it->x, it->y, it->z);
-      }
-}
-
-void FCLCollisionDetection::updateEnvironment(const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin, 
-                                              const std::string &env_object_name)
-{
-
-    collision_objects_maps::iterator it=collision_objects_container_.find(env_object_name);    
-
-    if (it == collision_objects_container_.end())
-    {
-        LOG_WARN_S<<"[FCLCollisionDetection]: Trying to update environment object name "<<env_object_name.c_str()
-        <<". This object name is not available in collision_objects_container_";	   
-
-        return;
-    }
-
-    octomap::Pointcloud octomapCloud;
-    pointcloudPCLToOctomap( pclCloud, octomapCloud);       
-
-    octomap_ptr_->insertPointCloud(octomapCloud, octomap::point3d(sensor_origin.x(), sensor_origin.y(), sensor_origin.z()));    
-
-    broad_phase_collision_manager->update(it->second.get());
-}
-
-void FCLCollisionDetection::updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin, const std::string &env_object_name)
-{
-    collision_objects_maps::iterator it=collision_objects_container_.find(env_object_name);    
+    collision_objects_maps::iterator it=collision_objects_container_.find(env_object_name);
 
     if (it == collision_objects_container_.end())
     {
@@ -375,33 +340,17 @@ bool FCLCollisionDetection::removeObjectFromOctree(Eigen::Vector3d object_pose, 
     return false;
 }
 
-void FCLCollisionDetection::registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Position &sensor_origin,
-                                                              const base::Pose &collision_object_pose, std::string link_name)
+void FCLCollisionDetection::registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
+                                                             std::string link_name)
 {
     octomap_ptr_ = std::move(octomap);
+
     //1) register octomap tree to fcl
     shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap_ptr_) );
     shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
                                                                                                                 collision_object_pose.orientation.toRotationMatrix(),
                                                                                                                 collision_object_pose.position ) ) ;                                                                                                            
     registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr);
-}
-
-
-void FCLCollisionDetection::registerPointCloudToCollisionManager( const pcl::PointCloud<pcl::PointXYZ>::Ptr &pclCloud, const base::Position &sensor_origin,
-                                                                  const base::Pose &collision_object_pose, double octree_resolution, std::string link_name)
-{
-    //1) conver pcl::pointcloud to octomap tree
-    octomap::Pointcloud octomapCloud;
-    pointcloudPCLToOctomap( pclCloud, octomapCloud);    
-    octomap_ptr_.reset(new octomap::OcTree(octree_resolution) );
-    octomap_ptr_->insertPointCloud(octomapCloud, octomap::point3d(sensor_origin.x(), sensor_origin.y(), sensor_origin.z()));
-
-    //2) register octomap tree to fcl
-    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap_ptr_) );
-    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
-                                                                              collision_object_pose.orientation.toRotationMatrix(), collision_object_pose.position ) ) ;
-    registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr);     
 }
 
 void FCLCollisionDetection::registerMeshToCollisionManager( const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, 
@@ -502,34 +451,6 @@ void FCLCollisionDetection::registerCollisionObjectToCollisionManager(const std:
     link_name_CollisionObject.second = collision_object;
     collision_objects_container_.insert(link_name_CollisionObject );
 }
-/*
-void FCLCollisionDetection::registerOctomapOctree()
-{
-    fcl::OcTree* fcl_tree = new fcl::OcTree(shared_ptr<const octomap::OcTree>(generateOcTree()));
-    fcl::CollisionObject<double> tree_obj((shared_ptr<fcl::CollisionGeometry>(fcl_tree)));
-
-}
-
-void FCLCollisionDetection::registerFclOctree()
-{
-    fcl::OcTree* fcl_tree = new fcl::OcTree(shared_ptr<const octomap::OcTree>(generateOcTree()));
-    fcl::CollisionObject<double> tree_obj((shared_ptr<fcl::CollisionGeometry>(fcl_tree)));
-
-}
-
-
-void FCLCollisionDetection::registerOctamapPointCloud(octomap::point3d origin,octomap::Pointcloud cloud)
-{
-
-}
-
-template <class PointT>
-void FCLCollisionDetection::registerPCLPointCloud(const pcl::PointCloud<PointT>& pclCloud, Pointcloud& octomap::octomapCloud)
-{
-
-}
-*/
-
 
 bool FCLCollisionDetection::removeSelfCollisionObject(const std::string &collision_object_name)
 {
@@ -655,7 +576,7 @@ bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_d
 
     try
     {
-        world_collision_detector_.reset(new FCLCollisionDetection());
+        world_collision_detector_.reset(new FCLCollisionDetection(octree_debug_config_));
         world_collision_detector_ = dynamic_pointer_cast<FCLCollisionDetection>(collision_detector);
         //world_collision_detector_ = collision_detector;
     }
@@ -831,11 +752,11 @@ std::vector< std::pair<std::string, std::string> > FCLCollisionDetection::getCol
    return collision_object_names;
 }
 
-void FCLCollisionDetection::saveOctree(std::string path, std::string filename)
+void FCLCollisionDetection::saveOctree()
 {
-    mkdir(path.c_str(), 0755);
-    
-    octomap_ptr_->writeBinary(path + "/"+filename+".bt");
+    mkdir(octree_debug_config_.save_octree_path.c_str(), 0755);    
+
+    octomap_ptr_->writeBinary(octree_debug_config_.save_octree_path + "/"+octree_debug_config_.save_octree_filename+".bt");
 }
 
 }// end namespace collision_detection
