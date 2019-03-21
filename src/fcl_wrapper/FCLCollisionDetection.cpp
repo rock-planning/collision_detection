@@ -258,7 +258,7 @@ void FCLCollisionDetection::fclContactToDistanceInfo(const std::vector<fcl::Cont
     }
 }
 
-void FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::string &abs_path_to_mesh_file, std::vector<fcl::Triangle> &triangles, 
+bool FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::string &abs_path_to_mesh_file, std::vector<fcl::Triangle> &triangles, 
                                                                 std::vector<fcl::Vector3d>& vertices, double scale_for_mesha_files_x=1.00, 
                                                                 double scale_for_mesha_files_y=1.00, double scale_for_mesha_files_z=1.00 )
 {
@@ -268,7 +268,14 @@ void FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
     //There are several way to read a cad file, available ways to read he cad file are:
     //aiProcess_Triangulate |aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_OptimizeGraph | aiProcess_OptimizeMeshes
 
-    scene=assimp_importer.ReadFile(abs_path_to_mesh_file.c_str() , aiProcess_Triangulate);
+    scene = assimp_importer.ReadFile(abs_path_to_mesh_file.c_str() , aiProcess_Triangulate);
+    
+    if(scene == NULL)
+    {
+        LOG_INFO_S<<"[extractTrianglesAndVerticesFromMesh]: Assimp cannot read the given file";
+        LOG_INFO_S<<"The error message is "<<assimp_importer.GetErrorString();
+        return false;
+    }
  
     LOG_DEBUG_S<<"[extractTrianglesAndVerticesFromMesh]: Start extracting vertex and triangles from mesh file:" <<abs_path_to_mesh_file.c_str()
     <<".\nNumber of meshes found = "<<scene->mNumMeshes; 
@@ -296,6 +303,8 @@ void FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
         }
     }
 //    delete scene;
+
+    return true;
 }
 
 void FCLCollisionDetection::updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name)
@@ -350,10 +359,11 @@ void FCLCollisionDetection::registerOctreeToCollisionManager(const std::shared_p
     shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
                                                                                                                 collision_object_pose.orientation.toRotationMatrix(),
                                                                                                                 collision_object_pose.position ) ) ;                                                                                                            
-    registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr);
+    registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr);    
+
 }
 
-void FCLCollisionDetection::registerMeshToCollisionManager( const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, 
+bool FCLCollisionDetection::registerMeshToCollisionManager( const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, 
                                                             const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding)
 {
     LOG_DEBUG_S<<"[registerMeshToCollisionManager]: Mesh file: "<<abs_path_to_mesh_file.c_str();
@@ -365,11 +375,12 @@ void FCLCollisionDetection::registerMeshToCollisionManager( const std::string &a
     scale_mesh_(1) = mesh_scale(1) * link_padding;
     scale_mesh_(2) = mesh_scale(2) * link_padding;
 
-    extractTrianglesAndVerticesFromMesh(abs_path_to_mesh_file , triangles, vertices , scale_mesh_(0), scale_mesh_(1), scale_mesh_(2));
+    if(!extractTrianglesAndVerticesFromMesh(abs_path_to_mesh_file , triangles, vertices , scale_mesh_(0), scale_mesh_(1), scale_mesh_(2)))
+        return false;
 
     registerMeshToCollisionManager(link_name, collision_object_pose, triangles, vertices);
 
-    return;
+    return true;
 }
 
 /*
@@ -392,7 +403,6 @@ void FCLCollisionDetection::registerMeshToCollisionManager(const std::string &li
 
     registerCollisionObjectToCollisionManager(link_name, mesh_collision_object_ptr); 
 
-    return;
 }
 
 void FCLCollisionDetection::registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
@@ -432,8 +442,7 @@ void FCLCollisionDetection::registerSphereToCollisionManager(const double &radiu
                                                                                 collision_object_pose.orientation.toRotationMatrix(), 
                                                                                 collision_object_pose.position  ) ) ;
 
-    registerCollisionObjectToCollisionManager(link_name, sphere_collision_object_ptr);  
-
+    registerCollisionObjectToCollisionManager(link_name, sphere_collision_object_ptr);
 }
 
 void FCLCollisionDetection::registerCollisionObjectToCollisionManager(const std::string &link_name, shared_ptr< fcl::CollisionObject<double> > &collision_object )

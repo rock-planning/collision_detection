@@ -91,7 +91,7 @@ public:
 
     void getCollisionManager(shared_ptr<fcl::BroadPhaseCollisionManager<double>> &collision_manager);
 
-    void extractTrianglesAndVerticesFromMesh(const std::string &abs_path_to_mesh_file, std::vector<fcl::Triangle> &triangles, std::vector<fcl::Vector3d>& vertices, 
+    bool extractTrianglesAndVerticesFromMesh(const std::string &abs_path_to_mesh_file, std::vector<fcl::Triangle> &triangles, std::vector<fcl::Vector3d>& vertices, 
 					 double scale_for_mesha_files_x, double scale_for_mesha_files_y, double scale_for_mesha_files_z );
 
     void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, std::string link_name);
@@ -99,7 +99,7 @@ public:
     void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
                                              const base::Pose &collision_object_pose, const double &link_padding = 1.0 );
 
-    void registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
+    bool registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
 					const base::Pose &collision_object_pose, const double &link_padding = 1.0);
 
     void registerMeshToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, 
