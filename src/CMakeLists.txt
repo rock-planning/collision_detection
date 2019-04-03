@@ -51,7 +51,7 @@ else()
 endif()
 
 add_library(collision_detection SHARED
-            ${CMAKE_CURRENT_LIST_DIR}/CollisionDetection.cpp
+            ${CMAKE_CURRENT_LIST_DIR}/CollisionFactory.cpp
 )
 target_link_libraries(collision_detection  abstract_collision_detection fcl_wrapper)
 

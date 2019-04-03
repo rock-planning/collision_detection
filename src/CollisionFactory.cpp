@@ -1,16 +1,16 @@
-#include "CollisionDetection.hpp"
+#include "CollisionFactory.hpp"
 
 namespace collision_detection
 {
 
-CollisionDetection::CollisionDetection()
+CollisionFactory::CollisionFactory()
 {}
 
-CollisionDetection::~CollisionDetection()
+CollisionFactory::~CollisionFactory()
 {}
 
 
-AbstractCollisionPtr CollisionDetection::getCollisionDetector(collision_detection::CollisionLibrary library, OctreeDebugConfig octree_debug_config)
+AbstractCollisionPtr CollisionFactory::getCollisionDetector(collision_detection::CollisionLibrary library, OctreeDebugConfig octree_debug_config)
 {
 	AbstractCollisionPtr collision_detector = NULL;
 	

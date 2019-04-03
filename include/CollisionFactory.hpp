@@ -1,5 +1,5 @@
-#ifndef COLLISIONDETECTOR_HPP_
-#define COLLISIONDETECTOR_HPP_
+#ifndef COLLISIONFACTORY_HPP_
+#define COLLISIONFACTORY_HPP_
 
 #include <vector>
 #include <string>
@@ -20,18 +20,18 @@ namespace collision_detection
  * @class CollisionDetector
  * @brief Provides a factory class for the AbstractCollisionDetection class.
  */
-class CollisionDetection
+class CollisionFactory
 {
 
 public:
     /**
     * @brief  constructor
     */
-    CollisionDetection();
+    CollisionFactory();
     /**
     * @brief  destructor
     */
-    ~CollisionDetection();
+    ~CollisionFactory();
 
      AbstractCollisionPtr getCollisionDetector(collision_detection::CollisionLibrary library, OctreeDebugConfig octree_debug_config);
 
