@@ -34,7 +34,7 @@ struct PrimitiveObject
     PrimitiveObject():
     primitive_type(collision_detection::CYLINDER),
     radius(0.0), height(0.0),
-    dimensions(3,0) {}
+    dimensions(3) {}
 
     PrimitiveObjectTypes primitive_type;
 
