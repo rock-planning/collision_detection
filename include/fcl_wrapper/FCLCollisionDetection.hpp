@@ -74,7 +74,9 @@ private:
     std::vector<DistanceInformation> obstacle_collision_distance;
     
     shared_ptr<octomap::OcTree > octomap_ptr_;
-    
+
+    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr_;
+
     OctreeDebugConfig octree_debug_config_;
 
     void fclContactToDistanceInfo(const std::vector<fcl::Contact<double> > &collision_contacts, std::vector<DistanceInformation> &contacts);
@@ -97,18 +99,18 @@ public:
     void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, std::string link_name);
 
     void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
-                                             const base::Pose &collision_object_pose, const double &link_padding = 1.0 );
+                                             const base::Pose &collision_object_pose, const double &link_padding = 1.20 );
 
     bool registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
-					const base::Pose &collision_object_pose, const double &link_padding = 1.0);
+					const base::Pose &collision_object_pose, const double &link_padding = 1.20);
 
     void registerMeshToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, 
 					const std::vector<fcl::Triangle> &triangles, const std::vector<fcl::Vector3d> &vertices);   
 
     void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
-						  const base::Pose &collision_object_pose, const double &link_padding = 1.0);
+						  const base::Pose &collision_object_pose, const double &link_padding = 1.20);
 
-    void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding = 1.0); 
+    void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding = 1.20); 
 
     void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
 
@@ -160,6 +162,7 @@ public:
     
     void saveOctree();
 
+    int num_octree_;
 };
 }// end namespace trajectory_optimization
 #endif // COLLISIONDETECTION_HPP

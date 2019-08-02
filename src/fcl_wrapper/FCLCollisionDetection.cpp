@@ -231,6 +231,8 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
 FCLCollisionDetection::FCLCollisionDetection(OctreeDebugConfig octree_debug_config): octree_debug_config_(octree_debug_config)
 {
     broad_phase_collision_manager.reset(new fcl::DynamicAABBTreeCollisionManager<double> );
+    
+    num_octree_ = 0;
 }
 
 FCLCollisionDetection::~FCLCollisionDetection()
@@ -309,16 +311,34 @@ bool FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
 
 void FCLCollisionDetection::updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name)
 {
-    collision_objects_maps::iterator it=collision_objects_container_.find(env_object_name);
+//     collision_objects_maps::iterator it=collision_objects_container_.find(env_object_name);
+// 
+//     if (it == collision_objects_container_.end())
+//     {
+//         LOG_WARN_S<<"[FCLCollisionDetection]: Trying to update environment object name "<<env_object_name.c_str()
+//         <<". This object name is not available in collision_objects_container_";
+//         return;
+//     }
+//     //octomap_ptr_->clear();
+//     //octomap_ptr_ = std::move(octomap);
+//     octomap_ptr_ = (octomap);    
+//     std::cout<<"updateEnvironment in CC size = "<<octomap_ptr_->size()<<"   "<<octomap->size()<<std::endl;
+//     broad_phase_collision_manager->update(it->second.get());
+    
 
-    if (it == collision_objects_container_.end())
-    {
-        LOG_WARN_S<<"[FCLCollisionDetection]: Trying to update environment object name "<<env_object_name.c_str()
-        <<". This object name is not available in collision_objects_container_";
-        return;
-    }
-    octomap_ptr_ = std::move(octomap);
-    broad_phase_collision_manager->update(it->second.get());
+    
+    ///////////////////
+    // TODO: 
+    // Simply copying the octomap is not updating the fcl based octree, so if new environment is updated, fcl fails to find collision.
+    // So a temporary solution is to remove the old environment and then re-register the new environment. This quick fix is not an elegant solution,
+    // a proper solution to this problem should be found to handle continuous input octomap.
+    removeWorldCollisionObject(env_object_name);
+    
+    base::Pose collision_object_pose;
+    collision_object_pose.position.setZero();
+    collision_object_pose.orientation.setIdentity();
+    
+    registerOctreeToCollisionManager(octomap, collision_object_pose, env_object_name);                                                             
 }
 
 bool FCLCollisionDetection::removeObjectFromOctree(Eigen::Vector3d object_pose, Eigen::Vector3d object_size)
@@ -352,15 +372,19 @@ bool FCLCollisionDetection::removeObjectFromOctree(Eigen::Vector3d object_pose, 
 void FCLCollisionDetection::registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
                                                              std::string link_name)
 {
-    octomap_ptr_ = std::move(octomap);
+    //octomap_ptr_ = std::move(octomap);
+    octomap_ptr_ = octomap;
+    
+    std::cout<<"registerOctreeToCollisionManager size = "<<octomap_ptr_->size()<<std::endl;
 
     //1) register octomap tree to fcl
-    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap_ptr_) );
-    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
+    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap) );
+/*    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
                                                                                                                 collision_object_pose.orientation.toRotationMatrix(),
-                                                                                                                collision_object_pose.position ) ) ;                                                                                                            
-    registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr);    
-
+                                                                                                                collision_object_pose.position ) ) ;*/
+    fcl_tree_collision_object_ptr_.reset(new fcl::CollisionObject<double>( fcl_OcTree_ptr));
+    
+    registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr_);
 }
 
 bool FCLCollisionDetection::registerMeshToCollisionManager( const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, 
@@ -446,8 +470,7 @@ void FCLCollisionDetection::registerSphereToCollisionManager(const double &radiu
 }
 
 void FCLCollisionDetection::registerCollisionObjectToCollisionManager(const std::string &link_name, shared_ptr< fcl::CollisionObject<double> > &collision_object )
-{    
-    
+{
     CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
     collision_object_associated_data->setID(link_name);
     collision_object->setUserData( collision_object_associated_data );
@@ -763,9 +786,13 @@ std::vector< std::pair<std::string, std::string> > FCLCollisionDetection::getCol
 
 void FCLCollisionDetection::saveOctree()
 {
-    mkdir(octree_debug_config_.save_octree_path.c_str(), 0755);    
-
-    octomap_ptr_->writeBinary(octree_debug_config_.save_octree_path + "/"+octree_debug_config_.save_octree_filename+".bt");
+    mkdir(octree_debug_config_.save_octree_path.c_str(), 0755);     
+    std::stringstream ss;
+    ss<<octree_debug_config_.save_octree_path <<"/"<<octree_debug_config_.save_octree_filename<<"_"<<num_octree_<<".bt";
+    
+    octomap_ptr_->writeBinary(ss.str());
+    num_octree_++;
+//     octomap_ptr_->writeBinary(octree_debug_config_.save_octree_path + "/"+octree_debug_config_.save_octree_filename+".bt");
 }
 
 }// end namespace collision_detection
