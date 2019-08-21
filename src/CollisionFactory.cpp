@@ -1,4 +1,4 @@
-#include "CollisionFactory.hpp"
+#include "collision_detection/CollisionFactory.hpp"
 
 namespace collision_detection
 {

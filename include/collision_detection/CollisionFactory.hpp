@@ -3,8 +3,8 @@
 
 #include <vector>
 #include <string>
-#include "abstract/AbstractCollisionDetection.hpp"
-#include "CollisionConfig.hpp"
+#include "collision_detection/abstract/AbstractCollisionDetection.hpp"
+#include "collision_detection/CollisionConfig.hpp"
 
 #include "fcl_wrapper/FCLCollisionDetection.hpp"
 

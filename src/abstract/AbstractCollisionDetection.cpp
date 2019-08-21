@@ -1,4 +1,4 @@
-#include "abstract/AbstractCollisionDetection.hpp"
+#include "collision_detection/abstract/AbstractCollisionDetection.hpp"
 
 namespace collision_detection
 {

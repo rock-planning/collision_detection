@@ -2,11 +2,10 @@
 #define COLLISIONDETECTION_HPP
 
 
-#include "abstract/AbstractCollisionDetection.hpp"
-#include "CollisionConfig.hpp"
-
-#include "CollisionObjectAssociatedData.hpp"
-#include "CollisionData.hpp"
+#include "collision_detection/abstract/AbstractCollisionDetection.hpp"
+#include "collision_detection/CollisionConfig.hpp"
+#include "collision_detection/fcl_wrapper/CollisionObjectAssociatedData.hpp"
+#include "collision_detection/fcl_wrapper/CollisionData.hpp"
 
 
 #include <string>

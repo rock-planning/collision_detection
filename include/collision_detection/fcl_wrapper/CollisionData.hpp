@@ -1,7 +1,7 @@
 #ifndef COLLISIONDATA_HPP
 #define COLLISIONDATA_HPP
 
-#include "CollisionObjectAssociatedData.hpp"
+#include "collision_detection/fcl_wrapper/CollisionObjectAssociatedData.hpp"
 #include <fcl/fcl.h>
 
 namespace collision_detection

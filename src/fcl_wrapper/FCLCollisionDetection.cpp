@@ -1,4 +1,4 @@
-#include "fcl_wrapper/FCLCollisionDetection.hpp"
+#include "collision_detection/fcl_wrapper/FCLCollisionDetection.hpp"
 #include <algorithm>
 
 
