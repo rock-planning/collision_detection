@@ -228,7 +228,8 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
 ////////////////////// End of out of class variables and functions /////////////////////////////////////////////
 
 
-FCLCollisionDetection::FCLCollisionDetection(OctreeDebugConfig octree_debug_config): octree_debug_config_(octree_debug_config)
+FCLCollisionDetection::FCLCollisionDetection(OctreeDebugConfig octree_debug_config, bool use_contact_info): 
+                                            octree_debug_config_(octree_debug_config), use_contact_info_(use_contact_info)
 {
     broad_phase_collision_manager.reset(new fcl::DynamicAABBTreeCollisionManager<double> );
     
@@ -578,13 +579,16 @@ bool FCLCollisionDetection::checkSelfCollision(int num_max_contacts)
  
     broad_phase_collision_manager->collide(&collision_data, defaultCollisionFunction);
 
-    //CAUTION! Currently getting the contact information works only for "num_max_contacts = 1"    
+    if(use_contact_info_)
+    {
+        //CAUTION! Currently getting the contact information works only for "num_max_contacts = 1"
 
-    std::vector<fcl::Contact<double>> collision_contacts;
-    collision_data.result.getContacts(collision_contacts);    
-    fclContactToDistanceInfo(collision_contacts, self_collision_contacts_);
+        std::vector<fcl::Contact<double>> collision_contacts;
+        collision_data.result.getContacts(collision_contacts);    
+        fclContactToDistanceInfo(collision_contacts, self_collision_contacts_);
 
-    LOG_DEBUG_S<<"[checkSelfCollision]: Self collision contacts size = "<<self_collision_contacts_.size();
+        LOG_DEBUG_S<<"[checkSelfCollision]: Self collision contacts size = "<<self_collision_contacts_.size();
+    }
 
     //for(int i=0;i<self_collision_contacts_.size();i++)
     //{
@@ -658,13 +662,14 @@ bool FCLCollisionDetection::checkEnvironmentCollision(const shared_ptr<fcl::Broa
     collision_object_names.clear();
     this->broad_phase_collision_manager->collide( external_broad_phase_collision_manager.get() ,&collision_data, defaultExternalCollisionFunction);
 
-    //CAUTION! Currently getting the contact information works only for "num_max_contacts = 1"
-    
-    std::vector<fcl::Contact<double>> collision_contacts;
-    collision_data.result.getContacts(collision_contacts);
-    fclContactToDistanceInfo(collision_contacts, environment_collision_contacts_);
-
-    LOG_DEBUG_S<<"[checkEnvironmentCollision]: Environment collision size = "<<environment_collision_contacts_.size(); 
+    if(use_contact_info_)
+    {
+        //CAUTION! Currently getting the contact information works only for "num_max_contacts = 1"
+        std::vector<fcl::Contact<double>> collision_contacts;
+        collision_data.result.getContacts(collision_contacts);
+        fclContactToDistanceInfo(collision_contacts, environment_collision_contacts_);
+        LOG_DEBUG_S<<"[checkEnvironmentCollision]: Environment collision size = "<<environment_collision_contacts_.size(); 
+    }
     
     //for(int i=0;i<environment_collision_contacts_.size();i++)
     //{
