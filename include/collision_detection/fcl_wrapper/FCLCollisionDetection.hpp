@@ -58,7 +58,8 @@ class FCLCollisionDetection: public AbstractCollisionDetection
 {
     public:
 
-        FCLCollisionDetection(OctreeDebugConfig octree_debug_config_, bool use_contact_info=false);
+//         FCLCollisionDetection(OctreeDebugConfig octree_debug_config_, bool use_contact_info=false);
+        FCLCollisionDetection(CollisionDetectionConfig collision_detection_config);
         
         virtual ~FCLCollisionDetection();
 
@@ -141,6 +142,9 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         void registerCollisionObjectToCollisionManager(const std::string &link_name, shared_ptr< fcl::CollisionObject<double> > &collision_object );
         void fclContactToDistanceInfo(const std::vector<fcl::Contact<double> > &collision_contacts, std::vector<DistanceInformation> &contacts);
         DistanceData getDistanceData();
+        void getCollisionInfo(const CollisionInfo &collision_info, CollisionData &collision_data, std::vector<DistanceInformation> &collision_contacts);
+        
+        CollisionDetectionConfig collision_detection_config_;
 
         std::vector<  CollisionObjectAssociatedData *>  collision_data_;
         collision_objects_maps collision_objects_container_;
@@ -150,10 +154,10 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         std::shared_ptr<FCLCollisionDetection> world_collision_detector_;
         std::vector<DistanceInformation> self_collision_distance;
         std::vector<DistanceInformation> obstacle_collision_distance;
-        bool use_contact_info_;
+//         bool use_contact_info_;
         shared_ptr<octomap::OcTree > octomap_ptr_;
         shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr_;
-        OctreeDebugConfig octree_debug_config_;
+//         OctreeDebugConfig octree_debug_config_;
 
         
 };

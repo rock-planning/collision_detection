@@ -18,11 +18,6 @@
 namespace collision_detection
 {
 
-enum CollisionLibrary
-{
-    FCL 
-};
-
 struct DistanceInformation
 {
     DistanceInformation(){nearest_points.resize(2);}
