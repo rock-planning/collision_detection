@@ -49,8 +49,8 @@ namespace collision_detection
     using function1 = ::std::function<T(U)>;
 #endif
 
-typedef std::pair <std::string , shared_ptr<fcl::CollisionObject<double> > > collision_objects_pair;
-typedef std::multimap <std::string , shared_ptr<fcl::CollisionObject<double>> > collision_objects_maps;
+typedef std::pair <std::string , shared_ptr<fcl::CollisionObject<double> > > CollisionObjectPair;
+typedef std::multimap <std::string , shared_ptr<fcl::CollisionObject<double>> > CollisionObjectsMap;
 
 class FCLCollisionDetection;
 
@@ -89,6 +89,8 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
 
         void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name);
+        
+        bool checkCollisions( double &total_cost);
 
         bool checkSelfCollision(int num_max_contacts=1);
 
@@ -114,9 +116,6 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         bool distanceOfClosestObstacleToRobot( shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager,
                            DistanceData &distance_data);
 
-        std::vector <fcl::CollisionObject<double>*> getEnvironmentCollisionObject();
-
-        std::vector < std::pair<fcl::CollisionObject<double>*,fcl::CollisionObject<double>* > > &getSelfCollisionObject();
 
         std::vector< std::pair<std::string, std::string> > getCollisionObjectNames();
 
@@ -140,14 +139,16 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         
     private:
         void registerCollisionObjectToCollisionManager(const std::string &link_name, shared_ptr< fcl::CollisionObject<double> > &collision_object );
-        void fclContactToDistanceInfo(const std::vector<fcl::Contact<double> > &collision_contacts, std::vector<DistanceInformation> &contacts);
+        void fclContactToDistanceInfo(const std::vector<fcl::Contact<double> > &collision_contacts, const CollisionData &collision_data, 
+                                      std::vector<DistanceInformation> &contacts);
         DistanceData getDistanceData();
         void getCollisionInfo(const CollisionInfo &collision_info, CollisionData &collision_data, std::vector<DistanceInformation> &collision_contacts);
         
         CollisionDetectionConfig collision_detection_config_;
 
+            std::vector< std::pair<std::string, std::string> >  collision_object_names_;
         std::vector<  CollisionObjectAssociatedData *>  collision_data_;
-        collision_objects_maps collision_objects_container_;
+        CollisionObjectsMap collision_objects_container_;
         std::vector<DistanceInformation> self_collision_contacts_;
         std::vector<DistanceInformation> environment_collision_contacts_;
         Eigen::Vector3d scale_mesh_;

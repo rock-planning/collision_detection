@@ -73,10 +73,10 @@ enum CollisionInfo
 
 struct CollisionDetectionConfig
 {
-    CollisionDetectionConfig():collision_library(FCL), collision_info(DISTANCE), max_num_collision(1){}
+    CollisionDetectionConfig():collision_library(FCL), collision_info(DISTANCE), max_num_collision_contacts(1){}
     CollisionLibrary collision_library;
     CollisionInfo collision_info;
-    bool max_num_collision;
+    std::size_t max_num_collision_contacts; /**< maximum number of collision contact. */
     OctreeDebugConfig env_debug_config;
 };
 
