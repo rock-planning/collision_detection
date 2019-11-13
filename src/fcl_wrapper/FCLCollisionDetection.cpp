@@ -228,9 +228,11 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
 ////////////////////// End of out of class variables and functions /////////////////////////////////////////////
 
 
-FCLCollisionDetection::FCLCollisionDetection(OctreeDebugConfig octree_debug_config, bool use_contact_info): 
-                                            octree_debug_config_(octree_debug_config), use_contact_info_(use_contact_info)
+FCLCollisionDetection::FCLCollisionDetection(OctreeDebugConfig octree_debug_config, bool use_contact_info)
 {
+
+    octree_debug_config_ = octree_debug_config;
+    use_contact_info_    = use_contact_info;
     broad_phase_collision_manager.reset(new fcl::DynamicAABBTreeCollisionManager<double> );
     
     num_octree_ = 0;
