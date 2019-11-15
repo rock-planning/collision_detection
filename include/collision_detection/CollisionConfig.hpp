@@ -65,7 +65,7 @@ struct OctreeDebugConfig
 /** Collision Information. 
  *  This enum is used to decide whether to calculate only the distance information or multi contact collision information from the collision library.
  */
-enum CollisionInfo
+enum CollisionInfoType
 {
     DISTANCE,           /**< Distance info usng GTK */
     MULTI_CONTACT       /**< Multi contact info */
@@ -73,10 +73,14 @@ enum CollisionInfo
 
 struct CollisionDetectionConfig
 {
-    CollisionDetectionConfig():collision_library(FCL), collision_info(DISTANCE), max_num_collision_contacts(1){}
+    CollisionDetectionConfig():collision_library(FCL), collision_info_type(DISTANCE), max_num_collision_contacts(1){}
     CollisionLibrary collision_library;
-    CollisionInfo collision_info;
-    std::size_t max_num_collision_contacts; /**< maximum number of collision contact. */
+    CollisionInfoType collision_info_type;
+    /// @brief maximum number of collision contact.
+    /// Usage: For sampling based planner, it is enough to invalid a state space if there is a collision in just one link.
+    ///        On the other hand if you use optimzation based planners, it is better to know all the collisions. 
+    ///        As this collision information could be used to calculate the collision cost for that iteration.
+    std::size_t max_num_collision_contacts;
     OctreeDebugConfig env_debug_config;
 };
 

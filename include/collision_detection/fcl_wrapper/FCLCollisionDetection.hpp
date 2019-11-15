@@ -121,10 +121,6 @@ class FCLCollisionDetection: public AbstractCollisionDetection
 
         void printCollisionObject();
 
-        std::vector<DistanceInformation> &getSelfContacts();
-
-        std::vector<DistanceInformation> &getEnvironmentalContacts();
-
         std::vector< DistanceInformation> &getSelfDistanceInfo();
 
         void computeSelfDistanceInfo();
@@ -139,10 +135,12 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         
     private:
         void registerCollisionObjectToCollisionManager(const std::string &link_name, shared_ptr< fcl::CollisionObject<double> > &collision_object );
-        void fclContactToDistanceInfo(const std::vector<fcl::Contact<double> > &collision_contacts, const CollisionData &collision_data, 
-                                      std::vector<DistanceInformation> &contacts);
+        double getCollisionCost(CollisionData &collision_data, std::vector<DistanceInformation> &contacts);
+//         dobule getCollisionCost(CollisionData &collision_data, std::vector<DistanceInformation> &contacts);
         DistanceData getDistanceData();
-        void getCollisionInfo(const CollisionInfo &collision_info, CollisionData &collision_data, std::vector<DistanceInformation> &collision_contacts);
+        CollisionData getCollisionData();
+        template<typename T> 
+        double getCollisionInfoAndCost(T &input_data, std::vector<DistanceInformation> &collision_contacts);
         
         CollisionDetectionConfig collision_detection_config_;
 
