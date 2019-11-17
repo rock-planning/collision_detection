@@ -25,8 +25,10 @@ struct CollisionInformation
     size_t number_of_collisions;
     /// @brief vector holding collision object names
     std::vector< std::pair<std::string, std::string> >  collision_object_names;
-    /// @brief vector holding collision object names
-    std::vector< CollisionPair > collision_objects_pair;
+    /// @breif collision cost
+    double collision_cost;
+//     /// @brief vector holding collision object names
+//     std::vector< CollisionPair > collision_objects_pair;
 };
 
 struct CollisionData
@@ -43,9 +45,12 @@ struct CollisionData
     bool done;
 };
 
+
+
+
 struct DistanceData
 {
-    DistanceData(): done(false){}
+    DistanceData(): list_of_distance_information(0), done(false){}
 
     /// @brief Distance request
     fcl::DistanceRequest<double> request;
@@ -53,6 +58,8 @@ struct DistanceData
     fcl::DistanceResult<double> result;
     /// @brief Information regarding the collision
     CollisionInformation collision_info;
+    /// @brief Information regarding the collision distance
+    std::vector< DistanceInformation> list_of_distance_information;
     /// @brief Whether the distance iteration can stop
     bool done;
 };

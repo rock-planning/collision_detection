@@ -90,11 +90,7 @@ class FCLCollisionDetection: public AbstractCollisionDetection
 
         void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name);
         
-        bool checkCollisions( double &total_cost);
-
-        bool checkSelfCollision(int num_max_contacts=1);
-
-        bool checkWorldCollision(int num_max_contacts=1);
+        bool isCollisionsOccured( double &total_cost);
             
         bool checkEnvironmentCollision(const shared_ptr<fcl::BroadPhaseCollisionManager<double>> &external_broad_phase_collision_manager, int num_max_contacts=1);
 
@@ -121,13 +117,13 @@ class FCLCollisionDetection: public AbstractCollisionDetection
 
         void printCollisionObject();
 
-        std::vector< DistanceInformation> &getSelfDistanceInfo();
+        std::vector< DistanceInformation>& getCollisionDistanceInformation();
 
-        void computeSelfDistanceInfo();
-
-        void computeClosestObstacleToRobotDistanceInfo();
-
-        std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo();
+//         void computeSelfDistanceInfo();
+// 
+//         void computeClosestObstacleToRobotDistanceInfo();
+// 
+//         std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo();
         
         void saveOctree();
 
@@ -136,29 +132,21 @@ class FCLCollisionDetection: public AbstractCollisionDetection
     private:
         void registerCollisionObjectToCollisionManager(const std::string &link_name, shared_ptr< fcl::CollisionObject<double> > &collision_object );
         double getCollisionCost(CollisionData &collision_data, std::vector<DistanceInformation> &contacts);
-//         dobule getCollisionCost(CollisionData &collision_data, std::vector<DistanceInformation> &contacts);
         DistanceData getDistanceData();
         CollisionData getCollisionData();
-        template<typename T> 
-        double getCollisionInfoAndCost(T &input_data, std::vector<DistanceInformation> &collision_contacts);
         
         CollisionDetectionConfig collision_detection_config_;
 
-            std::vector< std::pair<std::string, std::string> >  collision_object_names_;
+        std::vector< std::pair<std::string, std::string> >  collision_object_names_;
         std::vector<  CollisionObjectAssociatedData *>  collision_data_;
         CollisionObjectsMap collision_objects_container_;
-        std::vector<DistanceInformation> self_collision_contacts_;
-        std::vector<DistanceInformation> environment_collision_contacts_;
         Eigen::Vector3d scale_mesh_;
         std::shared_ptr<FCLCollisionDetection> world_collision_detector_;
-        std::vector<DistanceInformation> self_collision_distance;
-        std::vector<DistanceInformation> obstacle_collision_distance;
-//         bool use_contact_info_;
+        std::vector<DistanceInformation> collision_distance_information_;
+        
         shared_ptr<octomap::OcTree > octomap_ptr_;
         shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr_;
-//         OctreeDebugConfig octree_debug_config_;
 
-        
 };
 }// end namespace trajectory_optimization
 #endif // COLLISIONDETECTION_HPP
