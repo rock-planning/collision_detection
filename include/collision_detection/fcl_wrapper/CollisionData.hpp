@@ -27,6 +27,8 @@ struct CollisionInformation
     std::vector< std::pair<std::string, std::string> >  collision_object_names;
     /// @breif collision cost
     double collision_cost;
+    
+    bool stop_after_first_collision;
 //     /// @brief vector holding collision object names
 //     std::vector< CollisionPair > collision_objects_pair;
 };

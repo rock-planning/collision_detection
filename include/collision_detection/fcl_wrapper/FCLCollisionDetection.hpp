@@ -142,7 +142,8 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         CollisionObjectsMap collision_objects_container_;
         Eigen::Vector3d scale_mesh_;
         std::shared_ptr<FCLCollisionDetection> world_collision_detector_;
-        std::vector<DistanceInformation> collision_distance_information_;
+        std::vector<DistanceInformation> env_collision_distance_information_;
+        std::vector<DistanceInformation> full_collision_distance_information_;  // includes both self and environment collision information
         
         shared_ptr<octomap::OcTree > octomap_ptr_;
         shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr_;

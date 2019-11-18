@@ -73,14 +73,20 @@ enum CollisionInfoType
 
 struct CollisionDetectionConfig
 {
-    CollisionDetectionConfig():collision_library(FCL), collision_info_type(DISTANCE), max_num_collision_contacts(1){}
+    CollisionDetectionConfig(): collision_library(FCL), collision_info_type(DISTANCE), stop_after_first_collision(true), calculate_distance_information(false),
+                                max_num_collision_contacts(1) {}
     CollisionLibrary collision_library;
     CollisionInfoType collision_info_type;
     /// @brief maximum number of collision contact.
     /// Usage: For sampling based planner, it is enough to invalid a state space if there is a collision in just one link.
     ///        On the other hand if you use optimzation based planners, it is better to know all the collisions. 
     ///        As this collision information could be used to calculate the collision cost for that iteration.
-    std::size_t max_num_collision_contacts;
+    bool stop_after_first_collision;
+    /// @brief calculate the distance informations for all the collision links.
+    /// It is expensive to calculate, so by default it is set to false
+    bool calculate_distance_information;
+    /// @breif number of collision contacts. By default it is set to one. Please dont set any other value, unless you want that information.
+    std::size_t max_num_collision_contacts; 
     OctreeDebugConfig env_debug_config;
 };
 
