@@ -482,7 +482,7 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
             if (self_collision_data.collision_info.number_of_collisions > 0)
             {
                 total_cost = self_collision_data.collision_info.collision_cost;
-                 std::cout<<"Self Collision total Cost = "<< total_cost<<std::endl;
+                // std::cout<<"Self Collision total Cost = "<< total_cost<<std::endl;
                 collision_object_names_ = self_collision_data.collision_info.collision_object_names;
                 if ( collision_detection_config_.max_num_collision_contacts == 1)  //special condition. Explained in the variable definition
                     return true;
@@ -493,6 +493,7 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
             }
             else
                 LOG_DEBUG("[FCLCollisionDetection]: There is no self collisions, now we are checking for collisions against environment");
+            
             // Now we do collision check withe environment
             DistanceData env_collision_data = getDistanceData();
             broad_phase_collision_manager->distance(  world_collision_detector_->getCollisionManager().get(), &env_collision_data, defaultDistanceFunction);
@@ -511,7 +512,12 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
                                                        env_collision_data.list_of_distance_information.end());
                 return true;
             }
-            LOG_DEBUG("[FCLCollisionDetection]: There is no collisions against environment" );
+            else
+                LOG_DEBUG("[FCLCollisionDetection]: There is no collisions against environment" );
+            
+            if (self_collision_data.collision_info.number_of_collisions > 0)
+                return true;
+
             break;
         }
         case collision_detection::MULTI_CONTACT:
@@ -544,7 +550,12 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
                 
                 return true;
             }
-            LOG_DEBUG("[FCLCollisionDetection]: There is no collisions against environment" );
+            else
+                LOG_DEBUG("[FCLCollisionDetection]: There is no collisions against environment" );
+
+            if (self_collision_data.collision_info.number_of_collisions > 0)
+                return true;
+            
             break;
 
         }
