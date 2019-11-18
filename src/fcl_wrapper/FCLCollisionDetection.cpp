@@ -50,7 +50,7 @@ bool defaultCollisionFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
             cdata->collision_info.number_of_collisions++;
 
             //if( (!request.enable_cost) && (( result.numContacts() >= request.num_max_contacts) || (!request.enable_contact)) )
-            if( (!request.enable_cost) && (( result.numContacts() >= request.num_max_contacts) || cdata->collision_info.stop_after_first_collision)  )
+            if( (!request.enable_cost) && ( cdata->collision_info.stop_after_first_collision)  )
                 cdata->done = true;
         }
         else
@@ -95,8 +95,23 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
     if(AbstractCollisionDetection::linksToBeChecked(first_object_name, second_object_name ))
     {
         fcl::distance(o1, o2, request, result);
-        dist = result.min_distance; 
+        dist = result.min_distance;
         
+        DistanceInformation distance_information;
+        distance_information.object1                = first_object_name;
+        distance_information.object2                = second_object_name;
+        distance_information.min_distance           = result.min_distance;
+        distance_information.nearest_points.at(0)   = result.nearest_points[0];
+        distance_information.nearest_points.at(1)   = result.nearest_points[1];
+        distance_information.contact_normal         =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
+        // preventing divide by zero
+        if(distance_information.contact_normal.x() == 0 && distance_information.contact_normal.y() == 0 && distance_information.contact_normal.z()  == 0)
+            distance_information.contact_normal +=  Eigen::Vector3d(1e-4, 1e-4, 1e-4);
+        distance_information.contact_normal         =  distance_information.contact_normal / distance_information.contact_normal.norm();
+        cdata->list_of_distance_information.push_back(distance_information);
+        
+        std::cout<<o1_collision_object_associated_data->getID()<<"    "<<o2_collision_object_associated_data->getID()<<"  = "<<result.min_distance<<std::endl;
+    
         if(dist > 0)
         {
             LOG_DEBUG_S<<"[defaultDistanceFunction]: Distance between " <<first_object_name.c_str() <<" and " 
@@ -110,19 +125,19 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
             cdata->collision_info.collision_object_names.push_back(std::make_pair(first_object_name,second_object_name));
             cdata->collision_info.number_of_collisions++;
             
-            DistanceInformation distance_information;
-            distance_information.object1                = first_object_name;
-            distance_information.object2                = second_object_name;
-            distance_information.min_distance           = result.min_distance;
-            distance_information.nearest_points.at(0)   = result.nearest_points[0];
-            distance_information.nearest_points.at(1)   = result.nearest_points[1];
-            distance_information.contact_normal         =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
-            // preventing divide by zero
-            if(distance_information.contact_normal.x() == 0 && distance_information.contact_normal.y() == 0 && distance_information.contact_normal.z()  == 0)
-                distance_information.contact_normal +=  Eigen::Vector3d(1e-4, 1e-4, 1e-4);
-
-            distance_information.contact_normal         =  distance_information.contact_normal / distance_information.contact_normal.norm();
-            cdata->list_of_distance_information.push_back(distance_information);
+//             DistanceInformation distance_information;
+//             distance_information.object1                = first_object_name;
+//             distance_information.object2                = second_object_name;
+//             distance_information.min_distance           = result.min_distance;
+//             distance_information.nearest_points.at(0)   = result.nearest_points[0];
+//             distance_information.nearest_points.at(1)   = result.nearest_points[1];
+//             distance_information.contact_normal         =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
+//             // preventing divide by zero
+//             if(distance_information.contact_normal.x() == 0 && distance_information.contact_normal.y() == 0 && distance_information.contact_normal.z()  == 0)
+//                 distance_information.contact_normal +=  Eigen::Vector3d(1e-4, 1e-4, 1e-4);
+//             distance_information.contact_normal         =  distance_information.contact_normal / distance_information.contact_normal.norm();
+            
+//            cdata->list_of_distance_information.push_back(distance_information);
 
             cdata->collision_info.collision_cost += result.min_distance;
 
