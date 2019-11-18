@@ -7,6 +7,11 @@ namespace collision_detection
 // std::vector< DistanceInformation> list_of_distance_information;
 std::string remove_collision_object_4m_collisionManager;
 
+bool isObjectListedInCollisionObjectAssociatedData(CollisionObjectAssociatedData *remove_object)
+{
+    return ( remove_object->getID() == remove_collision_object_4m_collisionManager);
+}
+
 bool defaultCollisionFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObject<double>* o2, void* cdata_)
 {
     CollisionData* cdata                            = static_cast<CollisionData*>(cdata_);
@@ -49,9 +54,10 @@ bool defaultCollisionFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
             LOG_DEBUG_S<<"[defaultCollisionFunction]: There is no collision between "<<first_object_name.c_str()<<" and "<<second_object_name.c_str();
         }
         
-        if(!request.enable_cost && (result.isCollision()) && (result.numContacts() >= request.num_max_contacts))
+        if(!request.enable_cost && result.isCollision()) 
         {
-            cdata->done = true;
+            if(( result.numContacts() >= request.num_max_contacts) || (!request.enable_contact) )        
+                cdata->done = true;
         }
     }
     else
@@ -63,10 +69,6 @@ bool defaultCollisionFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
     return cdata->done;
 }
 
-bool isObjectListedInCollisionObjectAssociatedData(CollisionObjectAssociatedData *remove_object)
-{
-    return ( remove_object->getID() == remove_collision_object_4m_collisionManager);
-}
 
 bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObject<double>* o2, void* cdata_, double& dist)
 {
@@ -93,9 +95,7 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
     if(AbstractCollisionDetection::linksToBeChecked(first_object_name, second_object_name ))
     {
         fcl::distance(o1, o2, request, result);
-        
         dist = result.min_distance; 
-//         std::cout<<"Dist = "<<dist<<std::endl;
         
         if(dist > 0)
         {
@@ -505,7 +505,7 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
                     return true;
 
                 total_cost += env_collision_data.collision_info.collision_cost;
-                 std::cout<<"Env Collision total Cost ="<< total_cost<<"  Env cost only ="<<env_collision_data.collision_info.collision_cost<<std::endl;
+                 //std::cout<<"Env Collision total Cost ="<< total_cost<<"  Env cost only ="<<env_collision_data.collision_info.collision_cost<<std::endl;
                 
                 // store the distance information
                 collision_distance_information_.insert(collision_distance_information_.end(), env_collision_data.list_of_distance_information.begin(),
@@ -533,7 +533,7 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
                 
                 total_cost = getCollisionCost(self_collision_data, collision_distance_information_); // store the distance information
 
-                 std::cout<<"Self Collision total Cost = "<< total_cost<<std::endl;
+                // std::cout<<"Self Collision total Cost = "<< total_cost<<std::endl;
                 LOG_DEBUG("[FCLCollisionDetection]: There are self collisions, now we are checking for collisions against environment");
             }
             else
@@ -546,7 +546,7 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
                 collision_object_names_.insert(collision_object_names_.end(), env_collision_data.collision_info.collision_object_names.begin(),
                                                env_collision_data.collision_info.collision_object_names.end());
                 total_cost += getCollisionCost(env_collision_data, collision_distance_information_); // store the distance information 
-                std::cout<<"Env Collision total Cost ="<< total_cost<<std::endl;
+                //std::cout<<"Env Collision total Cost ="<< total_cost<<std::endl;
                 
                 return true;
             }
