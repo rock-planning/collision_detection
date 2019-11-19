@@ -87,7 +87,7 @@ class AbstractCollisionDetection
         
         virtual void saveOctree() = 0;
 
-        virtual std::vector< std::pair<std::string, std::string> > getCollisionObjectNames()=0;
+        virtual std::vector< std::pair<std::string, std::string> > getCollidedObjectsNames()=0;
 
         static bool linksToBeChecked( const std::string &first_link_name, const std::string &second_link_name )
         {
@@ -125,6 +125,10 @@ class AbstractCollisionDetection
 //         virtual std::vector<DistanceInformation> &getSelfContacts() = 0;
 // 
 //         virtual std::vector<DistanceInformation> &getEnvironmentalContacts() = 0;
+        
+        virtual std::vector<std::string> getRobotCollisionObjectsNames() = 0;
+        
+        virtual std::vector<std::string> getWorldCollisionObjectsNames() = 0;
 
         std::string remove_link_;
 };

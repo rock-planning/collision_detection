@@ -113,7 +113,7 @@ class FCLCollisionDetection: public AbstractCollisionDetection
                            DistanceData &distance_data);
 
 
-        std::vector< std::pair<std::string, std::string> > getCollisionObjectNames();
+        std::vector< std::pair<std::string, std::string> > getCollidedObjectsNames();
 
         void printCollisionObject();
 
@@ -126,6 +126,10 @@ class FCLCollisionDetection: public AbstractCollisionDetection
 //         std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo();
         
         void saveOctree();
+
+        std::vector<std::string> getRobotCollisionObjectsNames();
+
+        std::vector<std::string> getWorldCollisionObjectsNames();
 
         int num_octree_;
         
