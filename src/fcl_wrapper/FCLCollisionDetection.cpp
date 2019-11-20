@@ -162,7 +162,7 @@ FCLCollisionDetection::FCLCollisionDetection(CollisionDetectionConfig collision_
 
 FCLCollisionDetection::~FCLCollisionDetection()
 {
-    for(std::size_t i=0;i<collision_data_.size();i++)    
+    for(std::size_t i=0;i<collision_data_.size(); ++i)    
         delete collision_data_.at(i);        
 }
 
@@ -191,15 +191,15 @@ bool FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
     fcl::Vector3d vetex;
     fcl::Triangle triangle;
 
-    for(std::size_t i=0; i<scene->mNumMeshes; i++ )
+    for(std::size_t i=0; i<scene->mNumMeshes; ++i )
     {
-        for(std::size_t j=0;j<scene->mMeshes[i]->mNumFaces;j++)
+        for(std::size_t j=0;j<scene->mMeshes[i]->mNumFaces; ++j)
         {
             triangle.set(scene->mMeshes[i]->mFaces[j].mIndices[0], scene->mMeshes[i]->mFaces[j].mIndices[1] , scene->mMeshes[i]->mFaces[j].mIndices[2]);
             triangles.push_back(triangle);
         }
 
-        for(std::size_t j=0;j<scene->mMeshes[i]->mNumVertices;j++ )
+        for(std::size_t j=0;j<scene->mMeshes[i]->mNumVertices; ++j)
         {
             //vetex.setValue(scene->mMeshes[i]->mVertices[j].x* scale_for_mesha_files_x, scene->mMeshes[i]->mVertices[j].y*scale_for_mesha_files_y, 
 //scene->mMeshes[i]->mVertices[j].z*scale_for_mesha_files_z) ;
@@ -684,7 +684,7 @@ double FCLCollisionDetection::getCollisionCost(CollisionData &collision_data, st
     contacts.resize(fcl_collision_contacts.size());
     
     CollisionObjectAssociatedData * o1_collision_object_associated_data, * o2_collision_object_associated_data;
-    for(size_t i = 0; i<fcl_collision_contacts.size(); i++)
+    for(size_t i = 0; i<fcl_collision_contacts.size(); ++i)
     {
         const fcl::Contact<double> &cont = fcl_collision_contacts.at(i);
 
@@ -720,7 +720,7 @@ void FCLCollisionDetection::printCollisionObject()
 {
     std::cout<<"The collision object containter contains "<<collision_objects_container_.size()<<" objects with the following names "<<std::endl;
 
-    for(CollisionObjectsMap::iterator it = collision_objects_container_.begin(); it!=collision_objects_container_.end();it++)
+    for(CollisionObjectsMap::iterator it = collision_objects_container_.begin(); it!=collision_objects_container_.end(); ++it)
     {
         std::cout<<it->first<<std::endl;
     }    
@@ -731,7 +731,7 @@ std::vector<std::string> FCLCollisionDetection::getRobotCollisionObjectsNames()
 {
     std::vector<std::string> collision_object_names;
 
-    for(CollisionObjectsMap::iterator it = collision_objects_container_.begin(); it!=collision_objects_container_.end();it++)
+    for(CollisionObjectsMap::iterator it = collision_objects_container_.begin(); it!=collision_objects_container_.end(); ++it)
         collision_object_names.push_back(it->first);
 
     return collision_object_names;
@@ -741,7 +741,7 @@ std::vector<std::string> FCLCollisionDetection::getWorldCollisionObjectsNames()
 {
     std::vector<std::string> collision_object_names;
 
-    for(CollisionObjectsMap::iterator it = world_collision_detector_->collision_objects_container_.begin(); it!= world_collision_detector_->collision_objects_container_.end();it++)
+    for(CollisionObjectsMap::iterator it = world_collision_detector_->collision_objects_container_.begin(); it!= world_collision_detector_->collision_objects_container_.end(); ++it)
         collision_object_names.push_back(it->first);
 
     return collision_object_names;
