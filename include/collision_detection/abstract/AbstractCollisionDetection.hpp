@@ -119,6 +119,8 @@ class AbstractCollisionDetection
 //         virtual void computeClosestObstacleToRobotDistanceInfo() = 0;
 
         virtual std::vector< DistanceInformation>& getCollisionDistanceInformation() = 0;
+        
+        virtual std::vector< DistanceInformation>& getCompleteDistanceInformation() = 0;
 
 //         virtual std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo() = 0;
 

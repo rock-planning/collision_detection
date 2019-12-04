@@ -118,6 +118,8 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         void printCollisionObject();
 
         std::vector< DistanceInformation>& getCollisionDistanceInformation();
+        
+        std::vector< DistanceInformation>& getCompleteDistanceInformation();
 
 //         void computeSelfDistanceInfo();
 // 
@@ -138,6 +140,7 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         double getCollisionCost(CollisionData &collision_data, std::vector<DistanceInformation> &contacts);
         DistanceData getDistanceData();
         CollisionData getCollisionData();
+        void calculateCompleteDistanceInfo();
         
         CollisionDetectionConfig collision_detection_config_;
 

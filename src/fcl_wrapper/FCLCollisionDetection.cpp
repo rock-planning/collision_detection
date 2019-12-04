@@ -90,6 +90,7 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
     
     LOG_DEBUG_S<<"[defaultDistanceFunction]: Checking collision between "<<first_object_name.c_str()<<" and " <<second_object_name.c_str();
     
+
     if(AbstractCollisionDetection::linksToBeChecked(first_object_name, second_object_name ))
     {
         // It seems broad_phase_collision_manager having problem with finding collision pair.
@@ -97,23 +98,6 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
         // See FCL issue #403: https://github.com/flexible-collision-library/fcl/issues/403
         result.min_distance = std::numeric_limits<double>::max(); 
         fcl::distance(o1, o2, request, result);
-                
-        
-//         dist = result.min_distance;
-//            dist = 1000.0 ;//
-
-//         DistanceInformation distance_information;
-//         distance_information.object1                = o1_collision_object_associated_data->getID(); //first_object_name;
-//         distance_information.object2                = o2_collision_object_associated_data->getID();//second_object_name;
-//         distance_information.min_distance           = result.min_distance;
-//         distance_information.nearest_points.at(0)   = result.nearest_points[0];
-//         distance_information.nearest_points.at(1)   = result.nearest_points[1];
-//         distance_information.contact_normal         =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
-//         // preventing divide by zero
-//         if(distance_information.contact_normal.x() == 0 && distance_information.contact_normal.y() == 0 && distance_information.contact_normal.z()  == 0)
-//             distance_information.contact_normal +=  Eigen::Vector3d(1e-4, 1e-4, 1e-4);
-//         distance_information.contact_normal         =  distance_information.contact_normal / distance_information.contact_normal.norm();
-//         cdata->list_of_distance_information.push_back(distance_information);
 
         if(result.min_distance > 0)
         {
@@ -127,7 +111,7 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
             <<" and " <<second_object_name.c_str();
             cdata->collision_info.collision_object_names.push_back(std::make_pair(first_object_name,second_object_name));
             cdata->collision_info.number_of_collisions++;
-            
+
             DistanceInformation distance_information;
             distance_information.object1                = o1_collision_object_associated_data->getID(); //first_object_name;
             distance_information.object2                = o2_collision_object_associated_data->getID();//second_object_name;
@@ -138,6 +122,9 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
             // preventing divide by zero
             if(distance_information.contact_normal.x() == 0 && distance_information.contact_normal.y() == 0 && distance_information.contact_normal.z()  == 0)
                 distance_information.contact_normal +=  Eigen::Vector3d(1e-4, 1e-4, 1e-4);
+            // Getting the normal vector need to be reworked
+            // The current version of using contact point to calculate normal vector won't works
+            // as contact point calculation depends on the object type(sphere, box ,mesh, octree etc.,)
             distance_information.contact_normal         =  distance_information.contact_normal / distance_information.contact_normal.norm();
             
            cdata->list_of_distance_information.push_back(distance_information);
@@ -146,6 +133,104 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
 
             if (cdata->collision_info.stop_after_first_collision)  // stopping criteria in case of no detailed collision detail is needed.            
                 cdata->done = true;
+        }
+    }
+    return cdata->done;
+}
+
+bool completeDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObject<double>* o2, void* cdata_, double& dist)
+{
+    
+    DistanceData* cdata                         = static_cast<DistanceData*>(cdata_);
+    const fcl::DistanceRequest<double>& request = cdata->request;
+    fcl::DistanceResult<double>& result         = cdata->result;
+    dist = std::numeric_limits<double>::max();
+
+    if(cdata->done)
+    {
+        dist = result.min_distance;
+        return true;
+    }
+    CollisionObjectAssociatedData * o1_collision_object_associated_data, * o2_collision_object_associated_data;
+    o1_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(o1->getUserData());
+    o2_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(o2->getUserData());
+    std::string first_object_name       = o1_collision_object_associated_data->getID();
+    std::string second_object_name      = o2_collision_object_associated_data->getID();
+    first_object_name=first_object_name.substr(0,first_object_name.find_last_of("_"))  ;
+    second_object_name=second_object_name.substr(0,second_object_name.find_last_of("_"));
+    
+    LOG_DEBUG_S<<"[defaultDistanceFunction]: Checking collision between "<<first_object_name.c_str()<<" and " <<second_object_name.c_str();
+    
+
+    if(AbstractCollisionDetection::linksToBeChecked(first_object_name, second_object_name ))
+    {
+        // It seems broad_phase_collision_manager having problem with finding collision pair.
+        // So one need to set high value for min_distance
+        // See FCL issue #403: https://github.com/flexible-collision-library/fcl/issues/403
+        result.min_distance = std::numeric_limits<double>::max(); 
+        fcl::distance(o1, o2, request, result);
+
+
+        if(result.min_distance > 0)
+        {
+            LOG_DEBUG_S<<"[defaultDistanceFunction]: Distance between " <<first_object_name.c_str() <<" and " 
+            <<second_object_name.c_str()<<"  ="<<result.min_distance;
+            DistanceInformation distance_information;
+            distance_information.object1                = o1_collision_object_associated_data->getID(); //first_object_name;
+            distance_information.object2                = o2_collision_object_associated_data->getID();//second_object_name;
+            distance_information.min_distance           = result.min_distance;
+            distance_information.nearest_points.at(0)   = result.nearest_points[0];
+            distance_information.nearest_points.at(1)   = result.nearest_points[1];
+            distance_information.contact_normal         =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
+            // preventing divide by zero
+            if(distance_information.contact_normal.x() == 0 && distance_information.contact_normal.y() == 0 && distance_information.contact_normal.z()  == 0)
+                distance_information.contact_normal +=  Eigen::Vector3d(1e-4, 1e-4, 1e-4);
+            if(result.min_distance >= 0)
+                distance_information.contact_normal         =  distance_information.contact_normal / distance_information.contact_normal.norm();
+            else
+                distance_information.contact_normal         =  distance_information.nearest_points.at(0);
+            
+            cdata->list_of_distance_information.push_back(distance_information);
+
+            std::cout<<"[defaultDistanceFunction]:Distance between "<<o1_collision_object_associated_data->getID()<<" and " <<o2_collision_object_associated_data->getID()<<"  "<<result.min_distance<<std::endl;
+        }
+        else if( result.min_distance < 0) 
+        {
+             LOG_DEBUG_S<<"[defaultDistanceFunction]: There is collision between " <<first_object_name.c_str() 
+            <<" and " <<second_object_name.c_str();
+            
+            fcl::CollisionRequest<double> request(10, true);
+            fcl::CollisionResult<double> result;
+
+            fcl::collide(o1, o2, request, result);
+            std::vector<fcl::Contact<double>> fcl_collision_contacts;
+            result.getContacts(fcl_collision_contacts);
+    
+            CollisionObjectAssociatedData * o1_collision_object_associated_data, * o2_collision_object_associated_data;
+            for(size_t i = 0; i<fcl_collision_contacts.size(); ++i)
+            {
+                const fcl::Contact<double> &cont = fcl_collision_contacts.at(i);
+
+                DistanceInformation contact_info;
+                contact_info.min_distance = cont.penetration_depth;
+                contact_info.nearest_points.at(0) = cont.pos;
+                contact_info.nearest_points.at(1) = cont.pos;
+                contact_info.contact_normal = cont.normal;
+
+                o1_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(cont.o1->getUserData());
+                o2_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(cont.o2->getUserData());
+
+                std::string first_object_name  = o1_collision_object_associated_data->getID();
+                std::string second_object_name = o2_collision_object_associated_data->getID();
+
+                contact_info.object1  = first_object_name;//.substr(0,first_object_name.find_last_of("_"))  ;
+                contact_info.object2 = second_object_name;//.substr(0,second_object_name.find_last_of("_"));
+                 cdata->list_of_distance_information.push_back(contact_info);
+            }
+
+            cdata->collision_info.collision_object_names.push_back(std::make_pair(first_object_name,second_object_name));
+            cdata->collision_info.number_of_collisions++;
+
         }
     }
     return cdata->done;
@@ -497,6 +582,30 @@ bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_d
     return true;
 }
 
+void FCLCollisionDetection::calculateCompleteDistanceInfo()
+{
+
+    collision_object_names_.clear();
+    full_collision_distance_information_.clear();
+
+    // First check self collision
+    DistanceData self_collision_data;
+
+    broad_phase_collision_manager->distance(&self_collision_data, completeDistanceFunction);
+    full_collision_distance_information_ = self_collision_data.list_of_distance_information; // store the distance information
+
+    // Now we do collision check withe environment
+    DistanceData env_collision_data = getDistanceData();
+    broad_phase_collision_manager->distance( world_collision_detector_->getCollisionManager().get(), &env_collision_data, completeDistanceFunction);
+
+    // store the distance information
+    full_collision_distance_information_.insert(full_collision_distance_information_.end(), env_collision_data.list_of_distance_information.begin(),
+                                            env_collision_data.list_of_distance_information.end());
+
+
+}
+
+
 bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
 {
     total_cost = 0.0;
@@ -510,15 +619,13 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
         case collision_detection::DISTANCE:
         {
             DistanceData self_collision_data = getDistanceData();
-            broad_phase_collision_manager->distance(&self_collision_data, defaultDistanceFunction);
+            broad_phase_collision_manager->distance(&self_collision_data, defaultDistanceFunction); 
             if (self_collision_data.collision_info.number_of_collisions > 0)
             {
                 total_cost = self_collision_data.collision_info.collision_cost;
                 // std::cout<<"Self Collision total Cost = "<< total_cost<<std::endl;
                 collision_object_names_ = self_collision_data.collision_info.collision_object_names;
-                
                 full_collision_distance_information_ = self_collision_data.list_of_distance_information; // store the distance information
-                
                 if ( collision_detection_config_.stop_after_first_collision)  //special condition. Explained in the variable definition
                     return true;
 
@@ -526,7 +633,7 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
             }
             else
                 LOG_DEBUG("[FCLCollisionDetection]: There is no self collisions, now we are checking for collisions against environment");
-            
+
             // Now we do collision check withe environment
             DistanceData env_collision_data = getDistanceData();
             broad_phase_collision_manager->distance(  world_collision_detector_->getCollisionManager().get(), &env_collision_data, defaultDistanceFunction);
@@ -542,7 +649,7 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
                 
                 // store the distance information
                 full_collision_distance_information_.insert(full_collision_distance_information_.end(), env_collision_data.list_of_distance_information.begin(),
-                                                       env_collision_data.list_of_distance_information.end());
+                                                        env_collision_data.list_of_distance_information.end());
                 return true;
             }
             else
@@ -713,6 +820,12 @@ double FCLCollisionDetection::getCollisionCost(CollisionData &collision_data, st
 
 std::vector< DistanceInformation>& FCLCollisionDetection::getCollisionDistanceInformation()
 {
+    return full_collision_distance_information_;
+}
+
+std::vector< DistanceInformation>& FCLCollisionDetection::getCompleteDistanceInformation()
+{
+    calculateCompleteDistanceInfo();
     return full_collision_distance_information_;
 }
 
