@@ -189,10 +189,10 @@ bool completeDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
                 distance_information.contact_normal         =  distance_information.contact_normal / distance_information.contact_normal.norm();
             else
                 distance_information.contact_normal         =  distance_information.nearest_points.at(0);
-            
-            cdata->list_of_distance_information.push_back(distance_information);
 
-            std::cout<<"[defaultDistanceFunction]:Distance between "<<o1_collision_object_associated_data->getID()<<" and " <<o2_collision_object_associated_data->getID()<<"  "<<result.min_distance<<std::endl;
+            cdata->list_of_distance_information.push_back(distance_information);
+            
+//             std::cout<<"[defaultDistanceFunction]:Distance between "<<o1_collision_object_associated_data->getID()<<" and " <<o2_collision_object_associated_data->getID()<<"  "<<result.min_distance<<std::endl;
         }
         else if( result.min_distance < 0) 
         {
@@ -226,6 +226,8 @@ bool completeDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
                 contact_info.object1  = first_object_name;//.substr(0,first_object_name.find_last_of("_"))  ;
                 contact_info.object2 = second_object_name;//.substr(0,second_object_name.find_last_of("_"));
                  cdata->list_of_distance_information.push_back(contact_info);
+                 
+//                std::cout<<"[defaultDistanceFunction]:Collision Distance between "<<first_object_name<<" and " <<second_object_name<<"  "<<contact_info.min_distance<<std::endl;
             }
 
             cdata->collision_info.collision_object_names.push_back(std::make_pair(first_object_name,second_object_name));
@@ -464,7 +466,7 @@ void FCLCollisionDetection::registerCylinderToCollisionManager(const double &rad
 
 void FCLCollisionDetection::registerSphereToCollisionManager(const double &radius, const std::string &link_name , const base::Pose &collision_object_pose, const double &link_padding )
 {
-    shared_ptr<fcl::Sphere<double> > fcl_sphere_ptr(new fcl::Sphere<double> (radius*link_padding));  
+    shared_ptr<fcl::Sphere<double> > fcl_sphere_ptr(new fcl::Sphere<double> (radius*link_padding));
     
     CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
     collision_object_associated_data->setID(link_name);
@@ -590,12 +592,11 @@ void FCLCollisionDetection::calculateCompleteDistanceInfo()
 
     // First check self collision
     DistanceData self_collision_data;
-
     broad_phase_collision_manager->distance(&self_collision_data, completeDistanceFunction);
     full_collision_distance_information_ = self_collision_data.list_of_distance_information; // store the distance information
 
     // Now we do collision check withe environment
-    DistanceData env_collision_data = getDistanceData();
+    DistanceData env_collision_data;
     broad_phase_collision_manager->distance( world_collision_detector_->getCollisionManager().get(), &env_collision_data, completeDistanceFunction);
 
     // store the distance information
