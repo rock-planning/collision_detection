@@ -52,6 +52,9 @@ class AbstractCollisionDetection
         virtual void registerOctreeToCollisionManager(  const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
                                                         std::string link_name) = 0;
 
+        virtual void registerOctreeAsBoxesToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
+                                                             std::string link_name) = 0;
+
         virtual bool registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
                                                     const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
@@ -66,6 +69,8 @@ class AbstractCollisionDetection
         virtual void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose) = 0;
 
         virtual void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name) = 0;
+
+        virtual void updateOctomapBoxesEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name) = 0;
 
         virtual bool removeSelfCollisionObject(const std::string &collision_object_name) = 0;
 

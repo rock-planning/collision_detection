@@ -72,6 +72,9 @@ class FCLCollisionDetection: public AbstractCollisionDetection
 
         void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, std::string link_name);
 
+        void registerOctreeAsBoxesToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
+                                                     std::string link_name);
+
         void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
                                                  const base::Pose &collision_object_pose, const double &link_padding = 1.20 );
 
@@ -89,6 +92,8 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
 
         void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name);
+
+        void updateOctomapBoxesEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name);
         
         bool isCollisionsOccured( double &total_cost);
             
@@ -103,6 +108,8 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         void removeObject4mCollisionContainer(const std::string &collision_object_name);
         
         bool removeObjectFromOctree(Eigen::Vector3d object_pose, Eigen::Vector3d object_size);
+        
+        bool removeOctomapBoxes(const std::string &collision_object_name);
 
         shared_ptr<fcl::BroadPhaseCollisionManager<double>>  &getCollisionManager();
 
@@ -154,6 +161,7 @@ class FCLCollisionDetection: public AbstractCollisionDetection
         
         shared_ptr<octomap::OcTree > octomap_ptr_;
         shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr_;
+        std::vector<fcl::CollisionObject<double>*> fcl_octomap_boxes_;
 
 };
 }// end namespace trajectory_optimization

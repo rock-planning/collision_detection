@@ -103,7 +103,28 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
         {
             LOG_DEBUG_S<<"[defaultDistanceFunction]: Distance between " <<first_object_name.c_str() <<" and " 
             <<second_object_name.c_str()<<"  ="<<result.min_distance;
-        }        
+            if(request.enable_signed_distance)
+            {
+                DistanceInformation distance_information;
+                distance_information.object1                = o1_collision_object_associated_data->getID(); //first_object_name;
+                distance_information.object2                = o2_collision_object_associated_data->getID();//second_object_name;
+                distance_information.min_distance           = result.min_distance;
+                distance_information.nearest_points.at(0)   = result.nearest_points[0];
+                distance_information.nearest_points.at(1)   = result.nearest_points[1];
+                distance_information.contact_normal         =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
+                // preventing divide by zero
+                if(distance_information.contact_normal.x() == 0 && distance_information.contact_normal.y() == 0 && distance_information.contact_normal.z()  == 0)
+                    distance_information.contact_normal +=  Eigen::Vector3d(1e-4, 1e-4, 1e-4);
+                // Getting the normal vector need to be reworked
+                // The current version of using contact point to calculate normal vector won't works
+                // as contact point calculation depends on the object type(sphere, box ,mesh, octree etc.,)
+                distance_information.contact_normal         =  distance_information.contact_normal / distance_information.contact_normal.norm();
+                
+                cdata->list_of_distance_information.push_back(distance_information);
+
+//              cdata->collision_info.collision_cost += result.min_distance;
+            }
+        }
         else if( result.min_distance < 0) 
         {
             
@@ -111,25 +132,6 @@ bool defaultDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionObj
             <<" and " <<second_object_name.c_str();
             cdata->collision_info.collision_object_names.push_back(std::make_pair(first_object_name,second_object_name));
             cdata->collision_info.number_of_collisions++;
-
-            DistanceInformation distance_information;
-            distance_information.object1                = o1_collision_object_associated_data->getID(); //first_object_name;
-            distance_information.object2                = o2_collision_object_associated_data->getID();//second_object_name;
-            distance_information.min_distance           = result.min_distance;
-            distance_information.nearest_points.at(0)   = result.nearest_points[0];
-            distance_information.nearest_points.at(1)   = result.nearest_points[1];
-            distance_information.contact_normal         =  (distance_information.nearest_points.at(0) - distance_information.nearest_points.at(1));
-            // preventing divide by zero
-            if(distance_information.contact_normal.x() == 0 && distance_information.contact_normal.y() == 0 && distance_information.contact_normal.z()  == 0)
-                distance_information.contact_normal +=  Eigen::Vector3d(1e-4, 1e-4, 1e-4);
-            // Getting the normal vector need to be reworked
-            // The current version of using contact point to calculate normal vector won't works
-            // as contact point calculation depends on the object type(sphere, box ,mesh, octree etc.,)
-            distance_information.contact_normal         =  distance_information.contact_normal / distance_information.contact_normal.norm();
-            
-           cdata->list_of_distance_information.push_back(distance_information);
-
-            cdata->collision_info.collision_cost += result.min_distance;
 
             if (cdata->collision_info.stop_after_first_collision)  // stopping criteria in case of no detailed collision detail is needed.            
                 cdata->done = true;
@@ -151,8 +153,9 @@ bool completeDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
         dist = result.min_distance;
         return true;
     }
+
     CollisionObjectAssociatedData * o1_collision_object_associated_data, * o2_collision_object_associated_data;
-    o1_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(o1->getUserData());
+    o1_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(o1->getUserData());    
     o2_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(o2->getUserData());
     std::string first_object_name       = o1_collision_object_associated_data->getID();
     std::string second_object_name      = o2_collision_object_associated_data->getID();
@@ -160,7 +163,6 @@ bool completeDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
     second_object_name=second_object_name.substr(0,second_object_name.find_last_of("_"));
     
     LOG_DEBUG_S<<"[defaultDistanceFunction]: Checking collision between "<<first_object_name.c_str()<<" and " <<second_object_name.c_str();
-    
 
     if(AbstractCollisionDetection::linksToBeChecked(first_object_name, second_object_name ))
     {
@@ -191,43 +193,34 @@ bool completeDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
                 distance_information.contact_normal         =  distance_information.nearest_points.at(0);
 
             cdata->list_of_distance_information.push_back(distance_information);
-            
-//             std::cout<<"[defaultDistanceFunction]:Distance between "<<o1_collision_object_associated_data->getID()<<" and " <<o2_collision_object_associated_data->getID()<<"  "<<result.min_distance<<std::endl;
+
         }
         else if( result.min_distance < 0) 
         {
              LOG_DEBUG_S<<"[defaultDistanceFunction]: There is collision between " <<first_object_name.c_str() 
             <<" and " <<second_object_name.c_str();
-            
+
             fcl::CollisionRequest<double> request(10, true);
             fcl::CollisionResult<double> result;
 
             fcl::collide(o1, o2, request, result);
             std::vector<fcl::Contact<double>> fcl_collision_contacts;
             result.getContacts(fcl_collision_contacts);
-    
-            CollisionObjectAssociatedData * o1_collision_object_associated_data, * o2_collision_object_associated_data;
+
             for(size_t i = 0; i<fcl_collision_contacts.size(); ++i)
             {
                 const fcl::Contact<double> &cont = fcl_collision_contacts.at(i);
 
                 DistanceInformation contact_info;
-                contact_info.min_distance = cont.penetration_depth;
+                contact_info.min_distance = -cont.penetration_depth;
                 contact_info.nearest_points.at(0) = cont.pos;
                 contact_info.nearest_points.at(1) = cont.pos;
                 contact_info.contact_normal = cont.normal;
 
-                o1_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(cont.o1->getUserData());
-                o2_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(cont.o2->getUserData());
-
-                std::string first_object_name  = o1_collision_object_associated_data->getID();
-                std::string second_object_name = o2_collision_object_associated_data->getID();
-
-                contact_info.object1  = first_object_name;//.substr(0,first_object_name.find_last_of("_"))  ;
-                contact_info.object2 = second_object_name;//.substr(0,second_object_name.find_last_of("_"));
+                contact_info.object1  = o1_collision_object_associated_data->getID();
+                contact_info.object2 = o2_collision_object_associated_data->getID();
                  cdata->list_of_distance_information.push_back(contact_info);
-                 
-//                std::cout<<"[defaultDistanceFunction]:Collision Distance between "<<first_object_name<<" and " <<second_object_name<<"  "<<contact_info.min_distance<<std::endl;
+
             }
 
             cdata->collision_info.collision_object_names.push_back(std::make_pair(first_object_name,second_object_name));
@@ -326,13 +319,26 @@ void FCLCollisionDetection::updateEnvironment(const std::shared_ptr<octomap::OcT
     // So a temporary solution is to remove the old environment and then re-register the new environment. This quick fix is not an elegant solution,
     // a proper solution to this problem should be found to handle continuous input octomap.
     removeWorldCollisionObject(env_object_name);
+
+    base::Pose collision_object_pose;
+    collision_object_pose.position.setZero();
+    collision_object_pose.orientation.setIdentity();
+    
+    registerOctreeToCollisionManager(octomap, collision_object_pose, env_object_name);
+}
+
+void FCLCollisionDetection::updateOctomapBoxesEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name)
+{
+
+    removeOctomapBoxes(env_object_name);
     
     base::Pose collision_object_pose;
     collision_object_pose.position.setZero();
     collision_object_pose.orientation.setIdentity();
     
-    registerOctreeToCollisionManager(octomap, collision_object_pose, env_object_name);                                                             
+    registerOctreeAsBoxesToCollisionManager(octomap, collision_object_pose, env_object_name);                                                             
 }
+
 
 bool FCLCollisionDetection::removeObjectFromOctree(Eigen::Vector3d object_pose, Eigen::Vector3d object_size)
 {
@@ -379,13 +385,64 @@ void FCLCollisionDetection::registerOctreeToCollisionManager(const std::shared_p
     fcl_OcTree_ptr->setUserData( collision_object_associated_data );
     
     
-/*    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
-                                                                                                                collision_object_pose.orientation.toRotationMatrix(),
-                                                                                                                collision_object_pose.position ) ) ;*/
+//    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
+//                                                                                                                collision_object_pose.orientation.toRotationMatrix(),
+//                                                                                                                collision_object_pose.position ) ) ;
     fcl_tree_collision_object_ptr_.reset(new fcl::CollisionObject<double>( fcl_OcTree_ptr));
     
     registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr_);
 }
+
+
+void FCLCollisionDetection::registerOctreeAsBoxesToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
+                                                                    std::string link_name)
+{
+
+    LOG_DEBUG_S<<"[FCLCollisionDetection]: Registering octomap of size = "<<octomap->size();
+
+    //1) register octomap tree to fcl
+    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(octomap->getResolution()));
+    fcl_tree_collision_object_ptr_.reset(new fcl::CollisionObject<double>( fcl_OcTree_ptr));
+    
+    
+    CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
+    collision_object_associated_data->setID(link_name);
+    fcl_OcTree_ptr->setUserData( collision_object_associated_data );
+    collision_data_.push_back(collision_object_associated_data);
+    
+    
+    fcl_octomap_boxes_.clear();
+    fcl_octomap_boxes_.reserve(octomap->size()/2);
+
+    double octree_thres = octomap->getOccupancyThres();
+    for(auto it = octomap->begin(octomap->getTreeDepth()), end = octomap->end();it != end; ++it)
+    {
+        if(it->getOccupancy() >= octree_thres)
+        {
+            double box_size = it.getSize();
+            fcl::Box<double>* box = new fcl::Box<double>(box_size, box_size, box_size);
+            box->cost_density = (*it).getOccupancy();
+            box->threshold_occupied = octomap->getOccupancyThres();
+            fcl::CollisionObject<double>* obj = new fcl::CollisionObject<double>(std::shared_ptr<fcl::CollisionGeometry<double>>(box), Eigen::Matrix3d::Identity(),
+                                                                                 Eigen::Vector3d(it.getX(), it.getY(), it.getZ()));
+
+            CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
+            collision_object_associated_data->setID(link_name);
+            obj->setUserData( collision_object_associated_data );
+            fcl_octomap_boxes_.push_back(obj);
+        }
+    }
+// std::cout<<"registering octomax = "<<fcl_octomap_boxes_.size()<<std::endl;
+
+    broad_phase_collision_manager->registerObjects(fcl_octomap_boxes_);
+
+    CollisionObjectPair link_name_CollisionObject;
+    link_name_CollisionObject.first  = link_name;
+    link_name_CollisionObject.second = fcl_tree_collision_object_ptr_;
+    collision_objects_container_.insert(link_name_CollisionObject );
+
+}
+
 
 bool FCLCollisionDetection::registerMeshToCollisionManager( const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, 
                                                             const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding)
@@ -529,6 +586,31 @@ bool FCLCollisionDetection::removeWorldCollisionObject(const std::string &collis
  
     //unregister the collision object from collision manager.
     broad_phase_collision_manager->unregisterObject(it->second.get());
+
+    //remove collision object from collision containter
+    removeObject4mCollisionContainer(collision_object_name);
+
+    return true;
+}
+
+bool FCLCollisionDetection::removeOctomapBoxes(const std::string &collision_object_name)
+{
+    //find the collision object -
+    CollisionObjectsMap::iterator it = collision_objects_container_.find(collision_object_name);
+
+    if (it == collision_objects_container_.end())
+    {
+        LOG_WARN_S<<"[FCLCollisionDetection]: Trying to remove object name "<<collision_object_name.c_str()
+        <<" from the world. This object name is not available in collision_objects_container_";
+        return false;
+    }
+ 
+    //unregister the collision object from collision manager.
+    for(std::size_t j = 0; j < fcl_octomap_boxes_.size(); ++j)
+    {
+        broad_phase_collision_manager->unregisterObject(fcl_octomap_boxes_[j]);
+        delete fcl_octomap_boxes_[j];
+    }
 
     //remove collision object from collision containter
     removeObject4mCollisionContainer(collision_object_name);
