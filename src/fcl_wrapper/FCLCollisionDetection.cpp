@@ -200,7 +200,7 @@ bool completeDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
              LOG_DEBUG_S<<"[defaultDistanceFunction]: There is collision between " <<first_object_name.c_str() 
             <<" and " <<second_object_name.c_str();
 
-            fcl::CollisionRequest<double> request(10, true);
+            fcl::CollisionRequest<double> request(100, true);
             fcl::CollisionResult<double> result;
 
             fcl::collide(o1, o2, request, result);
@@ -388,7 +388,8 @@ void FCLCollisionDetection::registerOctreeToCollisionManager(const std::shared_p
 //    shared_ptr< fcl::CollisionObject<double> > fcl_tree_collision_object_ptr (new fcl::CollisionObject<double>( fcl_OcTree_ptr, 
 //                                                                                                                collision_object_pose.orientation.toRotationMatrix(),
 //                                                                                                                collision_object_pose.position ) ) ;
-    fcl_tree_collision_object_ptr_.reset(new fcl::CollisionObject<double>( fcl_OcTree_ptr));
+    //fcl_tree_collision_object_ptr_.reset(new fcl::CollisionObject<double>( fcl_OcTree_ptr));
+    fcl_tree_collision_object_ptr_.reset(new fcl::CollisionObject<double>( fcl_OcTree_ptr, collision_object_pose.orientation.toRotationMatrix(), collision_object_pose.position ) ) ;
     
     registerCollisionObjectToCollisionManager(link_name, fcl_tree_collision_object_ptr_);
 }
