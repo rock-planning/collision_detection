@@ -9,7 +9,7 @@ endif()
 INCLUDE(FindPkgConfig)
 
 find_package(Eigen3 REQUIRED)
-#find_package(orocos_kdl REQUIRED)
+pkg_check_modules(BASE_TYPES REQUIRED base-types)
 pkg_check_modules(kdl_parser REQUIRED kdl_parser)
 pkg_check_modules(SRDF REQUIRED srdfdom)
 
@@ -31,7 +31,8 @@ target_link_libraries(abstract_collision_detection  ${ASSIMP_LIBRARIES} ${SRDF_L
 
 
 # FCL Wrapper
-pkg_check_modules(FCL fcl QUIET)
+pkg_check_modules(FCL REQUIRED fcl)
+#pkg_check_modules(FCL fcl QUIET)
 #find_package(fcl QUIET)
 
 if( FCL_FOUND)
@@ -44,7 +45,7 @@ if( FCL_FOUND)
                 ${CMAKE_CURRENT_LIST_DIR}/fcl_wrapper/CollisionObjectAssociatedData.cpp
     )
 
-    target_link_libraries(fcl_wrapper ${FCL_LIBRARIES} abstract_collision_detection)
+    target_link_libraries(fcl_wrapper ${FCL_LIBRARIES} ${BASE_TYPES_LIBRARIES} abstract_collision_detection)
 else()
     message("NO FCL FOUND")
 
@@ -57,6 +58,8 @@ target_link_libraries(collision_detection  abstract_collision_detection fcl_wrap
 
 set(TARGET_NAME ${PROJECT_NAME})
 #set(PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS};${COLLISION_DETECTION_INCLUDES}")
+set(PKGCONFIG_LIBS "${PKGCONFIG_LIBS} -labstract_collision_detection -lfcl_wrapper")
+
 CONFIGURE_FILE("${PROJECT_NAME}.pc.in" "${PROJECT_NAME}.pc" @ONLY)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/collision_detection DESTINATION include)

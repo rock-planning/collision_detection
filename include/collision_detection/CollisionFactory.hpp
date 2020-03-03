@@ -33,7 +33,8 @@ public:
     */
     ~CollisionFactory();
 
-     AbstractCollisionPtr getCollisionDetector(collision_detection::CollisionLibrary library, OctreeDebugConfig octree_debug_config, bool use_contact_info=false);
+//      AbstractCollisionPtr getCollisionDetector(collision_detection::CollisionLibrary library, OctreeDebugConfig octree_debug_config, bool use_contact_info=false);
+     AbstractCollisionPtr getCollisionDetector(CollisionDetectionConfig collision_detection_config);
 
 };
 

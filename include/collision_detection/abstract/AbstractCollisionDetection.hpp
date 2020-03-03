@@ -18,10 +18,9 @@
 namespace collision_detection
 {
 
-enum CollisionLibrary
-{
-    FCL 
-};
+class AbstractCollisionDetection;
+
+typedef std::shared_ptr<AbstractCollisionDetection> AbstractCollisionPtr;
 
 struct DistanceInformation
 {
@@ -32,10 +31,6 @@ struct DistanceInformation
     std::vector< Eigen::Vector3d > nearest_points;
     Eigen::Vector3d contact_normal;
 };
-
-class AbstractCollisionDetection;
-
-typedef std::shared_ptr<AbstractCollisionDetection> AbstractCollisionPtr;
 
 /**
  * @class AbstractCollisionDetection
@@ -57,6 +52,9 @@ class AbstractCollisionDetection
         virtual void registerOctreeToCollisionManager(  const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
                                                         std::string link_name) = 0;
 
+        virtual void registerOctreeAsBoxesToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
+                                                             std::string link_name) = 0;
+
         virtual bool registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
                                                     const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
@@ -72,6 +70,8 @@ class AbstractCollisionDetection
 
         virtual void updateEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name) = 0;
 
+        virtual void updateOctomapBoxesEnvironment(const std::shared_ptr<octomap::OcTree> &octomap, const std::string &env_object_name) = 0;
+
         virtual bool removeSelfCollisionObject(const std::string &collision_object_name) = 0;
 
         virtual bool removeWorldCollisionObject(const std::string &collision_object_name) = 0;
@@ -80,9 +80,11 @@ class AbstractCollisionDetection
 
         virtual int numberOfObjectsInCollisionManger() = 0;
 
-        virtual bool checkSelfCollision(int num_max_contacts=1) = 0;
+//         virtual bool checkSelfCollision(int num_max_contacts=1) = 0;
+// 
+//         virtual bool checkWorldCollision(int num_max_contacts=1) = 0;
 
-        virtual bool checkWorldCollision(int num_max_contacts=1) = 0;
+        virtual bool isCollisionsOccured(double &collision_cost) = 0;
 
         virtual bool assignWorldDetector(AbstractCollisionPtr collision_detector) = 0;
 
@@ -90,9 +92,7 @@ class AbstractCollisionDetection
         
         virtual void saveOctree() = 0;
 
-        virtual std::vector< std::pair<std::string, std::string> > getCollisionObjectNames()=0;
-
-         //   virtual void printWorldCollisionObject() = 0;        
+        virtual std::vector< std::pair<std::string, std::string> > getCollidedObjectsNames()=0;
 
         static bool linksToBeChecked( const std::string &first_link_name, const std::string &second_link_name )
         {
@@ -119,17 +119,23 @@ class AbstractCollisionDetection
 
         bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
 
-        virtual void computeSelfDistanceInfo() = 0;
+//         virtual void computeSelfDistanceInfo() = 0;
 
-        virtual void computeClosestObstacleToRobotDistanceInfo() = 0;
+//         virtual void computeClosestObstacleToRobotDistanceInfo() = 0;
 
-        virtual std::vector< DistanceInformation> &getSelfDistanceInfo() = 0;
+        virtual std::vector< DistanceInformation>& getCollisionDistanceInformation() = 0;
+        
+        virtual std::vector< DistanceInformation>& getCompleteDistanceInformation() = 0;
 
-        virtual std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo() = 0;
+//         virtual std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo() = 0;
 
-        virtual std::vector<DistanceInformation> &getSelfContacts() = 0;
-
-        virtual std::vector<DistanceInformation> &getEnvironmentalContacts() = 0;
+//         virtual std::vector<DistanceInformation> &getSelfContacts() = 0;
+// 
+//         virtual std::vector<DistanceInformation> &getEnvironmentalContacts() = 0;
+        
+        virtual std::vector<std::string> getRobotCollisionObjectsNames() = 0;
+        
+        virtual std::vector<std::string> getWorldCollisionObjectsNames() = 0;
 
         std::string remove_link_;
 };
