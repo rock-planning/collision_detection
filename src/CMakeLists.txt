@@ -10,24 +10,30 @@ INCLUDE(FindPkgConfig)
 
 find_package(Eigen3 REQUIRED)
 pkg_check_modules(BASE_TYPES REQUIRED base-types)
-pkg_check_modules(kdl_parser REQUIRED kdl_parser)
-pkg_check_modules(SRDF REQUIRED srdfdom)
-
-
+pkg_search_module(BASE_LOGGING REQUIRED base-logging)
 pkg_check_modules(ASSIMP REQUIRED assimp)
-message(STATUS "ASSIMP VERSION ${ASSIMP_VERSION}")
+pkg_check_modules(SRDF REQUIRED srdfdom)
+pkg_check_modules(OCTOMAP REQUIRED octomap)
 
-set(COLLISION_DETECTION_INCLUDES ${CMAKE_SOURCE_DIR}/include ${EIGEN3_INCLUDE_DIR} ${kdl_parser_INCLUDE_DIRS}  
-				 ${ASSIMP_INCLUDE_DIRS} ${SRDF_INCLUDE_DIRS} )
+set(COLLISION_DETECTION_INCLUDES ${CMAKE_SOURCE_DIR}/include ${EIGEN3_INCLUDE_DIR} ${BASE_TYPES_INCLUDE_DIRS} 
+                                 ${BASE_LOGGING_INCLUDE_DIRS} ${ASSIMP_INCLUDE_DIRS} ${SRDF_INCLUDE_DIRS} 
+                                 ${OCTOMAP_INCLUDE_DIRS})
 
-set(COLLISION_DETECTION_LINK_DIRS ${ASSIMP_LIBRARY_DIRS} ${SRDF_LIBRARY_DIRS}) 
+set(COLLISION_DETECTION_LINK_DIRS ${BASE_TYPES_LIBRARY_DIRS} ${BASE_LOGGING_LIBRARY_DIRS} 
+                                  ${ASSIMP_LIBRARY_DIRS} ${SRDF_LIBRARY_DIRS}
+                                  ${OCTOMAP_LIBRARY_DIRS})
+
+set(COLLISION_DETECTION_DEP_LIBS ${BASE_TYPES_LIBRARIES} ${BASE_LOGGING_LIBRARIES} ${ASSIMP_LIBRARIES}
+                                 ${SRDF_LIBRARIES} ${OCTOMAP_LIBRARIES})
+
 include_directories(${COLLISION_DETECTION_INCLUDES})
+
 link_directories(${COLLISION_DETECTION_LINK_DIRS})
 
 add_library(abstract_collision_detection SHARED
             ${CMAKE_CURRENT_LIST_DIR}/abstract/AbstractCollisionDetection.cpp
 )
-target_link_libraries(abstract_collision_detection  ${ASSIMP_LIBRARIES} ${SRDF_LIBRARIES})
+target_link_libraries(abstract_collision_detection  ${COLLISION_DETECTION_DEP_LIBS})
 
 
 # FCL Wrapper
@@ -45,7 +51,9 @@ if( FCL_FOUND)
                 ${CMAKE_CURRENT_LIST_DIR}/fcl_wrapper/CollisionObjectAssociatedData.cpp
     )
 
-    target_link_libraries(fcl_wrapper ${FCL_LIBRARIES} ${BASE_TYPES_LIBRARIES} abstract_collision_detection)
+    target_link_libraries(fcl_wrapper ${FCL_LIBRARIES} ${COLLISION_DETECTION_DEP_LIBS} abstract_collision_detection)
+    # we add fcl to DEPS_PKGCONFIG
+    list(APPEND PKGCONFIG_REQUIRES fcl)
 else()
     message("NO FCL FOUND")
 
@@ -57,8 +65,16 @@ add_library(collision_detection SHARED
 target_link_libraries(collision_detection  abstract_collision_detection fcl_wrapper)
 
 set(TARGET_NAME ${PROJECT_NAME})
+set(PROJECT_DESCRIPTION "Collection of collision detection libraries")
 #set(PKGCONFIG_CFLAGS "${PKGCONFIG_CFLAGS};${COLLISION_DETECTION_INCLUDES}")
 set(PKGCONFIG_LIBS "${PKGCONFIG_LIBS} -labstract_collision_detection -lfcl_wrapper")
+# now we add all the required libraries in PKGCONFIG_REQUIRES macro
+list(APPEND PKGCONFIG_REQUIRES base-types)
+list(APPEND PKGCONFIG_REQUIRES base-logging)
+list(APPEND PKGCONFIG_REQUIRES srdfdom)
+list(APPEND PKGCONFIG_REQUIRES assimp)
+list(APPEND PKGCONFIG_REQUIRES octomap)
+string (REPLACE ";" " " PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES}")
 
 CONFIGURE_FILE("${PROJECT_NAME}.pc.in" "${PROJECT_NAME}.pc" @ONLY)
 
