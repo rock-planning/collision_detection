@@ -6,7 +6,7 @@ pkg_check_modules(SRDF REQUIRED srdfdom)
 pkg_check_modules(OCTOMAP REQUIRED octomap)
 
 include_directories(${PROJECT_SOURCE_DIR}/include ${BASE_TYPES_INCLUDE_DIRS} )
-link_directories(${PROJECT_SOURCE_DIR}/build/src/ ${OCTOMAP_LIBRARY_DIRS})
+link_directories(${PROJECT_SOURCE_DIR}/build/src/ ${BASE_TYPES_LIBRARY_DIRS} ${OCTOMAP_LIBRARY_DIRS})
 set (EXTERNAL_LIBS octomap ${BASE_TYPES_LIBRARIES} ${CCD_LIBRARIES} ${OCTOMAP_LIBRARIES} ${SRDF_LIBRARIES} fcl  fcl_wrapper collision_detection abstract_collision_detection 
                     ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
