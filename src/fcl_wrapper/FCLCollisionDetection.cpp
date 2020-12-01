@@ -770,6 +770,9 @@ bool FCLCollisionDetection::isCollisionsOccured( double &total_cost)
                 collision_object_names_.insert(collision_object_names_.end(), env_collision_data.collision_info.collision_object_names.begin(),
                                                env_collision_data.collision_info.collision_object_names.end());
 
+                if ( collision_detection_config_.stop_after_first_collision)
+                    return true;
+
                 total_cost += getCollisionCost(env_collision_data, env_collision_distance_information_); // store the distance information 
                 // store the distance information
                 full_collision_distance_information_.insert(full_collision_distance_information_.end(), env_collision_distance_information_.begin(),
@@ -888,8 +891,12 @@ double FCLCollisionDetection::getCollisionCost(CollisionData &collision_data, st
         o1_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(cont.o1->getUserData());
         o2_collision_object_associated_data = static_cast<CollisionObjectAssociatedData*>(cont.o2->getUserData());
 
-        std::string first_object_name  = o1_collision_object_associated_data->getID();
-        std::string second_object_name = o2_collision_object_associated_data->getID();
+        // It seems that the mesh filename cannot be obtained using "o1_collision_object_associated_data->getID()"
+        // So currently the collision obj name is obtained by collisionData
+        //std::string first_object_name  = o1_collision_object_associated_data->getID();
+        //std::string second_object_name = o2_collision_object_associated_data->getID();
+        std::string first_object_name  = collision_data.collision_info.collision_object_names[0].first;
+        std::string second_object_name = collision_data.collision_info.collision_object_names[0].second;
 
         contact_info.object1  = first_object_name;//.substr(0,first_object_name.find_last_of("_"))  ;
         contact_info.object2 = second_object_name;//.substr(0,second_object_name.find_last_of("_"));
@@ -897,8 +904,6 @@ double FCLCollisionDetection::getCollisionCost(CollisionData &collision_data, st
         contacts.at(i) = contact_info;
         collision_cost +=  cont.penetration_depth;
     }
-
-
     return collision_cost;
 }
 
