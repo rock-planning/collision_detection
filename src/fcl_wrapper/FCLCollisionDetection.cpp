@@ -893,13 +893,17 @@ double FCLCollisionDetection::getCollisionCost(CollisionData &collision_data, st
 
         // It seems that the mesh filename cannot be obtained using "o1_collision_object_associated_data->getID()"
         // So currently the collision obj name is obtained by collisionData
-        //std::string first_object_name  = o1_collision_object_associated_data->getID();
-        //std::string second_object_name = o2_collision_object_associated_data->getID();
-        std::string first_object_name  = collision_data.collision_info.collision_object_names[0].first;
-        std::string second_object_name = collision_data.collision_info.collision_object_names[0].second;
-
-        contact_info.object1  = first_object_name;//.substr(0,first_object_name.find_last_of("_"))  ;
-        contact_info.object2 = second_object_name;//.substr(0,second_object_name.find_last_of("_"));
+        try
+        {
+            contact_info.object1  = o1_collision_object_associated_data->getID();
+            contact_info.object2 = o2_collision_object_associated_data->getID();       
+        }
+        catch (std::exception &e)
+        {
+            LOG_WARN("[getCollisionCost]: Cannot able to retrieve the collision object name. This error occurs if the collision objects are MESH files. Currently setting the collision object name to empty string.");
+            contact_info.object1  = "";
+            contact_info.object2 = "";
+        }
 
         contacts.at(i) = contact_info;
         collision_cost +=  cont.penetration_depth;
