@@ -555,11 +555,11 @@ void FCLCollisionDetection::registerCollisionObjectToCollisionManager(const std:
 bool FCLCollisionDetection::removeSelfCollisionObject(const std::string &collision_object_name)
 {
     //find the collision object -
-    CollisionObjectsMap::iterator it=collision_objects_container_.find(collision_object_name+"_0");
+    CollisionObjectsMap::iterator it=collision_objects_container_.find(collision_object_name);
 
     if(it == collision_objects_container_.end())
     {
-        LOG_WARN_S<<"[FCLCollisionDetection]: Trying to remove object name "<<(collision_object_name+"_0").c_str()
+        LOG_WARN_S<<"[FCLCollisionDetection]: Trying to remove object name "<<(collision_object_name).c_str()
         <<". This object name is not available in collision_objects_container_";	
         return false;
     }
