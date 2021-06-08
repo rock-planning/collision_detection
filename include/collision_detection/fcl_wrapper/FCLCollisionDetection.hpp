@@ -76,18 +76,18 @@ class FCLCollisionDetection: public AbstractCollisionDetection
                                                      std::string link_name);
 
         void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name ,
-                                                 const base::Pose &collision_object_pose, const double &link_padding = 1.20 );
+                                                 const base::Pose &collision_object_pose, const double &link_padding = 1.00 );
 
         bool registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
-                        const base::Pose &collision_object_pose, const double &link_padding = 1.20);
+                        const base::Pose &collision_object_pose, const double &link_padding = 1.00);
 
         void registerMeshToCollisionManager(const std::string &link_name, const base::Pose &collision_object_pose, 
                         const std::vector<fcl::Triangle> &triangles, const std::vector<fcl::Vector3d> &vertices);   
 
         void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
-                              const base::Pose &collision_object_pose, const double &link_padding = 1.20);
+                              const base::Pose &collision_object_pose, const double &link_padding = 1.00);
 
-        void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding = 1.20); 
+        void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding = 1.00);
 
         void updateCollisionObjectTransform(std::string link_name, const base::Pose collision_object_pose);
 
