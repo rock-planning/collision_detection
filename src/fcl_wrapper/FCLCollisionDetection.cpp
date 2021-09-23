@@ -260,8 +260,8 @@ bool FCLCollisionDetection::extractTrianglesAndVerticesFromMesh(const std::strin
     
     if(scene == NULL)
     {
-        LOG_INFO_S<<"[extractTrianglesAndVerticesFromMesh]: Assimp cannot read the given file";
-        LOG_INFO_S<<"The error message is "<<assimp_importer.GetErrorString();
+        LOG_ERROR_S<<"[extractTrianglesAndVerticesFromMesh]: Assimp cannot read the given file";
+        LOG_ERROR_S<<"The error message is "<<assimp_importer.GetErrorString();
         return false;
     }
  
