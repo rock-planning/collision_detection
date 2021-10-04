@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <Eigen/Core>
 
 namespace collision_detection
 {
@@ -48,7 +49,7 @@ struct PrimitiveObject
     double height;
 
     // box
-    base::Vector3d dimensions;
+    Eigen::Vector3d dimensions;
 };
 
 struct OctreeDebugConfig
@@ -69,6 +70,20 @@ enum CollisionInfoType
 {
     DISTANCE,           /**< Distance info usng GTK */
     MULTI_CONTACT       /**< Multi contact info */
+};
+
+struct CollisionLinkName
+{
+    CollisionLinkName(const std::string &link_1="", const std::string &link_2=""):
+    link_1(link_1), link_2(link_2){}
+    
+    std::string link_1;
+    std::string link_2;
+};
+
+struct CollisionLinksName
+{
+    std::vector<CollisionLinkName> collision_link_names;
 };
 
 struct CollisionDetectionConfig
