@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <Eigen/Core>
+#include <base/Eigen.hpp>
 
 namespace collision_detection
 {
@@ -49,7 +49,7 @@ struct PrimitiveObject
     double height;
 
     // box
-    Eigen::Vector3d dimensions;
+    base::Vector3d dimensions;
 };
 
 struct OctreeDebugConfig
