@@ -15,13 +15,17 @@ rock_library(abstract_collision_detection
         srdfdom
         eigen3
         assimp
+        ccd
         octomap
 )
 
 # FCL Wrapper
 pkg_check_modules(FCL REQUIRED fcl)
+
 if( FCL_FOUND)
     message(STATUS "FCL VERSION ${FCL_VERSION}")
+    message(STATUS "FCL VERSION ${FCL_INCLUDE_DIRS}")
+    message(STATUS "FCL VERSION ${FCL_LIBRARY_DIRS}")
     include_directories(${FCL_INCLUDE_DIRS} ${COLLISION_DETECTION_INCLUDES} )
     link_directories(${FCL_LIBRARY_DIRS})
     rock_library(fcl_wrapper
@@ -29,6 +33,7 @@ if( FCL_FOUND)
                fcl_wrapper/CollisionObjectAssociatedData.cpp
         DEPS_PKGCONFIG
             fcl
+	    ccd
             base-types
         DEPS
             abstract_collision_detection
@@ -53,6 +58,7 @@ list(APPEND PKGCONFIG_REQUIRES base-types)
 list(APPEND PKGCONFIG_REQUIRES base-logging)
 list(APPEND PKGCONFIG_REQUIRES srdfdom)
 list(APPEND PKGCONFIG_REQUIRES assimp)
+list(APPEND PKGCONFIG_REQUIRES ccd)
 list(APPEND PKGCONFIG_REQUIRES octomap)
 string (REPLACE ";" " " PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES}")
 

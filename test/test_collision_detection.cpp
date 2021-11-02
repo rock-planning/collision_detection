@@ -9,10 +9,10 @@ collision_detection::AbstractCollisionPtr createCollisionManager(collision_detec
 {
     collision_detection::CollisionDetectionConfig coll_config;
     coll_config.collision_library = collision_detection::FCL;
-    coll_config.collision_info_type = collision_detection::MULTI_CONTACT; 
-    coll_config.calculate_distance_information = true;
-    coll_config.stop_after_first_collision = false;
-    coll_config.max_num_collision_contacts = 2;
+    coll_config.collision_info_type = collision_detection::DISTANCE; 
+    coll_config.calculate_distance_information = true;//true;
+    coll_config.stop_after_first_collision = true;//false;
+    coll_config.max_num_collision_contacts = 1;//3;
 
     return collision_factory.getCollisionDetector(coll_config);
 }
@@ -32,6 +32,46 @@ void createCollisionObjects(collision_detection::AbstractCollisionPtr &collision
     
     collision_detector->registerSphereToCollisionManager(radius_1, object_1_name, object_1_pose, 1.0);
     collision_detector->registerSphereToCollisionManager(radius_2, object_2_name, object_2_pose, 1.0);
+}
+
+void createCollisionObjectsBox(collision_detection::AbstractCollisionPtr &collision_detector)
+{
+    // box 1
+    double box_x1 = 0.2;
+    double box_y1 = 0.2;
+    double box_z1 = 0.2;
+    std::string object_1_name = "cylinder1";
+    base::Pose object_1_pose;
+    object_1_pose.position.x() = 0.0;
+    object_1_pose.position.y() =  0.0;
+    object_1_pose.position.z() = 0.0;
+    object_1_pose.orientation.setIdentity();
+
+    // box 2
+    double box_x2 = 0.2;
+    double box_y2 = 0.2;
+    double box_z2 = 0.2;
+    std::string object_2_name = "cylinder2";
+    base::Pose object_2_pose;
+    object_2_pose.position.x() = 10.1;
+    object_2_pose.position.y() =  10.1;
+    object_2_pose.position.z() = 0.1;
+    object_2_pose.orientation.setIdentity();
+    
+    // // sphere 2
+    // double length = 0.20;
+    // double radius = 0.10;
+    // std::string object_2_name = "cylinder_2";
+    // base::Pose object_2_pose;
+    // object_2_pose.position.x() = 0.10;
+    // object_2_pose.position.y() =  0.0;
+    // object_2_pose.position.z() = 0.0;
+    // object_2_pose.orientation.setIdentity();
+    
+    collision_detector->registerBoxToCollisionManager(box_x1, box_y1, box_z1, object_1_name,  object_1_pose, 1.0);
+    collision_detector->registerBoxToCollisionManager(box_x2, box_y2, box_z2, object_2_name,  object_2_pose, 1.0);
+    //collision_detector->registerCylinderToCollisionManager(radius, length, object_2_name, object_2_pose, 1.0);
+    //collision_detector->registerCylinderToCollisionManager(radius, length, object_2_name, object_2_pose, 1.0);
 }
 
 void printDistanceInformation(const collision_detection::AbstractCollisionPtr &collision_detector)
@@ -142,8 +182,44 @@ int main()
     collision_detection::AbstractCollisionPtr world_collision_detector = createCollisionManager(collision_factory);
     // assign the world collision detector to the robot collision detector
     robot_collision_detector->assignWorldDetector(world_collision_detector);
-    // create two robot object and an environment object
-    createCollisionObjects(robot_collision_detector, world_collision_detector);
+    // // create two robot object and an environment object
+    // createCollisionObjects(robot_collision_detector, world_collision_detector);
+    // std::cout<<"\n";
+    // // Print collision object
+    // std::cout<<"---------------- Robot Collision Objects----------------"<<std::endl;
+    // robot_collision_detector->printCollisionObject();
+    // std::cout<<"---------------- World Collision Objects----------------"<<std::endl;
+    // world_collision_detector->printCollisionObject();
+    // std::cout<<"\n";
+    
+    // std::cout<<"CASE 1: Now we check collision for the initial state"<<std::endl;
+    // // Now we check collision for the initial state
+    // checkForCollision(robot_collision_detector);
+    // printDistanceInformation(robot_collision_detector);
+     
+    // std::cout<<"\nCASE 2: Now we check collision after moving the sphere2"<<std::endl;
+    // //Now we move the sphere2 towards sphere1
+    // base::Pose new_pose;
+    // new_pose.position = Eigen::Vector3d(0.05, 0.0, 0.0);
+    // new_pose.orientation.setIdentity();
+    // robot_collision_detector->updateCollisionObjectTransform("sphere2", new_pose);
+    // // Now we check collision for this state
+    // checkForCollision(robot_collision_detector);
+    // printDistanceInformation(robot_collision_detector);
+    
+    // std::cout<<"\nCASE 3: Now we check collision with environment"<<std::endl;
+    // new_pose.position = Eigen::Vector3d(0.0, -2.5, 0.0);
+    // robot_collision_detector->updateCollisionObjectTransform("sphere1", new_pose);
+    // new_pose.position = Eigen::Vector3d(0.0, 2.5, 0.0);
+    // robot_collision_detector->updateCollisionObjectTransform("sphere2", new_pose);
+    // // Now we check collision for this state
+    // checkForCollision(robot_collision_detector);
+    // printDistanceInformation(robot_collision_detector);
+
+
+
+    createCollisionObjectsBox(robot_collision_detector);
+    checkForCollision(robot_collision_detector);
     std::cout<<"\n";
     // Print collision object
     std::cout<<"---------------- Robot Collision Objects----------------"<<std::endl;
@@ -151,31 +227,24 @@ int main()
     std::cout<<"---------------- World Collision Objects----------------"<<std::endl;
     world_collision_detector->printCollisionObject();
     std::cout<<"\n";
-    
-    std::cout<<"CASE 1: Now we check collision for the initial state"<<std::endl;
-    // Now we check collision for the initial state
-    checkForCollision(robot_collision_detector);
-    printDistanceInformation(robot_collision_detector);
-     
-    std::cout<<"\nCASE 2: Now we check collision after moving the sphere2"<<std::endl;
-    //Now we move the sphere2 towards sphere1
-    base::Pose new_pose;
-    new_pose.position = Eigen::Vector3d(0.05, 0.0, 0.0);
-    new_pose.orientation.setIdentity();
-    robot_collision_detector->updateCollisionObjectTransform("sphere2", new_pose);
+
+ 
+    base::Pose object_1_pose;
+    object_1_pose.position.x() = -0.598477;
+    object_1_pose.position.y() =  0.00785362;
+    object_1_pose.position.z() = 0.991159;
+    object_1_pose.orientation = Eigen::Quaterniond::Identity();
+    base::Pose object_2_pose;
+    object_2_pose.position.x() = -0.580182;
+    object_2_pose.position.y() =  0.00555984;
+    object_2_pose.position.z() = 0.96868;
+    object_2_pose.orientation = Eigen::Quaterniond::Identity();
+
+    robot_collision_detector->updateCollisionObjectTransform("cylinder1", object_1_pose);
+    robot_collision_detector->updateCollisionObjectTransform("cylinder2", object_2_pose);
     // Now we check collision for this state
     checkForCollision(robot_collision_detector);
     printDistanceInformation(robot_collision_detector);
-    
-    std::cout<<"\nCASE 3: Now we check collision with environment"<<std::endl;
-    new_pose.position = Eigen::Vector3d(0.0, -2.5, 0.0);
-    robot_collision_detector->updateCollisionObjectTransform("sphere1", new_pose);
-    new_pose.position = Eigen::Vector3d(0.0, 2.5, 0.0);
-    robot_collision_detector->updateCollisionObjectTransform("sphere2", new_pose);
-    // Now we check collision for this state
-    checkForCollision(robot_collision_detector);
-    printDistanceInformation(robot_collision_detector);
-   
     
     return 0;
 }

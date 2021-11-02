@@ -3,7 +3,9 @@ rock_testsuite(test_collision_detection
     DEPS
         collision_detection
     DEPS_PKGCONFIG
+        fcl 
+	ccd
         octomap
-    DEPS_CMAKE
-        CCD
+	#DEPS_CMAKE
+	#CCD
 )

@@ -13,6 +13,7 @@
     <depend package="control/srdfdom" />
     <depend package="slam/octomap" />
     <depend package="assimp" />
+    <depend package="ccd" />
     <name>collision_detection</name>
     <maintainer>Sankar/sankar.natarajan@dfki.de</maintainer>
     <stage>-1</stage>
