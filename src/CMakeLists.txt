@@ -14,9 +14,10 @@ rock_library(abstract_collision_detection
         kdl_parser
         srdfdom
         eigen3
-        assimp
         ccd
         octomap
+    DEPS_CMAKE
+        assimp
 )
 
 # FCL Wrapper
@@ -57,7 +58,6 @@ set(PKGCONFIG_LIBS "${PKGCONFIG_LIBS} -labstract_collision_detection -lfcl_wrapp
 list(APPEND PKGCONFIG_REQUIRES base-types)
 list(APPEND PKGCONFIG_REQUIRES base-logging)
 list(APPEND PKGCONFIG_REQUIRES srdfdom)
-list(APPEND PKGCONFIG_REQUIRES assimp)
 list(APPEND PKGCONFIG_REQUIRES ccd)
 list(APPEND PKGCONFIG_REQUIRES octomap)
 string (REPLACE ";" " " PKGCONFIG_REQUIRES "${PKGCONFIG_REQUIRES}")
