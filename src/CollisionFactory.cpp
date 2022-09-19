@@ -15,8 +15,7 @@ AbstractCollisionPtr CollisionFactory::getCollisionDetector(CollisionDetectionCo
 
 {
 	AbstractCollisionPtr collision_detector = NULL;
-	
-
+	    
 	switch(collision_detection_config.collision_library)
 	{
 	

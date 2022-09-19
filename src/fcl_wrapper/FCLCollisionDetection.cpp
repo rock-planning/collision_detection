@@ -669,7 +669,6 @@ bool FCLCollisionDetection::assignWorldDetector(AbstractCollisionPtr collision_d
 
 void FCLCollisionDetection::calculateCompleteDistanceInfo()
 {
-
     collision_object_names_.clear();
     full_collision_distance_information_.clear();
 
@@ -686,7 +685,17 @@ void FCLCollisionDetection::calculateCompleteDistanceInfo()
     full_collision_distance_information_.insert(full_collision_distance_information_.end(), env_collision_data.list_of_distance_information.begin(),
                                             env_collision_data.list_of_distance_information.end());
 
+}
 
+void FCLCollisionDetection::calculateOnlyEnvironmentDistanceInfo()
+{
+    collision_object_names_.clear();
+    full_collision_distance_information_.clear();    
+
+    // Collision check with the environment
+    DistanceData env_collision_data;
+    broad_phase_collision_manager->distance( world_collision_detector_->getCollisionManager().get(), &env_collision_data, completeDistanceFunction);
+    full_collision_distance_information_ = env_collision_data.list_of_distance_information; // store the distance information
 }
 
 
@@ -919,6 +928,12 @@ std::vector< DistanceInformation>& FCLCollisionDetection::getCollisionDistanceIn
 std::vector< DistanceInformation>& FCLCollisionDetection::getCompleteDistanceInformation()
 {
     calculateCompleteDistanceInfo();
+    return full_collision_distance_information_;
+}
+
+std::vector< DistanceInformation>& FCLCollisionDetection::getOnlyEnvironmentDistanceInformation()
+{
+    calculateOnlyEnvironmentDistanceInfo();
     return full_collision_distance_information_;
 }
 
