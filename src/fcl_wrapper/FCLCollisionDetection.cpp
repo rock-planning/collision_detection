@@ -200,7 +200,7 @@ bool completeDistanceFunction(fcl::CollisionObject<double>* o1, fcl::CollisionOb
              LOG_DEBUG_S<<"[defaultDistanceFunction]: There is collision between " <<first_object_name.c_str() 
             <<" and " <<second_object_name.c_str();
 
-            fcl::CollisionRequest<double> request(100, true);
+            fcl::CollisionRequest<double> request(100, true,1, true, true, fcl::GJKSolverType::GST_LIBCCD, 1e-3);
             fcl::CollisionResult<double> result;
 
             fcl::collide(o1, o2, request, result);
@@ -673,7 +673,7 @@ void FCLCollisionDetection::calculateCompleteDistanceInfo()
     full_collision_distance_information_.clear();
 
     // First check self collision
-    DistanceData self_collision_data;
+    DistanceData self_collision_data = getDistanceData();
     broad_phase_collision_manager->distance(&self_collision_data, completeDistanceFunction);
     full_collision_distance_information_ = self_collision_data.list_of_distance_information; // store the distance information
 
@@ -693,7 +693,7 @@ void FCLCollisionDetection::calculateOnlyEnvironmentDistanceInfo()
     full_collision_distance_information_.clear();    
 
     // Collision check with the environment
-    DistanceData env_collision_data;
+    DistanceData env_collision_data = getDistanceData();
     broad_phase_collision_manager->distance( world_collision_detector_->getCollisionManager().get(), &env_collision_data, completeDistanceFunction);
     full_collision_distance_information_ = env_collision_data.list_of_distance_information; // store the distance information
 }
