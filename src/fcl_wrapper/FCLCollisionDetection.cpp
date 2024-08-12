@@ -377,7 +377,7 @@ void FCLCollisionDetection::registerOctreeToCollisionManager(const std::shared_p
     LOG_DEBUG_S<<"[FCLCollisionDetection]: Registering octomap of size = "<<octomap_ptr_->size();
 
     //1) register octomap tree to fcl
-    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap) );
+    shared_ptr<fcl::OcTree<double>> fcl_OcTree_ptr(new fcl::OcTree<double>(  octomap_ptr_) );
     
     
     CollisionObjectAssociatedData *collision_object_associated_data(new CollisionObjectAssociatedData );
