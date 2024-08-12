@@ -1,12 +1,14 @@
 collision_detection
 =============
+A framework for handling collision detection. This framework contains the following collision library: fcl. The aim of this framework is to offer the user to use different types collision libraries by just changing the configuration.
 
+![colliison](collision.png)
 
-
+The current version uses only [FCL](https://github.com/flexible-collision-library/fcl)
 
 License
 -------
-dummy-license
+BSD 3-Clause
 
 Installation
 ------------
