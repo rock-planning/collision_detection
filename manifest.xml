@@ -16,6 +16,8 @@
     <depend package="ccd" />
     <name>collision_detection</name>
     <maintainer>Sankar/sankar.natarajan@dfki.de</maintainer>
+    <maintainer>Siddhant Kadwe/siddhant.kadwe@dfki.de</maintainer>
+    <maintainer>Vamsi Origanti/vamsi.origanti@dfki.de</maintainer>
     <stage>-1</stage>
     <keywords>
         <keyword>planning</keyword>
