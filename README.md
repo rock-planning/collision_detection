@@ -1,5 +1,10 @@
 collision_detection
 =============
+
+Collision Detection framework was initiated and is currently developed at the
+[Robotics Innovation Center](http://robotik.dfki-bremen.de/en/startpage.html) of the
+[German Research Center for Artificial Intelligence (DFKI)](http://www.dfki.de) in Bremen,
+
 A framework for handling collision detection. This framework contains the following collision library: fcl. The aim of this framework is to offer the user to use different types collision libraries by just changing the configuration.
 
 ![colliison](/images/collision.png)
