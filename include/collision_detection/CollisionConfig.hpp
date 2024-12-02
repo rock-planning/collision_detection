@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <base/Eigen.hpp>
+#include <base-types/Eigen.hpp>
 
 namespace collision_detection
 {

@@ -3,12 +3,12 @@
 
 #include <vector>
 #include <string>
-#include <base/samples/RigidBodyState.hpp>
+#include <base-types/samples/RigidBodyState.hpp>
 #include <srdfdom/model.h>
 #include <octomap/octomap.h>
 
 #include <boost/bind.hpp>
-#include <base-logging/Logging.hpp>
+#include <base-logging/logging/Logging.hpp>
 
 
 /** \file AbstractCollisionDetection.hpp
@@ -109,15 +109,15 @@ class AbstractCollisionDetection
             return true;
         }
 
-        static std::vector<srdf::Model::DisabledCollision> disabled_collisions_;
+        static std::vector<srdf::Model::CollisionPair> disabled_collisions_;
 
-        void setDisabledCollisionPairs(std::vector<srdf::Model::DisabledCollision> &disabled_collisions);
+        void setDisabledCollisionPairs(std::vector<srdf::Model::CollisionPair> &disabled_collisions);
 
-        void addDisabledCollisionPairs(srdf::Model::DisabledCollision &disabled_collision);
+        void addDisabledCollisionPairs(srdf::Model::CollisionPair &disabled_collision);
 
         void removeDisabledCollisionLink(const std::string &link);
 
-        bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
+        bool isLinkListed(srdf::Model::CollisionPair const &remove_link);
 
 //         virtual void computeSelfDistanceInfo() = 0;
 
