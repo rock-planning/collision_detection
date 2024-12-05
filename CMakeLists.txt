@@ -5,11 +5,6 @@ project(collision_detection)
 set(CMAKE_CXX_STANDARD 14)
 set(TARGET_NAME ${PROJECT_NAME})
 
-# Boost configuration
-set(BOOST_ROOT /home/rsc/rsc/projects/libraries/dfki/dependancies/boost_1_82_0)
-set(BOOST_LIBRARYDIR ${BOOST_ROOT}/stage/lib)
-set(BOOST_INCLUDEDIR ${BOOST_ROOT})
-
 # Find required packages
 find_package(Eigen3 REQUIRED)
 find_package(Threads REQUIRED)
@@ -22,14 +17,10 @@ pkg_check_modules(KDL_PARSER REQUIRED kdl_parser)
 pkg_check_modules(URDF REQUIRED urdfdom)
 pkg_check_modules(URDFHEADER REQUIRED urdfdom_headers)
 pkg_check_modules(SRDFDOM REQUIRED srdfdom)
-# pkg_check_modules(CCD REQUIRED ccd)
+pkg_check_modules(CCD REQUIRED ccd)
 pkg_check_modules(OCTOMAP REQUIRED octomap)
 pkg_check_modules(FCL REQUIRED fcl)
 pkg_check_modules(BASE_LOGGING REQUIRED base_logging)
-pkg_check_modules(BULLET REQUIRED bullet)
-
-# # Include Bullet's headers
-# include_directories(${BULLET_INCLUDE_DIRS})
 
 # If FCL is found, configure it
 if(FCL_FOUND)
@@ -61,7 +52,7 @@ set(COLLISION_LIB_INCLUDES
     ${FCL_INCLUDE_DIRS}
     ${BASE_TYPES_INCLUDE_DIRS} 
     ${BASE_LOGGING_INCLUDE_DIRS}
-    ${BULLET_INCLUDE_DIRS}
+    ${CCD_INCLUDE_DIRS}
 )
 
 # Set libraries to link with
@@ -78,7 +69,7 @@ set(COLLISION_DEP_LIBS
     ${FCL_LIBRARIES}
     ${BASE_TYPES_LIBRARY} 
     ${BASE_LOGGING_LIBRARY}
-    ${BULLET_LIBRARIES}
+    ${CCD_LIBRARIES}
 )
 
 target_link_libraries(abstract_collision_detection PUBLIC ${COLLISION_DEP_LIBS}
@@ -115,19 +106,9 @@ target_link_libraries(collision_detection
     fcl_wrapper
 )
 
-# Link to Bullet libraries
-link_directories(${BULLET_LIBRARY_DIRS})
-link_directories(${BOOST_LIBRARYDIR})
-# target_link_libraries(collision_detection ${BULLET_LIBRARIES})
-
-# target_include_directories(collision_detection PUBLIC ${COLLISION_LIB_INCLUDES})
-
 # Set package information
 set(TARGET_NAME ${PROJECT_NAME})
 set(PROJECT_DESCRIPTION "Collection of collision detection libraries")
-
-# # Create the pkg-config .pc file
-# configure_file(${CMAKE_SOURCE_DIR}/collision_detection.pc.in ${CMAKE_BINARY_DIR}/collision_detection.pc @ONLY)
 
 # Package configuration
 list(APPEND PKGCONFIG_REQUIRES kdl_parser urdfdom urdfdom_headers srdfdom octomap fcl base_types base_logging)

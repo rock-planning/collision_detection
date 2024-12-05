@@ -6,7 +6,7 @@ includedir=${prefix}/include/collision_detection
 Name: @TARGET_NAME@
 Description: @PROJECT_DESCRIPTION@
 Version: @PROJECT_VERSION@
-Requires: @PKGCONFIG_REQUIRES@
-Libs: -L${libdir} -l@TARGET_NAME@ @PKGCONFIG_LIBS@
-Cflags: -I${includedir} @PKGCONFIG_CFLAGS@
-
+Requires: kdl_parser urdfdom urdfdom_headers srdfdom ccd octomap fcl
+Requires.private: eigen3 base_types base_logging
+Libs: -L${libdir} -l@TARGET_NAME@ -lboost_system -lboost_filesystem @PKGCONFIG_LIBS@
+Cflags: -I${includedir} @PKGCONFIG_CFLAGS@ -I@BOOST_INCLUDEDIR@ -I@EIGEN3_INCLUDE_DIR@
