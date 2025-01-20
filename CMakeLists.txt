@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(collision_detection)
+project(collision_detection VERSION 1.3)
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 14)
@@ -104,6 +104,7 @@ add_library(collision_detection SHARED
 
 target_link_libraries(collision_detection
     fcl_wrapper
+    abstract_collision_detection
 )
 
 # Set package information
@@ -118,4 +119,6 @@ configure_file("${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.pc.in" "${CMAKE_BINARY_DIR}/
 # Install headers and libraries
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION include)
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
+install(TARGETS abstract_collision_detection DESTINATION lib)
+install(TARGETS fcl_wrapper DESTINATION lib)
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)

@@ -8,5 +8,5 @@ Description: @PROJECT_DESCRIPTION@
 Version: @PROJECT_VERSION@
 Requires: kdl_parser urdfdom urdfdom_headers srdfdom ccd octomap fcl
 Requires.private: eigen3 base_types base_logging
-Libs: -L${libdir} -l@TARGET_NAME@ -lboost_system -lboost_filesystem @PKGCONFIG_LIBS@
+Libs: -L${libdir} -l@TARGET_NAME@ -lfcl_wrapper -labstract_collision_detection -lboost_system -lboost_filesystem -lfcl -lbase_types -lbase_logging
 Cflags: -I${includedir} @PKGCONFIG_CFLAGS@ -I@BOOST_INCLUDEDIR@ -I@EIGEN3_INCLUDE_DIR@
