@@ -9,6 +9,7 @@ set(TARGET_NAME ${PROJECT_NAME})
 find_package(Eigen3 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(assimp REQUIRED)
 
 # Find required packages using pkg-config
 include(FindPkgConfig)
@@ -53,6 +54,7 @@ set(COLLISION_LIB_INCLUDES
     ${BASE_TYPES_INCLUDE_DIRS} 
     ${BASE_LOGGING_INCLUDE_DIRS}
     ${CCD_INCLUDE_DIRS}
+    ${ASSIMP_INCLUDE_DIRS}
 )
 
 # Set libraries to link with
@@ -70,6 +72,7 @@ set(COLLISION_DEP_LIBS
     ${BASE_TYPES_LIBRARY} 
     ${BASE_LOGGING_LIBRARY}
     ${CCD_LIBRARIES}
+    ${ASSIMP_LIBRARIES}
 )
 
 target_link_libraries(abstract_collision_detection PUBLIC ${COLLISION_DEP_LIBS}
@@ -112,7 +115,7 @@ set(TARGET_NAME ${PROJECT_NAME})
 set(PROJECT_DESCRIPTION "Collection of collision detection libraries")
 
 # Package configuration
-list(APPEND PKGCONFIG_REQUIRES kdl_parser urdfdom urdfdom_headers srdfdom octomap fcl base_types base_logging)
+list(APPEND PKGCONFIG_REQUIRES base_logging base_types kdl_parser urdfdom urdfdom_headers srdfdom octomap ccd fcl)
 list(JOIN PKGCONFIG_REQUIRES " " PKGCONFIG_REQUIRES_STR)
 configure_file("${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.pc.in" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc" @ONLY)
 
