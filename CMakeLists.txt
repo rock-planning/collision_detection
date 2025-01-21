@@ -9,6 +9,7 @@ set(TARGET_NAME ${PROJECT_NAME})
 find_package(Eigen3 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(assimp REQUIRED)
 
 # Find required packages using pkg-config
 include(FindPkgConfig)
@@ -44,6 +45,7 @@ add_library(abstract_collision_detection SHARED
 set(COLLISION_LIB_INCLUDES 
     ${CMAKE_SOURCE_DIR}/include
     ${EIGEN3_INCLUDE_DIR}
+    ${ASSIMP_INCLUDE_DIRS}
     ${KDL_PARSER_INCLUDE_DIRS}
     ${URDF_INCLUDE_DIRS} 
     ${URDFHEADER_INCLUDE_DIRS} 
@@ -59,6 +61,7 @@ set(COLLISION_LIB_INCLUDES
 set(COLLISION_DEP_LIBS
     Threads::Threads
     Eigen3::Eigen
+    ${ASSIMP_LIBRARIES}
     ${Boost_SYSTEM_LIBRARY} 
     ${Boost_FILESYSTEM_LIBRARY} 
     ${KDL_PARSER_LIBRARIES} 
@@ -67,8 +70,8 @@ set(COLLISION_DEP_LIBS
     ${SRDFDOM_LIBRARIES} 
     ${OCTOMAP_LIBRARIES} 
     ${FCL_LIBRARIES}
-    ${BASE_TYPES_LIBRARY} 
-    ${BASE_LOGGING_LIBRARY}
+    ${BASE_TYPES_LIBRARIES}
+    ${BASE_LOGGING_LIBRARIES}
     ${CCD_LIBRARIES}
 )
 
