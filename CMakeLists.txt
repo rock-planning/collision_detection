@@ -9,10 +9,10 @@ set(TARGET_NAME ${PROJECT_NAME})
 find_package(Eigen3 REQUIRED)
 find_package(Threads REQUIRED)
 find_package(Boost COMPONENTS system filesystem REQUIRED)
+find_package(assimp REQUIRED)
 
 # Find required packages using pkg-config
 include(FindPkgConfig)
-pkg_check_modules(ASSIMP REQUIRED assimp)
 pkg_check_modules(BASE_TYPES REQUIRED base_types)
 pkg_check_modules(KDL_PARSER REQUIRED kdl_parser)
 pkg_check_modules(URDF REQUIRED urdfdom)
