@@ -116,13 +116,23 @@ list(JOIN PKGCONFIG_REQUIRES " " PKGCONFIG_REQUIRES_STR)
 configure_file("${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.pc.in" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc" @ONLY)
 
 # Install headers and libraries
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION include)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 install(TARGETS abstract_collision_detection DESTINATION lib)
 install(TARGETS fcl_wrapper DESTINATION lib)
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
 
-# Install Test Case
-add_executable(test_collision_detection test/test_collision_detection.cpp)
-target_include_directories(test_collision_detection PRIVATE ${COLLISION_LIB_INCLUDES})
-target_link_libraries(test_collision_detection PRIVATE ${PROJECT_NAME} ${COLLISION_DEP_LIBS})
+# Testing configuration
+option(ENABLE_TESTS "Build tests" OFF)
+if(ENABLE_TESTS)
+    enable_testing()
+
+    add_executable(test_collision_detection test/test_collision_detection.cpp)
+
+    target_include_directories(test_collision_detection PRIVATE ${COLLISION_LIB_INCLUDES})
+    target_link_libraries(test_collision_detection PRIVATE ${PROJECT_NAME} ${COLLISION_DEP_LIBS})
+
+    add_test(NAME CollisionDetectionTest COMMAND test_collision_detection)
+endif()
+
+
