@@ -7,9 +7,10 @@
 #include <srdfdom/model.h>
 #include <octomap/octomap.h>
 
-#include <boost/bind.hpp>
+#include <boost/bind/bind.hpp>
 #include <base-logging/Logging.hpp>
 
+using namespace boost::placeholders;
 
 /** \file AbstractCollisionDetection.hpp
 *   \brief Abstract collision detection header.
