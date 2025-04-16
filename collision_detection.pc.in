@@ -3,10 +3,11 @@ exec_prefix=@CMAKE_INSTALL_PREFIX@
 libdir=${prefix}/lib
 includedir=${prefix}/include/collision_detection
 
-Name: @TARGET_NAME@
+Name: @PROJECT_NAME@
 Description: @PROJECT_DESCRIPTION@
 Version: @PROJECT_VERSION@
-Requires: kdl_parser urdfdom urdfdom_headers srdfdom ccd octomap fcl
-Requires.private: eigen3 base_types base_logging
-Libs: -L${libdir} -l@TARGET_NAME@ -lassimp -lfcl_wrapper -labstract_collision_detection -lboost_system -lboost_filesystem -lfcl -lbase_types -lbase_logging
+Requires: @PKGCONFIG_REQUIRES_STR@
+Requires.private: eigen3
+Libs: -L${libdir} -lcollision_detection -labstract_collision_detection -lfcl_wrapper -lassimp
+Libs.private: @Boost_SYSTEM_LIBRARY@ @Boost_FILESYSTEM_LIBRARY@ -pthread
 Cflags: -I${includedir} @PKGCONFIG_CFLAGS@ -I@BOOST_INCLUDEDIR@ -I@EIGEN3_INCLUDE_DIR@
