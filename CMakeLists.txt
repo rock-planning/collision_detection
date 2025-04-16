@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(collision_detection VERSION 1.3)
+project(collision_detection VERSION 1.3 DESCRIPTION "Collection of collision detection libraries")
 
 # Set the C++ standard
 set(CMAKE_CXX_STANDARD 14)
@@ -42,16 +42,17 @@ add_library(abstract_collision_detection SHARED
 )
 
 # Include directories for dependencies
-set(COLLISION_LIB_INCLUDES 
+set(COLLISION_LIB_INCLUDES
     ${CMAKE_SOURCE_DIR}/include
     ${EIGEN3_INCLUDE_DIR}
+    ${ASSIMP_INCLUDE_DIRS}
     ${KDL_PARSER_INCLUDE_DIRS}
-    ${URDF_INCLUDE_DIRS} 
-    ${URDFHEADER_INCLUDE_DIRS} 
-    ${SRDFDOM_INCLUDE_DIRS} 
-    ${OCTOMAP_INCLUDE_DIRS} 
+    ${URDF_INCLUDE_DIRS}
+    ${URDFHEADER_INCLUDE_DIRS}
+    ${SRDFDOM_INCLUDE_DIRS}
+    ${OCTOMAP_INCLUDE_DIRS}
     ${FCL_INCLUDE_DIRS}
-    ${BASE_TYPES_INCLUDE_DIRS} 
+    ${BASE_TYPES_INCLUDE_DIRS}
     ${BASE_LOGGING_INCLUDE_DIRS}
     ${CCD_INCLUDE_DIRS}
     ${ASSIMP_INCLUDE_DIRS}
@@ -61,16 +62,17 @@ set(COLLISION_LIB_INCLUDES
 set(COLLISION_DEP_LIBS
     Threads::Threads
     Eigen3::Eigen
-    ${Boost_SYSTEM_LIBRARY} 
-    ${Boost_FILESYSTEM_LIBRARY} 
-    ${KDL_PARSER_LIBRARIES} 
-    ${URDF_LIBRARIES} 
+    ${ASSIMP_LIBRARIES}
+    ${Boost_SYSTEM_LIBRARY}
+    ${Boost_FILESYSTEM_LIBRARY}
+    ${KDL_PARSER_LIBRARIES}
+    ${URDF_LIBRARIES}
     ${URDFHEADER_LIBRARIES}
-    ${SRDFDOM_LIBRARIES} 
-    ${OCTOMAP_LIBRARIES} 
+    ${SRDFDOM_LIBRARIES}
+    ${OCTOMAP_LIBRARIES}
     ${FCL_LIBRARIES}
-    ${BASE_TYPES_LIBRARY} 
-    ${BASE_LOGGING_LIBRARY}
+    ${BASE_TYPES_LIBRARIES}
+    ${BASE_LOGGING_LIBRARIES}
     ${CCD_LIBRARIES}
     ${ASSIMP_LIBRARIES}
 )
@@ -88,13 +90,13 @@ if(FCL_FOUND)
         src/fcl_wrapper/CollisionObjectAssociatedData.cpp
     )
 
-    target_link_libraries(fcl_wrapper PUBLIC 
+    target_link_libraries(fcl_wrapper PUBLIC
         abstract_collision_detection
         ${CCD_LIBRARIES}
         ${COLLISION_DEP_LIBS}
     )
 
-    target_include_directories(fcl_wrapper PUBLIC 
+    target_include_directories(fcl_wrapper PUBLIC
         ${CCD_INCLUDE_DIRS}
         ${COLLISION_LIB_INCLUDES}
     )
@@ -110,18 +112,29 @@ target_link_libraries(collision_detection
     abstract_collision_detection
 )
 
-# Set package information
-set(TARGET_NAME ${PROJECT_NAME})
-set(PROJECT_DESCRIPTION "Collection of collision detection libraries")
-
 # Package configuration
 list(APPEND PKGCONFIG_REQUIRES base_logging base_types kdl_parser urdfdom urdfdom_headers srdfdom octomap ccd fcl)
 list(JOIN PKGCONFIG_REQUIRES " " PKGCONFIG_REQUIRES_STR)
 configure_file("${CMAKE_SOURCE_DIR}/${PROJECT_NAME}.pc.in" "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc" @ONLY)
 
 # Install headers and libraries
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/${PROJECT_NAME} DESTINATION include)
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/ DESTINATION include)
 install(TARGETS ${PROJECT_NAME} DESTINATION lib)
 install(TARGETS abstract_collision_detection DESTINATION lib)
 install(TARGETS fcl_wrapper DESTINATION lib)
 install(FILES ${CMAKE_BINARY_DIR}/${PROJECT_NAME}.pc DESTINATION lib/pkgconfig)
+
+# Testing configuration
+option(ENABLE_TESTS "Build tests" OFF)
+if(ENABLE_TESTS)
+    enable_testing()
+
+    add_executable(test_collision_detection test/test_collision_detection.cpp)
+
+    target_include_directories(test_collision_detection PRIVATE ${COLLISION_LIB_INCLUDES})
+    target_link_libraries(test_collision_detection PRIVATE ${PROJECT_NAME} ${COLLISION_DEP_LIBS})
+
+    add_test(NAME CollisionDetectionTest COMMAND test_collision_detection)
+endif()
+
+

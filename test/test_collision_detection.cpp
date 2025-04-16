@@ -1,4 +1,4 @@
-#include <base/samples/RigidBodyState.hpp>
+#include <base-types/samples/RigidBodyState.hpp>
 #include <collision_detection/CollisionFactory.hpp>
 
 using namespace collision_detection;
