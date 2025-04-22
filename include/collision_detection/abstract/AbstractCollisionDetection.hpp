@@ -13,57 +13,57 @@
 using namespace boost::placeholders;
 
 /** \file AbstractCollisionDetection.hpp
-*   \brief Abstract collision detection header.
-*/
+ *   \brief Abstract collision detection header.
+ */
 
 namespace collision_detection
 {
 
-class AbstractCollisionDetection;
+    class AbstractCollisionDetection;
 
-typedef std::shared_ptr<AbstractCollisionDetection> AbstractCollisionPtr;
+    typedef std::shared_ptr<AbstractCollisionDetection> AbstractCollisionPtr;
 
-struct DistanceInformation
-{
-    DistanceInformation(){nearest_points.resize(2);}
-    std::string object1;
-    std::string object2;
-    double min_distance;
-    std::vector< Eigen::Vector3d > nearest_points;
-    Eigen::Vector3d contact_normal;
-};
+    struct DistanceInformation
+    {
+        DistanceInformation() { nearest_points.resize(2); }
+        std::string object1;
+        std::string object2;
+        double min_distance;
+        std::vector<Eigen::Vector3d> nearest_points;
+        Eigen::Vector3d contact_normal;
+    };
 
-/**
- * @class AbstractCollisionDetection
- * @brief Provides an abstract interface for collision detection.
- */
-class AbstractCollisionDetection
-{
+    /**
+     * @class AbstractCollisionDetection
+     * @brief Provides an abstract interface for collision detection.
+     */
+    class AbstractCollisionDetection
+    {
 
     public:
         /**
-        * @brief  constructor
-        */
+         * @brief  constructor
+         */
         AbstractCollisionDetection();
         /**
-        * @brief  destructor
-        */
+         * @brief  destructor
+         */
         virtual ~AbstractCollisionDetection();
 
-        virtual void registerOctreeToCollisionManager(  const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
-                                                        std::string link_name) = 0;
+        virtual void registerOctreeToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose,
+                                                      std::string link_name) = 0;
 
-        virtual void registerOctreeAsBoxesToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose, 
+        virtual void registerOctreeAsBoxesToCollisionManager(const std::shared_ptr<octomap::OcTree> &octomap, const base::Pose &collision_object_pose,
                                                              std::string link_name) = 0;
 
-        virtual bool registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name, 
+        virtual bool registerMeshToCollisionManager(const std::string &abs_path_to_mesh_file, const Eigen::Vector3d &mesh_scale, const std::string &link_name,
                                                     const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
-        virtual void registerBoxToCollisionManager( const double &box_x, const double &box_y, const double &box_z, const std::string &link_name,
-                                                    const base::Pose &collision_object_pose, const double &link_padding ) = 0;
+        virtual void registerBoxToCollisionManager(const double &box_x, const double &box_y, const double &box_z, const std::string &link_name,
+                                                   const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
-        virtual void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name ,
-                                                        const base::Pose &collision_object_pose ,const double &link_padding) = 0;
+        virtual void registerCylinderToCollisionManager(const double &radius, const double &length, const std::string &link_name,
+                                                        const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
         virtual void registerSphereToCollisionManager(const double &radius, const std::string &link_name, const base::Pose &collision_object_pose, const double &link_padding) = 0;
 
@@ -81,30 +81,30 @@ class AbstractCollisionDetection
 
         virtual int numberOfObjectsInCollisionManger() = 0;
 
-//         virtual bool checkSelfCollision(int num_max_contacts=1) = 0;
-// 
-//         virtual bool checkWorldCollision(int num_max_contacts=1) = 0;
+        //         virtual bool checkSelfCollision(int num_max_contacts=1) = 0;
+        //
+        //         virtual bool checkWorldCollision(int num_max_contacts=1) = 0;
 
         virtual bool isCollisionsOccured(double &collision_cost) = 0;
 
         virtual bool assignWorldDetector(AbstractCollisionPtr collision_detector) = 0;
 
         virtual void printCollisionObject() = 0;
-        
+
         virtual void saveOctree() = 0;
 
-        virtual std::vector< std::pair<std::string, std::string> > getCollidedObjectsNames()=0;
+        virtual std::vector<std::pair<std::string, std::string>> getCollidedObjectsNames() = 0;
 
-        static bool linksToBeChecked( const std::string &first_link_name, const std::string &second_link_name )
+        static bool linksToBeChecked(const std::string &first_link_name, const std::string &second_link_name)
         {
-            if(first_link_name == second_link_name  )            
-                return false;            
+            if (first_link_name == second_link_name)
+                return false;
 
-            //for(std::size_t i = 0; i < AbstractCollisionDetection::disabled_collisions_.size(); i++ )
-            for(auto &dc: AbstractCollisionDetection::disabled_collisions_)
+            // for(std::size_t i = 0; i < AbstractCollisionDetection::disabled_collisions_.size(); i++ )
+            for (auto &dc : AbstractCollisionDetection::disabled_collisions_)
             {
-                if( (first_link_name== dc.link1_ &&  second_link_name  == dc.link2_) || 
-                    (second_link_name == dc.link1_ &&  first_link_name == dc.link2_)  )
+                if ((first_link_name == dc.link1_ && second_link_name == dc.link2_) ||
+                    (second_link_name == dc.link1_ && first_link_name == dc.link2_))
                     return false;
             }
             return true;
@@ -120,31 +120,29 @@ class AbstractCollisionDetection
 
         bool isLinkListed(srdf::Model::DisabledCollision const &remove_link);
 
-//         virtual void computeSelfDistanceInfo() = 0;
+        //         virtual void computeSelfDistanceInfo() = 0;
 
-//         virtual void computeClosestObstacleToRobotDistanceInfo() = 0;
+        //         virtual void computeClosestObstacleToRobotDistanceInfo() = 0;
 
-        virtual std::vector< DistanceInformation>& getCollisionDistanceInformation() = 0;
-        
-        virtual std::vector< DistanceInformation>& getCompleteDistanceInformation() = 0;
+        virtual std::vector<DistanceInformation> &getCollisionDistanceInformation() = 0;
 
-        virtual std::vector< DistanceInformation>& getOnlyEnvironmentDistanceInformation() = 0;
+        virtual std::vector<DistanceInformation> &getCompleteDistanceInformation() = 0;
 
-//         virtual std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo() = 0;
+        virtual std::vector<DistanceInformation> &getOnlyEnvironmentDistanceInformation() = 0;
 
-//         virtual std::vector<DistanceInformation> &getSelfContacts() = 0;
-// 
-//         virtual std::vector<DistanceInformation> &getEnvironmentalContacts() = 0;
-        
+        //         virtual std::vector<DistanceInformation> &getClosestObstacleToRobotDistanceInfo() = 0;
+
+        //         virtual std::vector<DistanceInformation> &getSelfContacts() = 0;
+        //
+        //         virtual std::vector<DistanceInformation> &getEnvironmentalContacts() = 0;
+
         virtual std::vector<std::string> getRobotCollisionObjectsNames() = 0;
-        
+
         virtual std::vector<std::string> getWorldCollisionObjectsNames() = 0;
 
         std::string remove_link_;
-};
-
+    };
 
 };
 
 #endif
-

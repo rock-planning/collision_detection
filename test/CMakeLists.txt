@@ -1,11 +1,12 @@
 rock_testsuite(test_collision_detection
     test_collision_detection.cpp
     DEPS
-        collision_detection
+    collision_detection
     DEPS_PKGCONFIG
-        fcl 
-	ccd
-        octomap
-	#DEPS_CMAKE
-	#CCD
+    fcl
+    ccd
+    octomap
+
+    # DEPS_CMAKE
+    # CCD
 )
