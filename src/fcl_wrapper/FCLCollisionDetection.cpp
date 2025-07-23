@@ -265,21 +265,45 @@ namespace collision_detection
 
         for (std::size_t i = 0; i < scene->mNumMeshes; ++i)
         {
-            for (std::size_t j = 0; j < scene->mMeshes[i]->mNumFaces; ++j)
+            const aiMesh *mesh = scene->mMeshes[i];
+            std::size_t vertex_offset = vertices.size();
+
+            // First copy vertices
+            for (std::size_t j = 0; j < mesh->mNumVertices; ++j)
             {
-                triangle.set(scene->mMeshes[i]->mFaces[j].mIndices[0], scene->mMeshes[i]->mFaces[j].mIndices[1], scene->mMeshes[i]->mFaces[j].mIndices[2]);
-                triangles.push_back(triangle);
+                fcl::Vector3d vertex;
+                vertex.x() = mesh->mVertices[j].x * scale_for_mesha_files_x;
+                vertex.y() = mesh->mVertices[j].y * scale_for_mesha_files_y;
+                vertex.z() = mesh->mVertices[j].z * scale_for_mesha_files_z;
+                vertices.push_back(vertex);
             }
 
-            for (std::size_t j = 0; j < scene->mMeshes[i]->mNumVertices; ++j)
+            // Then add triangles (with offset applied!)
+            for (std::size_t j = 0; j < mesh->mNumFaces; ++j)
             {
-                // vetex.setValue(scene->mMeshes[i]->mVertices[j].x* scale_for_mesha_files_x, scene->mMeshes[i]->mVertices[j].y*scale_for_mesha_files_y,
-                // scene->mMeshes[i]->mVertices[j].z*scale_for_mesha_files_z) ;
-                vetex.x() = scene->mMeshes[i]->mVertices[j].x * scale_for_mesha_files_x;
-                vetex.y() = scene->mMeshes[i]->mVertices[j].y * scale_for_mesha_files_y;
-                vetex.z() = scene->mMeshes[i]->mVertices[j].z * scale_for_mesha_files_z;
+                const aiFace &face = mesh->mFaces[j];
+                if (face.mNumIndices != 3)
+                {
+                    std::cerr << "[WARNING] Non-triangle face encountered, skipping." << std::endl;
+                    continue;
+                }
 
-                vertices.push_back(vetex);
+                // Validate that the indices are valid for this mesh
+                if (face.mIndices[0] >= mesh->mNumVertices ||
+                    face.mIndices[1] >= mesh->mNumVertices ||
+                    face.mIndices[2] >= mesh->mNumVertices)
+                {
+                    std::cerr << "abs_path_to_mesh_file " << abs_path_to_mesh_file << std::endl;
+                    std::cerr << "[ERROR] Mesh has triangle with invalid local vertex indices!" << std::endl;
+                    continue;
+                }
+
+                // Now create triangle with proper offset
+                fcl::Triangle triangle;
+                triangle.set(face.mIndices[0] + vertex_offset,
+                             face.mIndices[1] + vertex_offset,
+                             face.mIndices[2] + vertex_offset);
+                triangles.push_back(triangle);
             }
         }
         //    delete scene;
