@@ -66,6 +66,8 @@ CONFIGURE_FILE("${PROJECT_NAME}.pc.custom.in" "${PROJECT_NAME}.pc" @ONLY)
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/collision_detection DESTINATION include)
 
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.pc
+                DESTINATION lib/pkgconfig)
 
 
 
